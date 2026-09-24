@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AI-CT Teacher">
+  <rect width="64" height="64" rx="12" fill="#16223A"/>
+  <text x="32" y="29" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="21" fill="#F3F1EA">AI</text>
+  <rect x="17" y="33" width="30" height="3" rx="1.5" fill="#E2A93B"/>
+  <text x="32" y="55" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="21" fill="#F3F1EA">CT</text>
+</svg>

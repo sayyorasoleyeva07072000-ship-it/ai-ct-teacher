@@ -1,0 +1,6 @@
+# AI-CT TEACHER: all crawlers are welcome to index the whole site.
+User-agent: *
+Allow: /
+
+# [DOMAIN-NOTE] Placeholder address in use. Replace it: see DEPLOYMENT.md or run tools/set-domain.py
+Sitemap: https://YOUR-DOMAIN-HERE/sitemap.xml

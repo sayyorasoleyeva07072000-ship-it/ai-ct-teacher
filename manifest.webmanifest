@@ -1,0 +1,18 @@
+{
+  "name": "AI-CT Teacher – Artificial Intelligence and Critical Thinking for Future English Teachers",
+  "short_name": "AI-CT Teacher",
+  "description": "An educational platform designed to develop the critical-thinking skills of future English teachers through structured interaction with artificial intelligence.",
+  "lang": "en",
+  "start_url": "./app/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F2F4F7",
+  "theme_color": "#16223A",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
