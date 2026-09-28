@@ -76,8 +76,36 @@ const VERDICTS = [
 ];
 const SOURCE_TYPES = ['Peer-reviewed article','Academic book or textbook','Official curriculum or exam document','Professional organisation or teacher guide','Website or blog','Colleague or mentor teacher','Could not find a source'];
 
+/* ---------------------------------------------------------------------
+   TASK LIBRARY CATEGORIES
+   The 8 categories below are the main browsing structure of the Task
+   Library. Every task (existing and new) belongs to exactly one category.
+   The task's original "skill" (Speaking, Grammar, etc.) is still shown as
+   a chip for context, but categories — not skills — are how tasks are
+   organised and found.
+   --------------------------------------------------------------------- */
+const CATEGORIES = [
+  {key:'critical-thinking',icon:'🧠',name:'Critical Thinking',
+   desc:'Analyse causes, weigh evidence and question assumptions in everyday teaching decisions.'},
+  {key:'ai-teaching',icon:'🤖',name:'AI & Teaching',
+   desc:'Decide when and how to bring AI tools into your own classroom, and what to watch for.'},
+  {key:'fact-checking',icon:'🔍',name:'Fact Checking',
+   desc:'Verify claims before you repeat them: statistics, sources and confident-sounding advice.'},
+  {key:'communication',icon:'💬',name:'Communication',
+   desc:'Help learners speak and listen with confidence in real classroom conditions.'},
+  {key:'ethics',icon:'⚖️',name:'Ethics',
+   desc:'Work through fairness, integrity and privacy questions that English teachers actually meet.'},
+  {key:'media-info',icon:'📰',name:'Media & Information',
+   desc:'Spot invented sources, shaky citations and misleading claims in teaching content.'},
+  {key:'methods',icon:'👩‍🏫',name:'Teaching Methods',
+   desc:'Compare methods and approaches, and judge which one fits a real class.'},
+  {key:'problem-solving',icon:'💡',name:'Problem Solving',
+   desc:'Turn a messy classroom problem into a workable plan.'}
+];
+const CAT_BY_KEY = Object.fromEntries(CATEGORIES.map(c=>[c.key,c]));
+
 const TASKS = [
- {id:'t1',num:1,skill:'Speaking',topics:['Motivation','Communicative language teaching'],level:'A2–B1',mins:'40–50 min',
+ {id:'t1',num:1,skill:'Speaking',category:'communication',topics:['Motivation','Communicative language teaching'],level:'A2–B1',mins:'40–50 min',
   title:'The silent classroom',
   blurb:'Students are reluctant to speak English in pair work and whole-class talk.',
   context:'You are on teaching practice in a state secondary school. In a Grade 9 class, most students stay silent during speaking activities. When one student does try, others giggle if there is a mistake. The course book is mostly grammar exercises, and the mentor teacher tells you that "they just do not want to speak". You have to plan the next four lessons.',
@@ -92,7 +120,7 @@ const TASKS = [
       'These steps work in all classrooms, regardless of class size, culture or learner age.'],
   design:['Segment 1 treats one cause (proficiency) as the only cause and ignores anxiety and peer response.','Segment 2 contains an unsourced statistic, and its advice sits uneasily with fluency-focused speaking practice.','Segment 5 promises a strong motivational effect from external rewards without support.','Segment 6 is a universal claim that ignores the context you were given.']},
 
- {id:'t2',num:2,skill:'Grammar',topics:['Communicative language teaching','Error correction'],level:'B1',mins:'40–50 min',
+ {id:'t2',num:2,skill:'Grammar',category:'methods',topics:['Communicative language teaching','Error correction'],level:'B1',mins:'40–50 min',
   title:'Rules known, rules unused',
   blurb:'Students can state grammar rules but cannot use them when speaking.',
   context:'You teach a pre-university English group. Students score well on gap-fill exercises with the present perfect and can recite the rule. In conversation, they almost always use the simple past instead ("I lived here for five years" when they still do). Your programme expects you to prepare students for spoken interaction, not only for written tests.',
@@ -107,7 +135,7 @@ const TASKS = [
       'In each lesson, spend about 20 minutes on explanation and 5 minutes on practice.'],
   design:['Segments 2 and 5 overstate: understanding a rule does not guarantee use, and research does not show that explicit instruction has no effect.','Segments 2 and 5 also pull in different directions, which is worth noticing.','Segment 6 gives an arbitrary time ratio that reverses the practice emphasis of segment 3.','Segment 1 generalises about first languages without knowing the students\' language.']},
 
- {id:'t3',num:3,skill:'Vocabulary',topics:['Error correction','Lesson planning'],level:'B1',mins:'35–45 min',
+ {id:'t3',num:3,skill:'Vocabulary',category:'critical-thinking',topics:['Error correction','Lesson planning'],level:'B1',mins:'35–45 min',
   title:'The same word errors, again',
   blurb:'Students repeatedly confuse make/do and say/tell, and misuse false friends.',
   context:'In the last three writing tasks, students in your class confused "make" and "do", used "say" where "tell" was needed, and repeated several false-friend errors. You have corrected these in red pen each time. The errors keep coming back. Your mentor suggests giving longer word lists and a weekly test.',
@@ -122,7 +150,7 @@ const TASKS = [
       'Encourage students to keep a personal vocabulary notebook with example sentences they write themselves.'],
   design:['Segment 3 attributes motives to students without evidence.','Segment 5 contradicts segment 4 and the notebook idea in segment 6.','Segment 2 is partly well founded (the spacing effect), but the exact intervals are a rule of thumb, which is worth separating out.','Segment 1 repeats the approach that is already not working, without asking why.']},
 
- {id:'t4',num:4,skill:'Writing',topics:['Lesson planning','Differentiation'],level:'B1',mins:'40–50 min',
+ {id:'t4',num:4,skill:'Writing',category:'media-info',topics:['Lesson planning','Differentiation'],level:'B1',mins:'40–50 min',
   title:'A letter that stops after two lines',
   blurb:'You need to design a writing activity that produces connected text and useful feedback.',
   context:'You plan a 45-minute lesson in which students write a letter to a friend about a memorable trip. In earlier tasks, students wrote short, disconnected sentences and rarely reread their work. Students have not done peer feedback before, and some are worried about "being judged" by classmates.',
@@ -137,7 +165,7 @@ const TASKS = [
       'According to the International Writing Instruction Report (2019), 78% of teachers say process writing doubles students\' scores.'],
   design:['Segment 6 cites a source that the demonstration response invented, with a statistic that is easy to repeat and hard to trace.','Segment 2 conflicts with segment 3, and the "no planning" claim is asserted without a reason.','Segment 4 raises a question of grading against learning, and it does not consider students who fear judgment.','Segment 3 is reasonable, but a full process cycle in 45 minutes is not discussed.']},
 
- {id:'t5',num:5,skill:'Assessment',topics:['Speaking'],level:'B1',mins:'40–50 min',
+ {id:'t5',num:5,skill:'Assessment',category:'methods',topics:['Speaking'],level:'B1',mins:'40–50 min',
   title:'Assessing speaking fairly',
   blurb:'You must decide how to assess speaking with limited time and a fairness concern.',
   context:'You are asked to assess speaking at the end of term. You have one afternoon and can give each student about four minutes. A parent has already asked how you can be sure that speaking marks are "not just your opinion". You want an approach that is practical, fair and useful for students.',
@@ -152,7 +180,7 @@ const TASKS = [
       'Assess pronunciation by checking whether learners sound like native speakers.'],
   design:['Segment 1 confuses objectivity with validity: it measures something other than speaking.','Segment 4 is an absolute claim about reliability.','Segment 6 sets an unjustified standard (native-like sound) instead of intelligibility.','Segment 5 is useful but ignores consent and time, which matter in the given context.']},
 
- {id:'t6',num:6,skill:'Mixed-ability classroom',topics:['Reading','Differentiated instruction'],level:'A2–B2',mins:'40–55 min',
+ {id:'t6',num:6,skill:'Mixed-ability classroom',category:'critical-thinking',topics:['Reading','Differentiated instruction'],level:'A2–B2',mins:'40–55 min',
   title:'One text, four levels',
   blurb:'You must teach one reading text to learners from A2 to B2.',
   context:'Your class of 28 includes a few students who barely follow the text and a few who finish everything early and disengage. You have one coursebook text about city life, one hour, and no teaching assistant. You do not want to label students or prepare four separate lessons.',
@@ -167,7 +195,7 @@ const TASKS = [
       'Set up mixed-level peer support pairs, with clear roles for both partners.'],
   design:['Segment 1 proposes permanent tracking with little discussion of its effects on students or your workload.','Segment 3 gives "more of the same" rather than deeper work.','Segment 5 is an unsupported claim.','Segment 4 is plausible, but it needs time you were told you do not have.']},
 
- {id:'t7',num:7,skill:'Classroom management',topics:['Participation','Communicative language teaching'],level:'B1',mins:'35–45 min',
+ {id:'t7',num:7,skill:'Classroom management',category:'problem-solving',topics:['Participation','Communicative language teaching'],level:'B1',mins:'35–45 min',
   title:'Group work turns into chatter',
   blurb:'Group work drifts into first-language side talk, and participation is uneven.',
   context:'When you set group tasks, several groups switch to their first language and off-topic talk within two minutes. Two or three students do most of the work. You have started raising your voice, and it works for about a minute. You want students on task without turning the lesson into a battle.',
@@ -182,7 +210,7 @@ const TASKS = [
       'Classroom management is only about discipline and has nothing to do with the design of the task.'],
   design:['Segment 2 is absolute, and it ignores possible purposeful use of the first language.','Segment 6 is false and conflicts with segments 1 and 5, which are about task design.','Segment 4 recommends the behaviour you already found is short-lived.','Segments 1, 3 and 5 are sensible, but they leave open how to fit them into the time you have.']},
 
- {id:'t8',num:8,skill:'Listening',topics:['Translation dependence','Lesson planning'],level:'B1',mins:'35–45 min',
+ {id:'t8',num:8,skill:'Listening',category:'communication',topics:['Translation dependence','Lesson planning'],level:'B1',mins:'35–45 min',
   title:'Stop, translate, stop listening',
   blurb:'Students demand translation of each unknown word and stop listening.',
   context:'In listening lessons, students stop attending as soon as they meet an unknown word and ask you to translate it. Several say the recording is "too fast". You have only the course-book audio, which plays twice. You want students to keep listening and infer, without making them feel that their first language is forbidden.',
@@ -195,7 +223,52 @@ const TASKS = [
       'Listening comprehension is mainly a matter of vocabulary size, so teaching listening strategies is unnecessary.',
       'Teach students to infer the meaning of unknown words from context, and to keep listening when they miss a word.',
       'Use short dictation of sentences from the recording to draw attention to connected speech and linking.'],
-  design:['Segment 1 is absolute and clashes with your wish to respect the first language.','Segment 4 is an overstated claim that also contradicts segments 3 and 5.','Segments 2, 3, 5 and 6 are plausible but say nothing about how to do them with two plays of the audio.','Nothing in the response addresses "too fast" directly, which is worth noticing.']}
+  design:['Segment 1 is absolute and clashes with your wish to respect the first language.','Segment 4 is an overstated claim that also contradicts segments 3 and 5.','Segments 2, 3, 5 and 6 are plausible but say nothing about how to do them with two plays of the audio.','Nothing in the response addresses "too fast" directly, which is worth noticing.']},
+
+ {id:'t9',num:9,skill:'AI in language learning',category:'ai-teaching',topics:['AI-assisted Learning','Speaking practice'],level:'B1',mins:'35–45 min',
+  title:'Should students practise with an AI conversation partner?',
+  blurb:'Decide whether, and how, to recommend an AI chatbot for extra speaking practice.',
+  context:'Several students in your evening group have started using a free AI chatbot app to practise speaking English at home, and they ask whether you recommend it to the whole class. Some students are excited; one says she feels "less embarrassed talking to a robot". Your school has no budget for a paid classroom tool, and you have not checked what the app does with students\' recordings.',
+  facts:[['Class','19 adult students, mixed levels'],['Setting','Evening course, homework-based practice'],['Budget','No school budget for paid apps'],['Unknown','What the app stores or does with voice data']],
+  keywords:['chatbot','ai app','recording','data','privacy','budget','free','robot','embarrassed','evening','homework'],
+  whatIf:'One student has no smartphone and only a basic shared family computer. How does that change what you recommend to the whole class?',
+  ai:['AI conversation partners are extremely effective and should replace traditional pair-work speaking practice, since students get unlimited patient practice.',
+      'Recommend the app to the whole class as homework, since students who tried it already report feeling more confident.',
+      'Before recommending any app, check its privacy policy and what happens to students\' voice recordings and personal data.',
+      'AI chatbots are good for low-stakes practice and building confidence, but they cannot replace real interaction, such as reading a partner\'s reaction or negotiating meaning.',
+      'Studies confirm that AI conversation partners improve speaking scores by 40% within one month.',
+      'Consider whether every student can access the app equally, including cost, devices and internet access.'],
+  design:['Segment 1 overstates the case and treats replacement of human interaction as automatically good.','Segment 5 gives a precise, confident statistic with no traceable source.','Segment 2 recommends the app to everyone before the privacy question in segment 3 has even been answered.','Segments 3, 4 and 6 are the ones worth building on: privacy, realistic limits and equal access.']},
+
+ {id:'t10',num:10,skill:'Evaluating claims',category:'fact-checking',topics:['Fact Checking','Professional development'],level:'B1–B2',mins:'30–40 min',
+  title:'The viral vocabulary statistic',
+  blurb:'A colleague shares a confident claim from social media. Decide whether to trust it and repeat it.',
+  context:'In a teachers\' group chat, a colleague shares a post: "Research proves students need to meet a word exactly 17 times to learn it — plan your lessons around this number." She wants to redesign the whole vocabulary curriculum around it and asks what you think before she proposes it to the head teacher.',
+  facts:[['Source','A social media post with no citation'],['Claim','A word must be met exactly 17 times to be learned'],['Context','Used to justify a curriculum-wide change'],['Your role','Asked for an opinion before it goes to the head teacher']],
+  keywords:['17 times','viral','social media','curriculum','head teacher','colleague','post','research proves','vocabulary'],
+  whatIf:'The same colleague finds a second post giving a different number, 12 times, from a different account. How does that change how you check the claim?',
+  ai:['The claim is plausible because vocabulary research does discuss repeated exposure as one factor in learning new words.',
+      'The exact number 17 is a very specific figure, and specific numbers like this should be checked against a traceable, citable source before they are used.',
+      'Repetition research generally reports a wide range of estimates rather than one fixed number, and the ideal number likely depends on the word, the learner and the context.',
+      'Since the claim appeared online and sounds confident, it is safe to use it to redesign the curriculum immediately.',
+      'A curriculum change based on one unsourced number is risky; it would be worth checking a methodology textbook or an applied linguistics journal first.',
+      'If no source can be found, the honest response is to say the number is unverified, not to repeat it as settled fact.'],
+  design:['Segment 4 draws the opposite conclusion from segment 2, and is the one to be suspicious of.','Segment 1 is reasonable but could be read as endorsing the specific number rather than just the general idea.','Segments 2, 3, 5 and 6 model exactly the checking habit this task is asking you to practise.','Notice that no segment claims to have found the actual source — that work is still yours to do in Check.']},
+
+ {id:'t11',num:11,skill:'Academic integrity',category:'ethics',topics:['Ethics','Assessment'],level:'B2',mins:'35–45 min',
+  title:'The AI-written essay',
+  blurb:'A student submits homework that reads very differently from their usual writing. Decide how to respond.',
+  context:'A student who usually writes short, simple sentences submits a homework essay with advanced vocabulary and complex structures unlike anything she has written in class. You suspect she used an AI tool to write some or all of it, but you are not certain, and you know detection tools can be wrong. You need to respond in a way that is fair to her and consistent for the rest of the class.',
+  facts:[['Student','Usually writes short, simple sentences in class'],['Evidence','One essay, unusually advanced, no direct proof'],['Policy','No clear school policy on AI use yet'],['Stakes','The essay counts toward her term grade']],
+  keywords:['essay','detector','plagiarism','ai tool','policy','grade','fair','proof','advanced vocabulary','suspect'],
+  whatIf:'The school later adopts an AI-detection tool that flags the essay as "98% likely AI-generated". How much should that change your response, given that such tools can be wrong?',
+  ai:['Run the essay through an AI-detection tool, and treat a high AI score as proof that the student cheated.',
+      'Talk to the student directly and ask her to explain her writing process, rather than opening with an accusation.',
+      'AI-detection tools are known to produce false positives, including for capable students and non-native writers, so a detection score alone should not decide the outcome.',
+      'Redesign future writing assessments to include an in-class writing sample, so unsupported work is not the only evidence used.',
+      'Since this is unfair to other students, give her a zero immediately to protect the class average.',
+      'Consider that unequal access to AI tools outside class could itself be a fairness issue worth discussing with the whole class.'],
+  design:['Segment 1 treats an unreliable detector score as proof, which segment 3 directly contradicts.','Segment 5 jumps to a punitive outcome before any conversation or evidence in segments 2 and 3.','Segments 2, 4 and 6 build a fairer process: talk first, redesign assessment, and think about equity.','No segment mentions your school\'s policy, because the scenario tells you none clearly exists yet — that gap is part of the problem.']}
 ];
 const SKILLS = ['All',...TASKS.map(t=>t.skill)];
 const TASK_BY_ID = Object.fromEntries(TASKS.map(t=>[t.id,t]));
@@ -239,6 +312,164 @@ const SAMPLE = {
     evidence:'Not finding the 90% figure, and the anxiety article, influenced my decision the most.',
     learned:'I learned that a confident answer can include a made-up number, and that checking one claim changes how I read the rest.',
     next:'Next time I will check sources for the claims I plan to act on before I write my alternative, and write a more specific prompt.',confidence:4}
+};
+/* =====================================================================
+   METHOD CHALLENGE — question bank
+   10 English-teaching methods x 3 difficulties (easy / medium / advanced).
+   Each question: a short classroom scenario, 3 options, one correct
+   answer, and a short explanation shown after answering.
+   ===================================================================== */
+const METHODS = [
+  {key:'clt',name:'Communicative Language Teaching'},
+  {key:'tblt',name:'Task-Based Language Teaching'},
+  {key:'pbl',name:'Project-Based Learning'},
+  {key:'prbl',name:'Problem-Based Learning'},
+  {key:'coop',name:'Cooperative Learning'},
+  {key:'gtm',name:'Grammar-Translation Method'},
+  {key:'direct',name:'Direct Method'},
+  {key:'alm',name:'Audio-Lingual Method'},
+  {key:'flipped',name:'Flipped Classroom'},
+  {key:'cbi',name:'Content-Based Instruction'}
+];
+const METHOD_BY_KEY=Object.fromEntries(METHODS.map(m=>[m.key,m]));
+
+const MC_QUESTIONS=[
+ {id:'clt-e',method:'clt',diff:'easy',
+  q:'Students work in pairs. One has a picture, the other does not. They ask questions to find the differences. The teacher does not correct every mistake during the activity.',
+  options:['Communicative Language Teaching','Grammar-Translation Method','Audio-Lingual Method'],correct:0,
+  explain:'CLT focuses on real communication and getting the message across, not perfect grammar during speaking.'},
+ {id:'clt-m',method:'clt',diff:'medium',
+  q:'The teacher gives students a real-life topic, like planning a class trip, and lets them use any English they know to discuss it. Getting the message across matters more than perfect grammar.',
+  options:['Grammar-Translation Method','Communicative Language Teaching','Direct Method'],correct:1,
+  explain:'This is a CLT activity: meaningful communication is the goal, and fluency is valued over perfect accuracy.'},
+ {id:'clt-a',method:'clt',diff:'advanced',
+  q:'In a CLT lesson, the teacher notices a grammar mistake while students are doing a role-play. What does the teacher most likely do?',
+  options:['Stop the activity at once and explain the rule','Note the mistake and address it briefly after the activity ends','Ignore every mistake forever'],correct:1,
+  explain:'In CLT, teachers usually let communication continue and give feedback afterward, so the flow of the conversation is not interrupted.'},
+
+ {id:'tblt-e',method:'tblt',diff:'easy',
+  q:'Students work together to plan a birthday party in English: make a list, agree a budget, and write invitations. Grammar is discussed only after the task is finished.',
+  options:['Task-Based Language Teaching','Grammar-Translation Method','Audio-Lingual Method'],correct:0,
+  explain:'A real task with a clear outcome, followed by language feedback, is the core pattern of Task-Based Language Teaching.'},
+ {id:'tblt-m',method:'tblt',diff:'medium',
+  q:'The lesson has three parts: the teacher introduces the topic; students complete a real task, like booking a hotel room by role-play, using any language they can; then the class reviews useful language that came up.',
+  options:['Direct Method','Task-Based Language Teaching','Content-Based Instruction'],correct:1,
+  explain:'This pre-task, task, and language-focus structure is a classic TBLT lesson shape.'},
+ {id:'tblt-a',method:'tblt',diff:'advanced',
+  q:'How is Task-Based Language Teaching usually different from a typical Communicative Language Teaching activity?',
+  options:['TBLT always avoids group work','TBLT is built around one specific, outcome-focused task, with language form usually addressed afterward','TBLT never allows any communication'],correct:1,
+  explain:'TBLT is organised specifically around completing a task with a clear outcome; explicit language work usually comes after the task, not before it.'},
+
+ {id:'pbl-e',method:'pbl',diff:'easy',
+  q:'Over three weeks, students research a topic, interview people, and create a short documentary video in English to present to the school.',
+  options:['Project-Based Learning','Audio-Lingual Method','Grammar-Translation Method'],correct:0,
+  explain:'An extended activity that produces a real final product, like a video, is the hallmark of Project-Based Learning.'},
+ {id:'pbl-m',method:'pbl',diff:'medium',
+  q:'A class spends two weeks creating an English-language magazine about their city, with articles, interviews and photos, to send to a partner school abroad.',
+  options:['Direct Method','Project-Based Learning','Content-Based Instruction'],correct:1,
+  explain:'A multi-step activity building toward one real, shareable product over an extended time is Project-Based Learning.'},
+ {id:'pbl-a',method:'pbl',diff:'advanced',
+  q:'What most distinguishes Project-Based Learning from a single Problem-Based Learning lesson?',
+  options:['Projects are usually shorter than one class period','Project-Based Learning typically runs over an extended period and ends in a tangible product; a Problem-Based Learning task can be solved within one lesson','There is no real difference between them'],correct:1,
+  explain:'Both involve investigation, but Project-Based Learning is usually longer and ends with a concrete product, while Problem-Based Learning can be a single focused lesson.'},
+
+ {id:'prbl-e',method:'prbl',diff:'easy',
+  q:'Students work in small groups. They discuss a real-life problem and find a solution.',
+  options:['Problem-Based Learning','Grammar-Translation Method','Lecture Method'],correct:0,
+  explain:'Correct! Problem-Based Learning helps students learn through solving meaningful problems.'},
+ {id:'prbl-m',method:'prbl',diff:'medium',
+  q:'The teacher presents a case: "A tourist is lost and cannot speak the local language. What should they do?" Groups investigate and propose solutions in English, picking up vocabulary as they need it.',
+  options:['Problem-Based Learning','Audio-Lingual Method','Direct Method'],correct:0,
+  explain:'Starting from a real problem and learning language along the way, as it is needed, is typical of Problem-Based Learning.'},
+ {id:'prbl-a',method:'prbl',diff:'advanced',
+  q:'In Problem-Based Learning, when is new language or content usually introduced?',
+  options:['Before the problem, in a full lecture','As students need it, while they work to solve the problem','Never — PrBL avoids introducing anything new'],correct:1,
+  explain:'In PrBL, learning happens in response to the problem, not before it in a separate lecture.'},
+
+ {id:'coop-e',method:'coop',diff:'easy',
+  q:'Each student in a group of four has one job: reader, note-taker, reporter, or timekeeper. The group only succeeds if everyone contributes.',
+  options:['Cooperative Learning','Grammar-Translation Method','Direct Method'],correct:0,
+  explain:'Clear individual roles combined with a shared group goal is a key feature of Cooperative Learning.'},
+ {id:'coop-m',method:'coop',diff:'medium',
+  q:'Each group member gets a different piece of information about a story. No one has the whole story, so the group must share what each person knows to answer questions together.',
+  options:['Cooperative Learning','Audio-Lingual Method','Content-Based Instruction'],correct:0,
+  explain:'This is a classic "jigsaw" technique used in Cooperative Learning, where every member\'s contribution is needed for the group to succeed.'},
+ {id:'coop-a',method:'coop',diff:'advanced',
+  q:'What makes an activity "Cooperative Learning" rather than simply "group work"?',
+  options:['Students happen to sit together','Structured roles, a shared goal, and individual accountability within the group','The teacher gives no instructions at all'],correct:1,
+  explain:'Cooperative Learning specifically requires structure: defined roles, positive interdependence, and each member being individually accountable.'},
+
+ {id:'gtm-e',method:'gtm',diff:'easy',
+  q:'Students translate a paragraph from their first language into English, then study a list of grammar rules and complete written exercises. There is little speaking practice.',
+  options:['Grammar-Translation Method','Communicative Language Teaching','Direct Method'],correct:0,
+  explain:'Translation exercises and explicit grammar rules, with little spoken practice, describe the Grammar-Translation Method.'},
+ {id:'gtm-m',method:'gtm',diff:'medium',
+  q:'The teacher writes a grammar rule on the board, explains it in the students\' first language, and asks students to translate sentences to practise it. Pronunciation is not a focus of the lesson.',
+  options:['Grammar-Translation Method','Task-Based Language Teaching','Flipped Classroom'],correct:0,
+  explain:'Explaining rules in the first language and practising through translation is a classic Grammar-Translation lesson.'},
+ {id:'gtm-a',method:'gtm',diff:'advanced',
+  q:'What is a well-known limitation of the Grammar-Translation Method that future teachers should keep in mind?',
+  options:['It builds strong reading and grammar knowledge but gives little practice in speaking or listening','It focuses too heavily on real, spontaneous conversation','It never uses the students\' first language'],correct:0,
+  explain:'Grammar-Translation builds grammar and reading/writing skills well, but on its own gives students little spoken practice.'},
+
+ {id:'direct-e',method:'direct',diff:'easy',
+  q:'The teacher speaks only English in class, uses pictures and gestures instead of translation, and asks students to answer in full English sentences from the first lesson.',
+  options:['Direct Method','Grammar-Translation Method','Content-Based Instruction'],correct:0,
+  explain:'Using only the target language and avoiding translation is the defining feature of the Direct Method.'},
+ {id:'direct-m',method:'direct',diff:'medium',
+  q:'A student asks what a word means. Instead of translating, the teacher draws a picture and mimes an action until the student understands, without using the first language at all.',
+  options:['Direct Method','Audio-Lingual Method','Cooperative Learning'],correct:0,
+  explain:'Demonstration instead of translation, kept entirely in the target language, is central to the Direct Method.'},
+ {id:'direct-a',method:'direct',diff:'advanced',
+  q:'How does the Direct Method usually treat grammar rules?',
+  options:['Rules are explained in detail in the first language before any practice','Grammar is learned inductively, through examples and practice in the target language, with little formal rule explanation','Grammar is never taught at all'],correct:1,
+  explain:'The Direct Method favours learning grammar inductively from examples and use, rather than through explicit rule explanation.'},
+
+ {id:'alm-e',method:'alm',diff:'easy',
+  q:'Students repeat a dialogue many times after the teacher and practise substitution drills, changing one word in a sentence pattern, until it becomes automatic.',
+  options:['Audio-Lingual Method','Problem-Based Learning','Project-Based Learning'],correct:0,
+  explain:'Repetition and pattern drills until a response becomes automatic are the core technique of the Audio-Lingual Method.'},
+ {id:'alm-m',method:'alm',diff:'medium',
+  q:'The teacher plays a recorded dialogue, and the whole class repeats each line in chorus. Mistakes are corrected immediately so an incorrect habit does not form.',
+  options:['Audio-Lingual Method','Content-Based Instruction','Flipped Classroom'],correct:0,
+  explain:'Immediate correction and repeated drilling, to build correct language "habits", is typical of the Audio-Lingual Method.'},
+ {id:'alm-a',method:'alm',diff:'advanced',
+  q:'Which learning theory is the Audio-Lingual Method most closely based on?',
+  options:['Behaviourism: language as habits formed through repetition and reinforcement','Constructivism: learners building their own understanding by solving problems','Humanism: learning driven mainly by emotion and personal choice'],correct:0,
+  explain:'The Audio-Lingual Method grew out of behaviourist psychology, treating language learning as habit formation through drilling.'},
+
+ {id:'flip-e',method:'flipped',diff:'easy',
+  q:'Students watch a short grammar video at home before class. In class, they do practice exercises and ask the teacher questions about anything that was unclear.',
+  options:['Flipped Classroom','Audio-Lingual Method','Grammar-Translation Method'],correct:0,
+  explain:'Moving instruction to before class, and using class time for practice, is the core idea of the Flipped Classroom.'},
+ {id:'flip-m',method:'flipped',diff:'medium',
+  q:'A teacher records a short lecture about reported speech for students to watch as homework. The next day, class time is used entirely for practice activities and individual help, not for the lecture itself.',
+  options:['Flipped Classroom','Direct Method','Cooperative Learning'],correct:0,
+  explain:'Recording the input for homework and freeing class time for practice and support is a Flipped Classroom design.'},
+ {id:'flip-a',method:'flipped',diff:'advanced',
+  q:'What is the main purpose of moving direct instruction outside class time in a Flipped Classroom?',
+  options:['To free up class time for practice, discussion and support with the teacher present','To remove the teacher\'s role from the lesson completely','To reduce the total amount of content students see'],correct:0,
+  explain:'The point of flipping is to use limited class time for the things that benefit most from a teacher being present: practice, questions and feedback.'},
+
+ {id:'cbi-e',method:'cbi',diff:'easy',
+  q:'Students learn English by studying a science topic, such as the water cycle, with all the reading, discussion and vocabulary work done in English.',
+  options:['Content-Based Instruction','Grammar-Translation Method','Audio-Lingual Method'],correct:0,
+  explain:'Teaching language through subject content, like science, is exactly what Content-Based Instruction means.'},
+ {id:'cbi-m',method:'cbi',diff:'medium',
+  q:'An English class is combined with a history topic. Students read history texts in English, discuss the causes of an event, and build academic English vocabulary at the same time.',
+  options:['Content-Based Instruction','Problem-Based Learning','Direct Method'],correct:0,
+  explain:'CBI integrates learning subject content, such as history, with learning the language needed to discuss it.'},
+ {id:'cbi-a',method:'cbi',diff:'advanced',
+  q:'What is a common challenge for teachers using Content-Based Instruction?',
+  options:['Balancing attention between the subject content and the language-learning goals','Avoiding the use of any English at all','Preventing students from learning any new vocabulary'],correct:0,
+  explain:'A recognised challenge of CBI is keeping both the subject content and the language objectives properly supported, rather than one crowding out the other.'}
+];
+const MC_BY_DIFF={easy:MC_QUESTIONS.filter(q=>q.diff==='easy'),medium:MC_QUESTIONS.filter(q=>q.diff==='medium'),advanced:MC_QUESTIONS.filter(q=>q.diff==='advanced')};
+
+/* Badges awarded so far (Method Challenge only, in this build). Kept as a
+   small registry so later phases can add more without changing the shape. */
+const BADGES={
+  'method-master':{icon:'📚',name:'Method Master',desc:'Scored 8 or more out of 10 in a single Method Challenge round.'}
 };
 /* =====================================================================
    UTILITIES
@@ -287,11 +518,13 @@ let storageOk=true, persistT=null, lastSaved=null;
 function loadState(){try{const raw=localStorage.getItem(KEY);if(raw){const s=JSON.parse(raw);if(s&&s.attempts)return s}}catch(e){storageOk=false}return null}
 let S=loadState()||{attempts:{},order:[],notes:{},prefs:{}};
 S.notes=S.notes||{};S.prefs=S.prefs||{};S.order=S.order||[];
+S.xp=S.xp||0;S.badges=S.badges||[];S.competitions=S.competitions||[];
 function persistNow(){clearTimeout(persistT);try{localStorage.setItem(KEY,JSON.stringify(S));storageOk=true}catch(e){storageOk=false}lastSaved=Date.now();updateSaved()}
 function persist(){clearTimeout(persistT);persistT=setTimeout(persistNow,350)}
 function updateSaved(){const el=$('#savedAt');if(el)el.textContent=lastSaved?`Saved ${fmtTime(lastSaved)}`:'Not saved yet';const s=$('#storeState');if(s)s.textContent=storageOk?'Saved in this browser':'Memory only (not persistent)'}
 
-const ui={page:'home',params:{},menu:false,streaming:false,stream:'',aiErr:'',ctl:null,libFilter:'All',histFilter:'All',
+const ui={page:'home',params:{},menu:false,streaming:false,stream:'',aiErr:'',ctl:null,libCategory:null,histFilter:'All',
+  mc:null,tc:{phase:'setup',mode:1,teams:[{name:'You',score:0}],count:10,diff:'easy'},
   tSort:{k:'avg',dir:-1},tTask:'All',tStudent:null,station:1,justCompleted:null,assessId:null,exportText:null};
 
 function blankData(){return{
@@ -464,6 +697,34 @@ async function doExport(kind,id){
   if(window.AICT_STANDALONE){try{const blob=new Blob([(kind==='csv'?'\ufeff':'')+data],{type:kind==='json'?'application/json':'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Export downloaded');return}catch(e){}}
   await modal({title:'Copy your export',html:`<p class="small muted">Downloading is not available in this view. Select the text below and copy it into a file named <b>${esc(filename)}</b>.</p><pre class="export" tabindex="0">${esc(data.slice(0,60000))}${data.length>60000?'\n… (truncated in this preview)':''}</pre>`,actions:[{label:'Close',val:true}]})}
 /* =====================================================================
+   SOUND — short Web Audio beeps only. No audio files, no autoplay music.
+   Sound plays only in direct response to a user action (answering a
+   question, starting a game, ...), and only while the ON/OFF toggle
+   (persisted like the theme preference) is on. Default: on.
+   ===================================================================== */
+const SND={ctx:null};
+const sndEnabled=()=>S.prefs.sound!==false;
+function sndCtx(){
+  if(!SND.ctx){try{SND.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}
+  if(SND.ctx.state==='suspended')SND.ctx.resume().catch(()=>{});
+  return SND.ctx}
+function beep(freq,dur,delay=0,gain=0.07,type='sine'){
+  const ctx=sndCtx();if(!ctx)return;
+  const t0=ctx.currentTime+delay,osc=ctx.createOscillator(),g=ctx.createGain();
+  osc.type=type;osc.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(gain,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  osc.connect(g);g.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur+0.03)}
+function sndPlay(name){
+  if(!sndEnabled())return;
+  switch(name){
+    case 'correct':beep(880,.12);beep(1180,.14,.09);break;
+    case 'wrong':beep(280,.22,0,.06,'triangle');break;
+    case 'start':beep(520,.1);beep(660,.12,.11);beep(880,.18,.22);break;
+    case 'achievement':beep(660,.1);beep(880,.1,.1,.08);beep(1108,.24,.2,.09);break;
+    case 'complete':beep(784,.14);beep(988,.14,.12,.08);beep(1318,.3,.24,.09);break;
+  }}
+function sndToggleBtn(){return `<button class="sound-toggle" data-act="snd-toggle" aria-pressed="${sndEnabled()}">${sndEnabled()?'🔊':'🔈'} Sound ${sndEnabled()?'on':'off'}</button>`}
+/* =====================================================================
    VIEW HELPERS
    ===================================================================== */
 const curAttempt=()=>S.attempts[ui.params.attemptId];
@@ -484,7 +745,7 @@ function empty(title,text,btns=''){return `<div class="empty"><h3>${esc(title)}<
 const AUTHOR_HTML=(cls='')=>`<div class="author ${cls}"><span class="author-l">AUTHOR</span><span class="author-n">Sarvinoz Solexonovna</span></div>`;
 function footerHTML(){return `<footer class="site-foot">${AUTHOR_HTML('sm')}<p class="ft"><b>AI-CT TEACHER</b><br>Artificial Intelligence – Critical Thinking for Future English Teachers. Prototype: records stay in your browser.</p></footer>`}
 /* ---------- shell ---------- */
-const NAV=[['home','Home'],['about','About AI-CT TEACHER'],['dashboard','Student dashboard'],['cycle','AI-CT 7C cycle'],['library','Task library'],['progress','My progress'],['assessment','Assessment'],['history','Reflection history']];
+const NAV=[['home','Home'],['about','About AI-CT TEACHER'],['dashboard','Student dashboard'],['cycle','AI-CT 7C cycle'],['library','Task library'],['methods','🎮 Method Challenge'],['competition','🏆 Team Competition'],['progress','My progress'],['assessment','Assessment'],['history','Reflection history']];
 function renderShell(){
   const page=ui.page==='record'?'progress':ui.page;
   $('#side').innerHTML=`<button class="brand" data-go="home" aria-label="AI-CT TEACHER, go to home">${MARK}<span><span class="brand-t">AI-CT TEACHER</span><span class="brand-s" style="display:block">Artificial Intelligence – Critical Thinking for Future English Teachers</span></span></button>
@@ -561,12 +822,25 @@ function viewDashboard(){
   <hr class="rule"><div class="panel flat"><h3>Prototype tools</h3><p class="muted small">Load a pre-filled sample record to explore Assessment, My progress and Reflection history without writing a full task first. It is labelled SAMPLE everywhere it appears.</p><div class="row"><button class="btn quiet sm" data-act="sample">Load sample record</button><button class="btn danger sm" data-act="reset">Delete all my saved data</button></div></div></div>`}
 
 /* ---------- TASK LIBRARY ---------- */
+const catTasks=key=>TASKS.filter(t=>t.category===key);
+const catProgress=key=>{const ts=catTasks(key),done=ts.filter(t=>attemptsFor(t.id).some(a=>a.status==='completed')).length;return{total:ts.length,done}};
 function viewLibrary(){
-  const list=TASKS.filter(t=>ui.libFilter==='All'||t.skill===ui.libFilter);
-  return `<div class="page"><div class="page-head"><h1>Task library</h1><p>Eight classroom problems, each from a different English-teaching context. Every task runs through the full 7C cycle.</p></div>
-  <div class="filters" role="group" aria-label="Filter by teaching context">${SKILLS.map(s=>`<button data-act="lib-filter" data-v="${esc(s)}" aria-pressed="${ui.libFilter===s}">${esc(s)}</button>`).join('')}</div>
+  if(!ui.libCategory)return viewLibraryCategories();
+  const cat=CAT_BY_KEY[ui.libCategory];
+  if(!cat){ui.libCategory=null;return viewLibraryCategories()}
+  const list=catTasks(cat.key);
+  return `<div class="page"><div class="page-head"><button class="btn quiet sm" data-act="lib-back" style="margin-bottom:14px">← All categories</button>
+  <h1>${cat.icon} ${esc(cat.name)}</h1><p>${esc(cat.desc)}</p></div>
   <div class="tasks">${list.map(t=>{const s=statusOf(t);return `<article class="task"><div class="tn" aria-hidden="true">${t.num}</div><div><h3>Task ${t.num}: ${esc(t.title)}</h3><p>${esc(t.blurb)}</p><div class="meta"><span class="chip p">${esc(t.skill)}</span>${t.topics.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}<span class="chip">${esc(t.level)}</span><span class="chip">${esc(t.mins)}</span>${s.chip}</div></div>
    <div class="acts">${s.ip?`<button class="btn" data-act="continue" data-attempt="${s.ip.id}">Continue</button>`:`<button class="btn" data-act="start-task" data-task="${t.id}">${s.done.length?'Start new attempt':'Start task'}</button>`}${s.done.length?`<button class="btn quiet sm" data-go="record" data-id="${s.done[s.done.length-1].id}">View last record</button>`:''}</div></article>`}).join('')}</div></div>`}
+function viewLibraryCategories(){
+  return `<div class="page"><div class="page-head"><h1>Task library</h1><p>${TASKS.length} classroom tasks, organised into eight categories. Every task runs through the full AI-CT 7C cycle, whichever category it sits in.</p></div>
+  <div class="cat-grid">${CATEGORIES.map(c=>{const p=catProgress(c.key);return `<button class="cat-card" data-act="lib-open" data-cat="${c.key}" aria-label="${esc(c.name)}: ${p.total} task${p.total===1?'':'s'}, ${p.done} completed">
+    <span class="cat-icon" aria-hidden="true">${c.icon}</span>
+    <span class="cat-name">${esc(c.name)}</span>
+    <span class="cat-desc">${esc(c.desc)}</span>
+    <span class="cat-meta"><span class="cat-count">${p.total} task${p.total===1?'':'s'}</span>${p.done?`<span class="cat-done">${p.done} completed</span>`:''}</span>
+  </button>`}).join('')}</div></div>`}
 
 /* ---------- 7C CYCLE ---------- */
 function viewCycle(){
@@ -802,20 +1076,202 @@ function viewTeacher(){
   <div class="tablewrap"><table><thead><tr>${th('id','Student')}${th('n','Records')}${th('avg','Average')}${COMP.map((c,i)=>th('c'+i,c.short)).join('')}${th('low','Development area')}</tr></thead><tbody>${sorted.map(r=>`<tr class="click" tabindex="0" data-act="teacher-student" data-id="${r.id}" ${ui.tStudent===r.id?'style="background:var(--primary-soft)"':''}><td><b>${r.id}</b></td><td class="num">${r.n}</td><td class="num">${Math.round(r.avg)}%</td>${r.cm.map(v=>`<td class="num">${v.toFixed(1)}</td>`).join('')}<td>${esc(r.low)}</td></tr>`).join('')||'<tr><td colspan="10">No students have records for this task.</td></tr>'}</tbody></table></div>
   ${sel?`<div class="panel" style="margin-top:22px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Student ${sel.id} <span class="chip demo">DEMO DATA</span></h3><button class="btn quiet sm" data-act="teacher-student" data-id="">Close</button></div><div class="grid2"><div>${radarSVG(sel.cm,COMP.map(c=>c.short),260)}</div><div>${lineSVG(sel.at.map((a,i)=>({label:'#'+(i+1),v:sPct(a.scores)})),480,220,'records')}<p class="small muted">Records in order. Average ${Math.round(sel.avg)}%. Lowest component: ${esc(sel.low)}.</p></div></div></div>`:''}</div>`}
 /* =====================================================================
+   METHOD CHALLENGE — a short quiz that helps future English teachers
+   recognise teaching methods from simple classroom situations.
+   This is a learning game, separate from the 7C task pedagogy; it does
+   not use AI and awards XP, not rubric scores.
+   ===================================================================== */
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function addXP(n){S.xp=(S.xp||0)+n;persist();return S.xp}
+function awardBadge(key){S.badges=S.badges||[];if(S.badges.includes(key))return false;S.badges.push(key);persistNow();return true}
+function hasBadge(key){return (S.badges||[]).includes(key)}
+
+function mcNewRound(diff){
+  const pool=diff==='mixed'?MC_QUESTIONS:MC_BY_DIFF[diff];
+  const order=shuffle(pool).slice(0,10).map(q=>q.id);
+  ui.mc={phase:'play',diff,order,idx:0,picked:null,correct:0,justEarned:0,newBadge:null}}
+
+function viewMethods(){
+  if(!ui.mc||ui.mc.phase==='setup')return mcSetupHTML();
+  if(ui.mc.phase==='play')return mcPlayHTML();
+  return mcDoneHTML()}
+
+function mcSetupHTML(){
+  return `<div class="page"><div class="game-head"><div><h1>🎮 Method Challenge</h1><p class="muted" style="margin:0">Read a short classroom situation. Choose the teaching method it shows. Get instant feedback and XP.</p></div>
+   <div class="row" style="gap:10px">${xpPillHTML()}${sndToggleBtn()}</div></div>
+  <div class="mc-setup">
+   <div class="notice"><p>Each round has 10 quick questions with 3 options. This is a learning game to help you recognise methods — it is separate from the AI-CT 7C cycle and does not use AI.</p></div>
+   <div>
+    <h3 style="margin-bottom:8px">Choose a difficulty</h3>
+    <div class="tc-choice" role="group" aria-label="Difficulty">
+     <button data-act="mc-start" data-diff="easy">🟢 Easy</button>
+     <button data-act="mc-start" data-diff="medium">🟡 Medium</button>
+     <button data-act="mc-start" data-diff="advanced">🔴 Advanced</button>
+     <button data-act="mc-start" data-diff="mixed">🔀 Mixed</button>
+    </div>
+   </div>
+   <div>
+    <h3 style="margin-bottom:8px">10 methods in this challenge</h3>
+    <div class="mc-methods">${METHODS.map(m=>`<span>${esc(m.name)}</span>`).join('')}</div>
+   </div>
+   ${hasBadge('method-master')?`<div class="badge-row">${badgeHTML('method-master')}</div>`:''}
+  </div></div>`}
+
+function mcPlayHTML(){
+  const g=ui.mc,qid=g.order[g.idx],q=MC_QUESTIONS.find(x=>x.id===qid),answered=g.picked!=null;
+  const letters=['A','B','C'];
+  return `<div class="page"><div class="game-head"><h1>🎮 Method Challenge</h1><div class="row" style="gap:10px">${xpPillHTML()}${sndToggleBtn()}</div></div>
+  <div class="mc-card">
+   <p class="mc-progress">Question ${g.idx+1} of ${g.order.length} · ${g.correct} correct so far</p>
+   <div class="bar" style="margin-bottom:18px"><i style="width:${Math.round(g.idx/g.order.length*100)}%"></i></div>
+   <p class="mc-scenario">${esc(q.q)}</p>
+   <div class="mc-opts" role="radiogroup" aria-label="Choose the method">
+    ${q.options.map((o,i)=>{let cls='';if(answered){if(i===q.correct)cls='correct';else if(i===g.picked)cls='wrong'}
+      return `<button class="mc-opt ${cls}" data-act="mc-answer" data-i="${i}" ${answered?'disabled':''} aria-pressed="${g.picked===i}"><b>${letters[i]}</b><span>${esc(o)}</span></button>`}).join('')}
+   </div>
+   ${answered?`<div class="mc-explain ${g.picked===q.correct?'g':'b'}"><b>${g.picked===q.correct?'Correct! +10 XP':'Not quite.'}</b>${esc(q.explain)}</div>
+   <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="mc-next">${g.idx+1<g.order.length?'Next question':'See results'}</button></div>`:''}
+  </div></div>`}
+
+function mcDoneHTML(){
+  const g=ui.mc,pct=Math.round(g.correct/g.order.length*100);
+  return `<div class="page"><div class="mc-card mc-done" style="margin:0 auto">
+   <div style="font-size:2.6rem" aria-hidden="true">🎉</div>
+   <h2>Round complete!</h2>
+   <p class="big">${g.correct} / ${g.order.length}</p>
+   <p class="muted">${pct}% correct · +${g.justEarned} XP this round · ${S.xp||0} XP total</p>
+   ${g.newBadge?`<div class="badge-row" style="justify-content:center">${badgeHTML(g.newBadge,true)}</div>`:''}
+   <p class="muted small">${pct>=80?'Great work — you recognised most methods correctly.':pct>=50?'Good effort — a solid start on recognising these methods.':'Keep practising — recognising methods gets easier with repetition.'}</p>
+   <div class="row" style="justify-content:center;margin-top:18px"><button class="btn" data-act="mc-restart">Play again</button><button class="btn quiet" data-go="home">Back to home</button></div>
+  </div></div>`}
+
+function xpPillHTML(){return `<span class="xp-pill" id="xpPill">⭐ ${S.xp||0} XP</span>`}
+function badgeHTML(key,anim){const b=BADGES[key];if(!b)return'';return `<span class="badge ${anim?'new':''}">${b.icon} ${esc(b.name)}</span>`}
+/* =====================================================================
+   TEAM COMPETITION — a simple classroom quiz game for one shared screen.
+   The teacher runs it: pick teams, question count and difficulty, then
+   for each round the teacher clicks the answer each team calls out and
+   reveals the result. Reuses the Method Challenge question bank so the
+   two features share one source of truth instead of duplicating content.
+   ===================================================================== */
+const TC_COLORS=['var(--primary)','var(--ai)','var(--warn)','var(--good)'];
+const TC_SECONDS=20;
+
+function tcSetMode(n){
+  const g=ui.tc,old=g.teams;
+  g.mode=n;
+  if(n===1){g.teams=[{name:'You',score:0}]}
+  else{g.teams=Array.from({length:n},(_,i)=>({name:(old[i]&&old[i].name&&old[i].name!=='You')?old[i].name:`Team ${String.fromCharCode(65+i)}`,score:0}))}}
+
+/* Each difficulty has exactly 10 questions (one per method). If more are
+   requested (15), extra questions are added from the other difficulties
+   so the round can still run — this is noted in the setup screen. */
+function tcBuildOrder(diff,count){
+  const primary=MC_BY_DIFF[diff]||[],rest=MC_QUESTIONS.filter(q=>q.diff!==diff);
+  const pool=primary.length>=count?primary:primary.concat(shuffle(rest));
+  return shuffle(pool).slice(0,Math.min(count,MC_QUESTIONS.length)).map(q=>q.id)}
+
+function tcClearTimer(){if(ui.tc.timerId){clearInterval(ui.tc.timerId);ui.tc.timerId=null}}
+function tcStartTimer(){
+  tcClearTimer();ui.tc.timeLeft=TC_SECONDS;
+  ui.tc.timerId=setInterval(()=>{
+    ui.tc.timeLeft--;
+    const el=$('#tcTimer');
+    if(el){el.textContent='⏱ '+ui.tc.timeLeft+'s';el.classList.toggle('low',ui.tc.timeLeft<=5)}
+    if(ui.tc.timeLeft<=0){tcClearTimer();if(!ui.tc.revealed){tcReveal();render()}}
+  },1000)}
+
+function tcStart(){
+  const g=ui.tc;
+  g.teams.forEach(t=>t.score=0);
+  g.order=tcBuildOrder(g.diff,g.count);g.idx=0;g.picks={};g.revealed=false;g.justScored=[];g.phase='play';
+  tcStartTimer()}
+
+function tcReveal(){
+  const g=ui.tc;if(g.revealed)return;tcClearTimer();g.revealed=true;
+  const q=MC_QUESTIONS.find(x=>x.id===g.order[g.idx]);g.justScored=[];
+  g.teams.forEach((t,i)=>{if(g.picks[i]===q.correct){t.score+=10;g.justScored.push(i)}});
+  sndPlay(g.justScored.length?'correct':'wrong')}
+
+function tcNextRound(){
+  const g=ui.tc;g.justScored=[];
+  if(g.idx+1<g.order.length){g.idx++;g.picks={};g.revealed=false;tcStartTimer()}
+  else{tcClearTimer();g.phase='done';
+    S.competitions.push({ts:Date.now(),mode:g.mode,questionCount:g.order.length,difficulty:g.diff,results:g.teams.map(t=>({name:t.name,score:t.score}))});
+    persistNow();sndPlay('complete')}}
+
+function viewCompetition(){
+  const g=ui.tc;
+  if(g.phase==='play')return tcPlayHTML();
+  if(g.phase==='done')return tcDoneHTML();
+  return tcSetupHTML()}
+
+function tcSetupHTML(){
+  const g=ui.tc;
+  return `<div class="page"><div class="game-head"><div><h1>🏆 Team Competition</h1><p class="muted" style="margin:0">A simple classroom quiz. One screen, the teacher clicks the answers each team calls out.</p></div>${sndToggleBtn()}</div>
+  <div class="tc-setup">
+   <div><h3 style="margin-bottom:8px">Who is playing?</h3>
+    <div class="tc-choice" role="group" aria-label="Number of teams">
+     <button data-act="tc-mode" data-n="1" aria-pressed="${g.mode===1}">👤 Solo</button>
+     <button data-act="tc-mode" data-n="2" aria-pressed="${g.mode===2}">👥 2 Teams</button>
+     <button data-act="tc-mode" data-n="3" aria-pressed="${g.mode===3}">👥 3 Teams</button>
+     <button data-act="tc-mode" data-n="4" aria-pressed="${g.mode===4}">👥 4 Teams</button>
+    </div></div>
+   ${g.mode>1?`<div><h3 style="margin-bottom:8px">Team names</h3><div class="tc-teams">${g.teams.map((t,i)=>`<label><span class="tc-swatch" style="background:${TC_COLORS[i]}"></span><input type="text" value="${esc(t.name)}" data-team="${i}" maxlength="24" aria-label="Name for team ${i+1}"></label>`).join('')}</div></div>`:''}
+   <div><h3 style="margin-bottom:8px">Number of questions</h3>
+    <div class="tc-choice" role="group" aria-label="Number of questions">${[5,10,15].map(n=>`<button data-act="tc-count" data-n="${n}" aria-pressed="${g.count===n}">${n}</button>`).join('')}</div>
+    ${g.count>10?'<p class="tiny dim" style="margin-top:6px">There are 10 questions per difficulty, so a few extra ones from nearby difficulties will be added to reach 15.</p>':''}</div>
+   <div><h3 style="margin-bottom:8px">Difficulty</h3>
+    <div class="tc-choice" role="group" aria-label="Difficulty">
+     <button data-act="tc-diff" data-diff="easy" aria-pressed="${g.diff==='easy'}">🟢 Easy</button>
+     <button data-act="tc-diff" data-diff="medium" aria-pressed="${g.diff==='medium'}">🟡 Medium</button>
+     <button data-act="tc-diff" data-diff="advanced" aria-pressed="${g.diff==='advanced'}">🔴 Advanced</button>
+    </div></div>
+   <div><button class="btn" data-act="tc-start" style="min-height:52px;padding:0 28px;font-size:1.05rem">Start Competition</button></div>
+  </div></div>`}
+
+function tcPlayHTML(){
+  const g=ui.tc,qid=g.order[g.idx],q=MC_QUESTIONS.find(x=>x.id===qid),letters=['A','B','C'];
+  return `<div class="page"><div class="game-head"><h1>🏆 Team Competition</h1>${sndToggleBtn()}</div>
+  <div class="tc-round"><b>ROUND ${g.idx+1} / ${g.order.length}</b><span class="tc-timer ${g.timeLeft<=5?'low':''}" id="tcTimer">⏱ ${g.timeLeft}s</span></div>
+  <div class="tc-board">${g.teams.map((t,i)=>`<div class="tc-team" style="--tc:${TC_COLORS[i%4]}"><div class="nm">${esc(t.name)}</div><div class="sc ${g.justScored&&g.justScored.includes(i)?'bump':''}">⭐ ${t.score}</div></div>`).join('')}</div>
+  <div class="mc-card">
+   <p class="mc-scenario">${esc(q.q)}</p>
+   <div class="tc-options" role="list" aria-label="Answer options">${q.options.map((o,oi)=>`<div class="tc-option ${g.revealed&&oi===q.correct?'correct':''}"><b>${letters[oi]}</b><span>${esc(o)}</span></div>`).join('')}</div>
+   <p class="tc-picks-label">Which answer did each team choose?</p>
+   <div class="tc-picks">${g.teams.map((t,i)=>`<div class="tc-pick-row"><span class="tn" style="color:${TC_COLORS[i%4]}">${esc(t.name)}</span><span class="opts">${q.options.map((o,oi)=>{let cls='';if(g.revealed){if(oi===q.correct)cls='correct';else if(g.picks[i]===oi)cls='wrong'}
+      return `<button class="${cls}" data-act="tc-pick" data-t="${i}" data-o="${oi}" aria-pressed="${g.picks[i]===oi}" ${g.revealed?'disabled':''} aria-label="${esc(t.name)}: option ${letters[oi]}, ${esc(o)}">${letters[oi]}</button>`}).join('')}</span></div>`).join('')}</div>
+   ${!g.revealed?`<div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="tc-reveal">Reveal answer</button></div>`
+    :`<div class="mc-explain g"><b>Correct answer: ${letters[q.correct]}</b>${esc(q.explain)}</div>
+      <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="tc-next">${g.idx+1<g.order.length?'Next round':'See final results'}</button></div>`}
+  </div></div>`}
+
+function tcDoneHTML(){
+  const g=ui.tc,ranked=g.teams.slice().sort((a,b)=>b.score-a.score);
+  return `<div class="page"><div class="mc-card tc-final" style="max-width:520px;margin:0 auto">
+   <div style="font-size:2.6rem" aria-hidden="true">🏆</div>
+   <h2>Competition Complete!</h2>
+   <div class="tc-podium">${ranked.map((t,i)=>`<div class="${i===0&&ranked.length>1?'first':''}">${i===0&&ranked.length>1?'🏆 ':''}${esc(t.name)}<span>⭐ ${t.score}</span></div>`).join('')}</div>
+   <p class="muted">Great effort! Every challenge helps you learn — keep thinking and keep practising.</p>
+   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" data-act="tc-restart">Play again</button><button class="btn quiet" data-go="home">Back to home</button></div>
+  </div></div>`}
+/* =====================================================================
    APP CONTROLLER
    ===================================================================== */
-const VIEWS={home:viewHome,about:viewAbout,dashboard:viewDashboard,cycle:viewCycle,library:viewLibrary,progress:viewProgress,assessment:viewAssessment,history:viewHistory,record:viewRecord,teacher:viewTeacher};
+const VIEWS={home:viewHome,about:viewAbout,dashboard:viewDashboard,cycle:viewCycle,library:viewLibrary,methods:viewMethods,competition:viewCompetition,progress:viewProgress,assessment:viewAssessment,history:viewHistory,record:viewRecord,teacher:viewTeacher};
 function render(keep){
   const y=window.scrollY;renderShell();
   try{$('#main').innerHTML=VIEWS[ui.page]()+footerHTML()}catch(e){console.error(e);$('#main').innerHTML=`<div class="page"><div class="notice b"><p>Something went wrong showing this page. Go back to the home page and try again.</p></div></div>`}
   afterRender();window.scrollTo(0,keep?y:0)}
 function afterRender(){const tr=$('#trace');if(tr&&window.innerWidth>=1420)tr.open=true;updateLive();updateSaved()}
-const HASH_PAGES=['home','about','dashboard','cycle','library','progress','assessment','history','teacher'];
-const PAGE_TITLES={home:'AI-CT Teacher App',about:'About AI-CT Teacher',dashboard:'Student Dashboard',cycle:'AI-CT 7C Cycle',library:'Task Library',progress:'My Progress',assessment:'Assessment',history:'Reflection History',teacher:'Teacher Dashboard (Demo Data)',record:'Task Record'};
+const HASH_PAGES=['home','about','dashboard','cycle','library','methods','competition','progress','assessment','history','teacher'];
+const PAGE_TITLES={home:'AI-CT Teacher App',about:'About AI-CT Teacher',dashboard:'Student Dashboard',cycle:'AI-CT 7C Cycle',library:'Task Library',methods:'Method Challenge',competition:'Team Competition',progress:'My Progress',assessment:'Assessment',history:'Reflection History',teacher:'Teacher Dashboard (Demo Data)',record:'Task Record'};
 const pageFromHash=()=>{const h=(location.hash||'').replace('#','');return HASH_PAGES.includes(h)?h:null};
 function syncUrl(page){if(!window.AICT_STANDALONE)return;try{document.title=(PAGE_TITLES[page]||'AI-CT Teacher App')+' | AI-CT Teacher';if(HASH_PAGES.includes(page)&&location.hash!=='#'+page)history.pushState(null,'','#'+page)}catch(e){}}
 function go(page,params={}){
+  if(ui.page==='competition'&&page!=='competition')tcClearTimer();
   ui.page=page;ui.params=params||{};ui.menu=false;syncUrl(page);
+  if(page==='library')ui.libCategory=null;
   if(page==='assessment'&&params&&params.id)ui.assessId=params.id;
   if(page!=='assessment')ui.justCompleted=ui.justCompleted&&page==='record'?ui.justCompleted:null;
   render();const m=$('#main');m&&m.focus({preventScroll:true})}
@@ -868,7 +1324,23 @@ document.addEventListener('click',async e=>{
    case 'station':ui.station=+el.dataset.n;render(true);break;
    case 'start-task':{const t=el.dataset.task;openAttempt(inProgressFor(t)||newAttempt(t));break}
    case 'continue':{const x=S.attempts[el.dataset.attempt];if(x)openAttempt(x);break}
-   case 'lib-filter':ui.libFilter=el.dataset.v;render(true);break;
+   case 'lib-open':ui.libCategory=el.dataset.cat;render();break;
+   case 'lib-back':ui.libCategory=null;render();break;
+   case 'snd-toggle':S.prefs.sound=!sndEnabled();persist();if(sndEnabled())sndPlay('start');render(true);break;
+   case 'mc-start':mcNewRound(el.dataset.diff);sndPlay('start');render();break;
+   case 'mc-answer':{const g=ui.mc;if(!g||g.picked!=null)break;const i=+el.dataset.i,q=MC_QUESTIONS.find(x=>x.id===g.order[g.idx]);g.picked=i;
+     if(i===q.correct){g.correct++;g.justEarned+=10;addXP(10);sndPlay('correct')}else sndPlay('wrong');render();break}
+   case 'mc-next':{const g=ui.mc;if(!g)break;if(g.idx+1<g.order.length){g.idx++;g.picked=null;render()}
+     else{g.phase='done';if(g.correct>=8&&awardBadge('method-master')){g.newBadge='method-master';sndPlay('achievement')}else sndPlay('complete');render()}break}
+   case 'mc-restart':ui.mc={phase:'setup'};render();break;
+   case 'tc-mode':tcSetMode(+el.dataset.n);render();break;
+   case 'tc-count':ui.tc.count=+el.dataset.n;render(true);break;
+   case 'tc-diff':ui.tc.diff=el.dataset.diff;render(true);break;
+   case 'tc-start':tcStart();sndPlay('start');render();break;
+   case 'tc-pick':{const ti=+el.dataset.t,oi=+el.dataset.o;const g=ui.tc;if(g.revealed)break;g.picks[ti]=oi;render(true);break}
+   case 'tc-reveal':tcReveal();render();break;
+   case 'tc-next':tcNextRound();render();break;
+   case 'tc-restart':ui.tc={phase:'setup',mode:1,teams:[{name:'You',score:0}],count:10,diff:'easy'};render();break;
    case 'stage':{if(!at)break;const n=+el.dataset.stage;if(n===at.stage)break;if(canEnter(at,n)){at.stage=n;enterStage(at);persistNow();render()}else toast('Complete the earlier stages first. Stages must be done in order.');break}
    case 'next':{if(!at)break;if(!stageOk(at,at.stage)){toast('Complete the checklist to continue');const d=$('.reqs');if(d)d.open=true;break}at.stage++;at.maxStage=Math.max(at.maxStage,at.stage);enterStage(at);persistNow();render();break}
    case 'back':if(at&&at.stage>1){at.stage--;persistNow();render()}break;
@@ -896,6 +1368,7 @@ function onField(e){
   const t=e.target;
   if(t.dataset&&t.dataset.b){const at=curAttempt();if(!at||ui.page!=='cycle')return;setPath(at.d,t.dataset.b,t.value);touch(at);updateLive();return}
   if(t.dataset&&t.dataset.note!==undefined&&t.dataset.note!==''){S.notes[t.dataset.note]=t.value;persist();return}
+  if(t.dataset&&t.dataset.team!==undefined){const g=ui.tc;if(!g)return;const i=+t.dataset.team;if(g.teams[i]){g.teams[i].name=t.value.slice(0,24)||`Team ${String.fromCharCode(65+i)}`}return}
   if(e.type==='change'){
    if(t.dataset.check){const at=curAttempt();if(!at)return;const l=at.d.consult.checks,k=t.dataset.check;const i=l.indexOf(k);if(t.checked&&i<0)l.push(k);if(!t.checked&&i>=0)l.splice(i,1);touch(at);return}
    const s=t.dataset.sel;
