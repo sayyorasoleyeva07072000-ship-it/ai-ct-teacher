@@ -109,7 +109,7 @@ function cycle(){
     <div class="sixc">${labels.map((label,i)=>`<span class="sixc-step ${i===state.scenario.step?'active':''}"><b>${STAGES[i][2]}</b>${label}</span>`).join('')}</div>
     <div class="scenario-hero">
       <span class="eyebrow">Real classroom scenario</span>
-      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><div class="scenario-hero-actions"><button class="primary-btn" data-action="continueCycle">▶ Continue</button><button class="ghost-btn" data-action="newScenario">🔀 New Scenario</button></div></div>
+      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><div class="scenario-hero-actions"><button class="ghost-btn" data-action="newScenario">🔀 New Scenario</button></div></div>
       <p class="scenario-text">${esc(s[1])}</p>
     </div>
     <div id="sc-q"></div>
@@ -120,17 +120,7 @@ function pickScenario(){
   const i=Math.floor(Math.random()*SCENARIOS.length);
   state.scenario={i,s:SCENARIOS[i],answers:[],step:0,selected:'',aiResponse:''};
 }
-function scenarioChoice(){
-  let old=document.getElementById('scenario-choice-modal');
-  if(old) old.remove();
-  const modal=document.createElement('div');
-  modal.id='scenario-choice-modal';
-  modal.innerHTML=`<div class="scenario-choice-backdrop" data-action="scenarioContinue"></div><div class="scenario-choice-modal pop"><button class="scenario-choice-close" data-action="scenarioContinue" aria-label="Close">×</button><div class="big-icon">🧠</div><h2>What would you like to do?</h2><p class="muted">You are currently working on this scenario.</p><div class="scenario-choice-actions"><button class="primary-btn" data-action="scenarioNewConfirm">🔀 New Scenario</button><button class="ghost-btn" data-action="scenarioContinue">▶️ Continue</button></div></div>`;
-  document.body.appendChild(modal);
-  sound('click');
-}
-function closeScenarioChoice(){document.getElementById('scenario-choice-modal')?.remove()}
-function startScenario(){closeScenarioChoice();pickScenario();renderScenario();sound('start')}
+function startScenario(){pickScenario();render();window.scrollTo({top:0,behavior:'smooth'});sound('start')}
 function aiDemoFor(s,choice){
   return `AI RESPONSE — DEMONSTRATION\n\nBased on the situation, I would suggest: “${choice}.”\n\nThis may be useful, but the teacher should still check whether it fits the students, available resources and lesson goal. The suggestion should not be accepted automatically.`;
 }
@@ -141,6 +131,7 @@ function renderScenario(){
   // Keep the 6C header synchronized with the current question stage.
   document.querySelectorAll('.sixc-step').forEach((el,i)=>{
     el.classList.toggle('active', i===step);
+    el.classList.toggle('done', i<step);
     if(i===step) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
   });
   let body='';
@@ -159,13 +150,14 @@ function renderScenario(){
   }
   const action=step===0?'chooseScenario':step===5?'finishScenario':'nextCycleStage';
   const label=step===0?'Continue to Consult →':step===5?'Finish 6C ✓':'Continue to next stage →';
-  root.innerHTML=`<div class="question-card pop"><div class="q-meta"><span class="pill">${STAGES[step][2]} ${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${action}">${label}</button></div></div>`;
+  root.innerHTML=`<div class="question-card"><div class="q-meta"><span class="pill">${STAGES[step][2]} ${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${action}">${label}</button></div></div>`;
   syncSixCHeader();
 }
 function syncSixCHeader(){
   const step=state.scenario?.step ?? 0;
   document.querySelectorAll('.sixc-step').forEach((el,i)=>{
     el.classList.toggle('active', i===step);
+    el.classList.toggle('done', i<step);
     if(i===step) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
   });
 }
@@ -178,7 +170,7 @@ function continueCycle(){
 }
 function chooseScenario(){
   const btn=document.querySelector('.scenario-choice.selected');
-  if(!btn){toast('Choose one answer first.');return}
+  if(!btn){toast('Please choose one answer first, then continue.');return}
   state.scenario.answers[0]=btn.dataset.scenarioAnswer;
   state.scenario.aiResponse=aiDemoFor(state.scenario.s,state.scenario.answers[0]);
   state.scenario.step=1;
@@ -248,7 +240,7 @@ async function aiCoach(){
  if(!/evidence|source|data|study|example|fact|check/.test(lower))flags.push('Add one piece of evidence or say how you would check it.');
  if(!/because|reason|so|therefore|since/.test(lower))flags.push('Add a short reason: “because …”');
  if(!/but|however|alternative|another|different|except/.test(lower))flags.push('Think of one other possibility.');
- const feedback=`Strength: your answer gives a clear idea.\n\nNext step:\n${flags.length?flags.map(x=>'• '+x).join('\n'):'• Your reasoning is clear. Now connect it to evidence.'}\n\nCoach question:\nWhat could make you change your decision?\n\n6C: Context → Consult → Critique → Check → Challenge → Reflect`;
+ const feedback=`Strength: your answer gives a clear idea.\n\nNext step:\n${flags.length?flags.map(x=>'• '+x).join('\n'):'• Your reasoning is clear. Now connect it to evidence.'}\n\nCoach question:\nWhat could make you change your decision?\n\n6C: Context → Consult → Critique → Check → Challenge → Conclude`;
  box.innerHTML=`<div class="ai-response">${esc(feedback)}</div>`;
  state.xp+=20;save();
 }
@@ -450,7 +442,7 @@ function ensureStyle(){
  .q-title{font-size:clamp(25px,3vw,38px)!important;line-height:1.2!important}
  .choice{background:#f7f8ff!important;color:var(--ink)!important;border:1px solid #d8ddf0!important;font-size:18px!important;min-height:74px!important;text-align:left}
  .choice:hover{border-color:#8a7df1!important;transform:translateY(-1px)}
- .choice.selected{border:2px solid #6657e8!important;background:#eceaff!important}
+ .choice.selected{border:2px solid #6657e8!important;background:#eceaff!important;box-shadow:0 0 0 3px rgba(102,87,232,.10)!important}
  textarea,input,select{background:#fff!important;color:var(--ink)!important;border:1px solid #cdd4e7!important;font-size:17px!important;border-radius:14px!important}
  textarea{min-height:120px!important}
  .primary-btn{font-size:17px!important;border-radius:14px!important}
@@ -460,7 +452,7 @@ function ensureStyle(){
  .sixc-step b{margin-right:5px}
  .scenario-hero{padding:28px;border-radius:22px;margin-bottom:16px}
  .scenario-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
- .scenario-hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.scenario-hero-actions .ghost-btn{border:1px solid var(--line);background:#fff;padding:12px 18px;border-radius:14px;font-size:17px;cursor:pointer}.scenario-hero-actions button{cursor:pointer}
+ .scenario-hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.scenario-hero-actions .ghost-btn{border:1px solid var(--line);background:#fff;padding:12px 18px;border-radius:14px;font-size:17px;cursor:pointer}.scenario-hero-actions button{cursor:pointer}
  .scenario-text{font-size:20px!important;line-height:1.55!important;max-width:950px}
  .scenario-action{display:flex;justify-content:flex-end;margin-top:14px}
  .answer-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -468,14 +460,18 @@ function ensureStyle(){
  .class-code{font-size:42px;font-weight:900;letter-spacing:7px;color:#5648d8;margin:18px 0}
  .teacher-stat strong{font-size:36px}
  .ai-checks{display:grid;gap:9px;margin:14px 0}.ai-checks div{padding:12px 14px;background:#f6f7ff;border-radius:12px;border:1px solid var(--line)}
- .ai-response{white-space:pre-wrap;line-height:1.65;font-size:17px;color:#17213d!important;opacity:1!important;font-weight:500!important}
- .cycle-ai{color:#17213d!important;opacity:1!important;background:#f4f6ff!important;border:1px solid #cfd6ee!important}
+ .ai-response{white-space:pre-wrap;line-height:1.7;font-size:18px;color:#17213d!important;opacity:1!important;font-weight:600!important;filter:none!important;text-shadow:none!important}
+ .cycle-ai{display:block!important;color:#17213d!important;opacity:1!important;visibility:visible!important;filter:none!important;background:#eef2ff!important;border:1px solid #c7d0ee!important;border-radius:18px!important;padding:22px!important;box-shadow:inset 0 0 0 1px rgba(102,87,232,.04)!important}
+ .cycle-ai,.cycle-ai *{color:#17213d!important;opacity:1!important;visibility:visible!important;filter:none!important}
+ .question-card,.question-card.pop{opacity:1!important;visibility:visible!important;filter:none!important;animation:none!important}
  .cycle-ai::first-line{font-weight:800}
  .stage-kicker{display:flex;align-items:center;gap:8px;color:#5648d8!important;opacity:1!important}
  .sixc-step b{display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
  .sixc-step{opacity:1!important}
  .footer{color:#69738f!important}
- .sixc-step.active{background:#eceaff!important;border-color:#8a7df1!important;color:#4f43c9!important;box-shadow:0 6px 16px rgba(102,87,232,.12)}
+ .sixc-step.active{background:#eceaff!important;border-color:#8a7df1!important;color:#4f43c9!important;box-shadow:0 6px 16px rgba(102,87,232,.12);transform:translateY(-1px)}
+ .sixc-step.done{background:#f4f7ff!important;border-color:#cfd7ee!important;color:#59657f!important}
+ .sixc-step.active b{transform:scale(1.08)}
  .stage-kicker{font-weight:800;letter-spacing:.08em;color:#5648d8;margin:0 0 10px}
  .cycle-ai{border-radius:16px;padding:18px;margin:12px 0 18px;white-space:pre-wrap;line-height:1.6}
 
@@ -531,7 +527,7 @@ document.addEventListener('click',e=>{
  const scenario=e.target.closest('[data-scenario]');if(scenario){nav('cycle');setTimeout(()=>startSpecific(+scenario.dataset.scenario),0);return}
  const ans=e.target.closest('[data-answer]');if(ans){answerGame(+ans.dataset.answer);return}
  const cans=e.target.closest('[data-comp-answer]');if(cans){answerCompetition(+cans.dataset.compAnswer);return}
- const sAns=e.target.closest('[data-scenario-answer]');if(sAns){document.querySelectorAll('[data-scenario-answer]').forEach(b=>b.classList.remove('selected'));sAns.classList.add('selected');sound('click');return}
+ const sAns=e.target.closest('[data-scenario-answer]');if(sAns){document.querySelectorAll('[data-scenario-answer]').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false')});sAns.classList.add('selected');sAns.setAttribute('aria-pressed','true');sound('click');return}
  const act=e.target.closest('[data-action]');if(!act)return;
  const a=act.dataset.action;
  if(a==='sound'){state.sound=!state.sound;save();render();sound('click')}
@@ -539,8 +535,6 @@ document.addEventListener('click',e=>{
  else if(a==='startScenario')startScenario();
  else if(a==='newScenario')startScenario();
  else if(a==='continueCycle')continueCycle();
- else if(a==='scenarioNewConfirm')startScenario();
- else if(a==='scenarioContinue')closeScenarioChoice();
  else if(a==='chooseScenario')chooseScenario();
  else if(a==='finishScenario')finishScenario();
  else if(a==='beginGame')beginGame(act.dataset.kind);
