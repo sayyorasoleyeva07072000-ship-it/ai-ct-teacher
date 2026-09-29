@@ -519,7 +519,7 @@ function ensureStyle(){
  document.head.appendChild(s);
 }
 
-function render(){ensureStyle();let c='';switch(state.page){case'home':c=home();break;case'library':c=library();break;case'cycle':c=cycle();break;case'challenge':c=gameSetup('challenge');break;case'competition':c=competitionSetup();break;case'ai':c=aiLab();break;case'progress':c=progress();break;case'teacher':c=teacher();break;default:c=home()}document.getElementById('app').innerHTML=c}
+function render(){ensureStyle();let c='';switch(state.page){case'home':c=home();break;case'library':c=library();break;case'cycle':c=cycle();break;case'challenge':c=gameSetup('challenge');break;case'competition':c=competitionSetup();break;case'ai':c=aiLab();break;case'progress':c=progress();break;case'teacher':c=teacher();break;default:c=home()}document.getElementById('app').innerHTML=c;if(state.page==='cycle')renderScenario()}
 
 document.addEventListener('click',e=>{
  const navEl=e.target.closest('[data-nav]');if(navEl){nav(navEl.dataset.nav);return}
