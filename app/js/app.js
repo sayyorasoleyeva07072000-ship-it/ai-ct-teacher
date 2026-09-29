@@ -31,7 +31,7 @@ const STAGES=[
  ['Critique','Question the answer','🧐'],
  ['Check','Check evidence or details','🔎'],
  ['Challenge','Try another possibility','⚡'],
- ['Reflect','Explain what you learned','💭']
+ ['Conclude','Make a reasoned decision','🎯']
 ];
 const BADGES=[['first','First Step','Complete your first activity','🌱'],['sharp','Sharp Eye','Get 5 correct answers in a row','👁️'],['checker','Fact Checker','Complete a verification task','🔎'],['thinker','Deep Thinker','Finish a 6C task','🧠'],['team','Team Player','Finish a competition','🤝'],['streak','Hot Streak','Reach a 7-answer streak','🔥'],['ai','AI Critic','Use AI Coach feedback','🤖'],['master','Critical Thinker','Earn 1000 XP','🏆']];
 
@@ -97,7 +97,7 @@ function earn(xp,good=true){state.xp+=xp;state.answered++;if(good){state.correct
 function nav(page){state.page=page;state.libraryCategory=null;render();window.scrollTo({top:0,behavior:'smooth'});sound('click')}
 function shell(content){return `<div class="app-shell"><header class="topbar"><div class="brand"><div class="brand-mark">🧠</div><div><strong>${APP}</strong><small>${INSTITUTION}</small></div></div><div class="top-actions"><span class="pill">Lv ${level()} · ${state.xp} XP</span><button class="icon-btn" data-action="sound" title="Sound">${state.sound?'🔊':'🔇'}</button><button class="icon-btn" data-action="profile">👤</button></div></header><main class="main">${content}<div class="footer">${APP} · ${AUTHOR} · ${INSTITUTION}<br><small>AI is a thinking partner, not a substitute for evidence, teacher judgement or student reflection.</small></div></main>${mobileNav()}</div>`}
 function navHTML(){const items=[['home','🏠','Home'],['library','📚','Task Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Method Challenge'],['competition','🏆','Team Competition'],['ai','🤖','AI Critical Thinking Lab'],['progress','📈','My Progress'],['teacher','👩‍🏫','Teacher Dashboard']];return `<nav class="nav-group">${items.map(i=>`<button class="nav-item ${state.page===i[0]?'active':''}" data-nav="${i[0]}"><span class="nav-icon">${i[1]}</span>${i[2]}</button>`).join('')}</nav>`}
-function mobileNav(){return `<div class="mobile-nav">${[['home','🏠','Home'],['library','📚','Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Challenge'],['competition','🏆','Competition'],['ai','🤖','AI Lab'],['progress','📈','Progress'],['teacher','👩‍🏫','Teacher']].map(x=>`<button class="${state.page===x[0]?'active':''}" data-nav="${x[0]}"><span>${x[1]}</span><small>${x[2]}</small></button>`).join('')}</div>`}
+function mobileNav(){return `<div class="mobile-nav">${[['home','🏠','Home'],['library','📚','Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Method Challenge'],['competition','🏆','Competition'],['ai','🤖','AI Lab'],['progress','📈','Progress'],['teacher','👩‍🏫','Teacher']].map(x=>`<button class="${state.page===x[0]?'active':''}" data-nav="${x[0]}"><span>${x[1]}</span><small>${x[2]}</small></button>`).join('')}</div>`}
 function home(){const features=[['library','📚','Task Library','Short real-life scenarios across 8 critical-thinking areas.'],['cycle','🧠','6C Cycle','Context → Consult → Critique → Check → Challenge → Conclude.'],['challenge','🎮','Method Challenge','Fast, varied multiple-choice practice with 40 method questions.'],['competition','🏆','Team Competition','Solo or team quiz with timer, score and random questions.'],['ai','🤖','AI Critical Thinking Lab','One-click AI coaching for student answers.'],['progress','📈','My Progress','XP, streaks, badges and learning history.'],['teacher','👩‍🏫','Teacher Dashboard','Classroom-ready activity overview and quick launch tools.'],['library','🇺🇿','Real Classroom Context','Situations built around everyday English teaching.']];return shell(`<section class="hero"><span class="eyebrow">Artificial Intelligence · Critical Thinking · English Teacher Education</span><h1>Think first. Check twice. Teach better.</h1><p>A modern learning environment for future English teachers. Use AI as something to question, verify, challenge and reflect on — not simply as an answer machine.</p><div class="author"><div class="avatar">SS</div><div><strong>${AUTHOR}</strong><br><span class="muted">${INSTITUTION} · PhD Research Project</span></div></div><div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><button class="primary-btn" data-nav="cycle">🚀 Start 6C Learning</button><button class="ghost-btn" data-nav="challenge">🎮 Quick Challenge</button></div></section><div class="stats"><div class="stat"><strong>${state.xp}</strong><span>Total XP</span></div><div class="stat"><strong>${state.correct}</strong><span>Correct answers</span></div><div class="stat"><strong>${state.best}</strong><span>Best streak</span></div><div class="stat"><strong>${state.badges.length}</strong><span>Badges</span></div></div><div class="section-title"><div><h2>Learning Studio</h2><p>Choose a route — every route strengthens critical thinking.</p></div></div><div class="grid grid-4">${features.map(f=>`<button class="card feature-card" data-nav="${f[0]}"><div class="big-icon">${f[1]}</div><h3>${f[2]}</h3><p>${f[3]}</p><span class="arrow">→</span></button>`).join('')}</div><div class="section-title"><div><h2>AI-CT 6C Cycle</h2><p>Six small moves that keep the learner in control.</p></div></div><div class="cycle">${STAGES.map((s,i)=>`<div class="cycle-step"><b>${s[2]}</b><strong>${i+1}. ${s[0]}</strong><span>${s[1]}</span></div>`).join('')}</div>`)}
 function library(){let tasks=[];if(state.libraryCategory){tasks=SCENARIOS.map((s,i)=>({i,title:s[0],scenario:s[1],cat:CATEGORIES[i%8][0]})).filter(x=>x.cat===state.libraryCategory)}else tasks=SCENARIOS.map((s,i)=>({i,title:s[0],scenario:s[1],cat:CATEGORIES[i%8][0]}));return shell(`<div class="section-title"><div><h2>📚 Task Library</h2><p>Short, practical scenarios. No heavy vocabulary. No unnecessary reading.</p></div><span class="pill">${SCENARIOS.length} scenarios</span></div><div class="tabs"><button class="chip ${!state.libraryCategory?'active':''}" data-cat="All">All</button>${CATEGORIES.map(c=>`<button class="chip ${state.libraryCategory===c[0]?'active':''}" data-cat="${esc(c[0])}">${c[1]} ${c[0]}</button>`).join('')}</div><div class="grid grid-4">${tasks.map(t=>`<article class="card task-card"><div class="task-icon">${CATEGORIES[t.i%8][1]}</div><span class="pill">${t.cat}</span><h3>${esc(t.title)}</h3><p class="muted">${esc(t.scenario)}</p><div class="task-foot"><small class="muted">2 critical questions</small><button class="primary-btn" data-scenario="${t.i}">Open →</button></div></article>`).join('')}</div>`)}
 function cycle(){
@@ -106,10 +106,10 @@ function cycle(){
   const labels=['Context','Consult','Critique','Check','Challenge','Conclude'];
   return shell(`<div class="game-shell cycle-page">
     <div class="section-title"><div><h2>🧠 6C Critical Thinking Cycle</h2><p>One real classroom situation — six short thinking moves.</p></div><span class="pill">Stage ${state.scenario.step+1} of 6</span></div>
-    <div class="sixc">${STAGES.slice(0,6).map((x,i)=>`<span class="sixc-step ${i===state.scenario.step?'active':''}"><b>${x[2]}</b>${labels[i]}</span>`).join('')}</div>
+    <div class="sixc">${labels.map((label,i)=>`<span class="sixc-step ${i===state.scenario.step?'active':''}"><b>${STAGES[i][2]}</b>${label}</span>`).join('')}</div>
     <div class="scenario-hero">
       <span class="eyebrow">Real classroom scenario</span>
-      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><div class="scenario-choice-buttons"><button class="primary-btn" data-action="scenarioNewDirect">🔀 New Scenario</button><button class="ghost-btn" data-action="scenarioContinueDirect">▶ Continue</button></div></div>
+      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><button class="primary-btn" data-action="newScenario">🔀 New Scenario</button></div>
       <p class="scenario-text">${esc(s[1])}</p>
     </div>
     <div id="sc-q"></div>
@@ -152,7 +152,9 @@ function renderScenario(){
   }else{
     body=`<p class="stage-kicker">🎯 CONCLUDE · Make your reasoned decision</p><h2 class="q-title">What is your final decision? Explain it briefly using what you checked.</h2><textarea id="sc-answer" rows="4" placeholder="Write 1–2 short sentences: I would… because…"></textarea>`;
   }
-  root.innerHTML=`<div class="question-card pop"><div class="q-meta"><span class="pill">${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${step===0?'chooseScenario':step===5?'finishScenario':'nextCycleStage'}">${step===0?'Analyze AI response →':step===5?'Finish 6C ✓':'Continue →'}</button></div></div>`;
+  const action=step===0?'chooseScenario':step===5?'finishScenario':'nextCycleStage';
+  const label=step===0?'Continue to Consult →':step===5?'Finish 6C ✓':'Continue to next stage →';
+  root.innerHTML=`<div class="question-card pop"><div class="q-meta"><span class="pill">${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${action}">${label}</button></div></div>`;
 }
 function chooseScenario(){
   const btn=document.querySelector('.scenario-choice.selected');
@@ -178,6 +180,143 @@ function finishScenario(){
   document.getElementById('sc-q').innerHTML=`<div class="feedback pop"><strong>🎯 6C complete!</strong><p>You moved from a real situation to an AI response, critique, verification, improvement and a final reasoned decision.</p><div class="answer-summary"><div><small>Context choice</small><p>${esc(state.scenario.answers[0]||'—')}</p></div><div><small>Final decision</small><p>${esc(state.scenario.answers[5]||'—')}</p></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="primary-btn" data-action="newScenario">🔀 Try another scenario</button><button class="ghost-btn" data-nav="home">🏠 Back home</button></div></div>`;
 }
 
+function aiLab(){
+ return shell(`<div class="section-title"><div><h2>🤖 AI Critical Thinking Coach</h2><p>No prompt writing. Give your answer, press the button, and the coach responds.</p></div><span class="pill">One-click AI</span></div>
+ <div class="ai-box">
+  <div class="grid grid-2">
+   <div>
+    <h3>✍️ Your answer</h3>
+    <p class="muted">Write what you think about a classroom problem. You do not need to write an AI prompt.</p>
+    <textarea id="ai-input" rows="8" placeholder="Example: I would check the source before using the information in class."></textarea>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="primary-btn" data-action="aiCoach">🤖 Ask AI Coach</button>
+      <button class="ghost-btn" data-action="aiExample">✨ Give me an example</button>
+    </div>
+   </div>
+   <div>
+    <h3>🔎 What the coach checks</h3>
+    <div class="ai-checks">
+      <div>📌 Is your idea clear?</div><div>🔎 Did you mention evidence?</div><div>⚖️ Did you consider another possibility?</div><div>💭 Can you explain your reason?</div>
+    </div>
+    <div id="ai-result" class="feedback"><span class="muted">Your feedback will appear here.</span></div>
+   </div>
+  </div>
+ </div>
+ <div class="card ai-connection">
+   <h3>AI connection</h3>
+   <p class="muted">The interface is ready for a secure Gemini/Claude/OpenAI backend. A private API key must not be placed in this GitHub Pages code.</p>
+   <div class="field"><label>Secure AI endpoint (optional)</label><input id="ai-endpoint" value="${esc(state.aiEndpoint)}" placeholder="https://your-server.example/api/ai"></div>
+   <button class="ghost-btn" data-action="saveAI">💾 Save connection</button>
+ </div>`);
+}
+async function aiCoach(){
+ const input=document.getElementById('ai-input')?.value.trim();
+ if(!input){toast('Write your answer first.');return}
+ award('ai');
+ const box=document.getElementById('ai-result');
+ box.innerHTML='<span class="muted">🤖 Thinking…</span>';
+ if(state.aiEndpoint){
+  try{
+   const r=await fetch(state.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'critical-thinking-feedback',prompt:`Give short, student-friendly feedback on this future English teacher's reasoning. Do not give a final answer. Mention one strength, one thing to check, and one follow-up question. Answer in simple English.\n\nStudent answer:\n${input}`,context:{framework:'AI-CT 6C',institution:INSTITUTION}})});
+   if(!r.ok)throw new Error('endpoint');
+   const data=await r.json().catch(()=>null);
+   box.innerHTML=`<div class="ai-response">${esc(data?.text||data?.response||'The AI returned no text.')}</div>`;
+   state.xp+=20;save();return;
+  }catch(e){toast('AI server is not connected yet. Local coach is working now.')}
+ }
+ const lower=input.toLowerCase(),flags=[];
+ if(!/evidence|source|data|study|example|fact|check/.test(lower))flags.push('Add one piece of evidence or say how you would check it.');
+ if(!/because|reason|so|therefore|since/.test(lower))flags.push('Add a short reason: “because …”');
+ if(!/but|however|alternative|another|different|except/.test(lower))flags.push('Think of one other possibility.');
+ const feedback=`Strength: your answer gives a clear idea.\n\nNext step:\n${flags.length?flags.map(x=>'• '+x).join('\n'):'• Your reasoning is clear. Now connect it to evidence.'}\n\nCoach question:\nWhat could make you change your decision?\n\n6C: Context → Consult → Critique → Check → Challenge → Reflect`;
+ box.innerHTML=`<div class="ai-response">${esc(feedback)}</div>`;
+ state.xp+=20;save();
+}
+function aiExample(){
+ document.getElementById('ai-input').value='I would check the original source before using the AI answer in my English lesson because the AI may be wrong.';
+ toast('Example added — now ask the coach.');
+}
+function profile(){
+ const modal=document.createElement('div');modal.className='modal';
+ modal.innerHTML=`<div class="modal-box"><div class="modal-head"><h2>👤 Student profile</h2><button class="icon-btn" data-close>✕</button></div>
+ <div class="field"><label>Name</label><input id="profile-name" value="${esc(state.name)}"></div>
+ <div class="field"><label>Class code</label><input id="profile-class" value="${esc(state.classCode)}" placeholder="Example: EN7K2P"></div>
+ <p class="muted">Enter the code from your teacher so your exported progress is linked to the class.</p>
+ <div style="display:flex;gap:10px;justify-content:flex-end"><button class="ghost-btn" data-close>Cancel</button><button class="primary-btn" data-save-profile>Save</button></div>
+ </div>`;
+ document.body.appendChild(modal);
+ modal.addEventListener('click',e=>{
+  if(e.target.hasAttribute('data-close'))modal.remove();
+  if(e.target.hasAttribute('data-save-profile')){
+   state.name=document.getElementById('profile-name').value.trim()||'Student';
+   state.classCode=document.getElementById('profile-class').value.trim().toUpperCase();
+   save();modal.remove();render()
+  }
+ });
+}
+function exportProgress(){
+ const data={app:APP,author:AUTHOR,institution:INSTITUTION,name:state.name,classCode:state.classCode,xp:state.xp,correct:state.correct,answered:state.answered,bestStreak:state.best,badges:state.badges,history:state.history,exportedAt:new Date().toISOString()};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download=`AI-CT-${(state.name||'student').replace(/[^a-z0-9_-]/gi,'_')}-progress.json`;a.click();URL.revokeObjectURL(a.href);toast('Progress file exported.');
+}
+function createClass(){
+ const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let code='';for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+ state.classCode=code;save();render();toast(`Class ${code} created.`);
+}
+async function copyClassLink(){
+ const link=`${location.origin}${location.pathname}?class=${encodeURIComponent(state.classCode)}`;
+ try{await navigator.clipboard.writeText(link);toast('Student link copied.')}catch(e){toast(link)}
+}
+async function importProgress(files){
+ const rows=[];
+ for(const file of [...files]){try{const d=JSON.parse(await file.text());rows.push(d)}catch(e){}}
+ const box=document.getElementById('teacher-results');if(!box)return;
+ box.innerHTML=rows.length?`<div class="table-wrap"><table class="table"><thead><tr><th>Student</th><th>Class</th><th>XP</th><th>Answers</th><th>Correct</th><th>Best streak</th></tr></thead><tbody>${rows.map(d=>`<tr><td>${esc(d.name||'Student')}</td><td>${esc(d.classCode||'—')}</td><td>${esc(d.xp||0)}</td><td>${esc(d.answered||0)}</td><td>${esc(d.correct||0)}</td><td>${esc(d.bestStreak||0)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">No valid progress files were found.</p>';
+}
+function gameSetup(kind){const title=kind==='challenge'?'🎮 Method Challenge':'🏆 Team Competition';return shell(`<div class="game-shell"><div class="section-title"><div><h2>${title}</h2><p>${kind==='challenge'?'40 short questions about real English-teaching methods.':'70 short classroom questions. Randomised every round.'}</p></div></div><div class="card"><div class="grid grid-2"><div class="field"><label>Difficulty</label><select id="g-diff"><option>Mixed</option><option>Easy</option><option>Medium</option><option>Hard</option></select></div><div class="field"><label>Questions</label><select id="g-count"><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="60">60</option><option value="80">80</option></select></div></div>${kind==='competition'?`<div class="field"><label>Teams</label><select id="team-count"><option value="1">Solo</option><option value="2">2 teams</option><option value="3">3 teams</option><option value="4">4 teams</option></select></div><div id="team-fields" class="team-grid"></div>`:''}<button class="primary-btn" data-action="beginGame" data-kind="${kind}">🚀 Start ${kind==='challenge'?'Challenge':'Competition'}</button></div></div>`)}
+function buildQuestions(kind,diff,count){let bank=kind==='challenge'?METHOD_BANK:METHOD_BANK.concat(COMP_EXTRA);if(diff!=='Mixed')bank=bank.filter(q=>q.diff===(diff==='Hard'?'Advanced':diff));bank=shuffle(bank);let selected=[];const seen=new Set();for(const q of bank){if(!seen.has(q.id)){selected.push(q);seen.add(q.id)}if(selected.length>=Math.min(count,bank.length))break}return selected}
+function beginGame(kind){const diff=document.getElementById('g-diff')?.value||'Mixed';const count=+document.getElementById('g-count')?.value||10;let qs=buildQuestions(kind,diff,count);if(kind==='challenge'){state.game={kind,qs,index:0,score:0,answered:false};award('first');renderGame();sound('start')}else{const n=+(document.getElementById('team-count')?.value||1);const names=[];for(let i=0;i<n;i++)names.push(document.getElementById('team-'+i)?.value||`Team ${i+1}`);state.competition={kind,qs,index:0,team:0,teams:names.map((name)=>({name,score:0,correct:0})),answered:false,timer:null,seconds:20};award('team');renderCompetition();sound('start')}}
+function renderGame(){const g=state.game;if(!g)return;const q=g.qs[g.index];const opts=shuffle(q.options.map((text)=>({text,correct:text===q.correct})));g.currentOpts=opts;const content=`<div class="game-shell"><div class="game-head"><button class="ghost-btn" data-nav="challenge">← Exit</button><div class="progress-track"><i style="width:${(g.index/g.qs.length)*100}%"></i></div><span class="pill">${g.index+1}/${g.qs.length}</span><span class="pill">${g.score} XP</span></div><div class="question-card"><div class="q-meta"><span class="pill">${q.method}</span><span class="pill">${q.diff}</span></div><h1 class="q-title">${esc(q.text)}</h1><div class="choices">${opts.map((o,i)=>`<button class="choice" data-answer="${i}"><span class="letter">${String.fromCharCode(65+i)}</span><span>${esc(o.text)}</span></button>`).join('')}</div><div id="game-feedback"></div></div></div>`;document.getElementById('app').innerHTML=shell(content);}
+function answerGame(i){const g=state.game;if(!g||g.answered)return;g.answered=true;const q=g.qs[g.index],o=g.currentOpts[i],buttons=[...document.querySelectorAll('[data-answer]')];buttons.forEach((b,idx)=>{if(g.currentOpts[idx].correct)b.classList.add('correct');if(idx===i&&!o.correct)b.classList.add('wrong')});const good=o.correct;if(good){sound('correct');earn(25);g.score+=25;g.score+=Math.max(0,5-(g.index%5));}else{sound('wrong');earn(5,false)}if(good&&state.streak>=5)toast('🔥 Great streak!');document.getElementById('game-feedback').innerHTML=`<div class="feedback ${good?'pop':'shake'}"><strong>${good?'✅ Correct!':'❌ Not quite.'}</strong><p>${esc(q.why)}</p><button class="primary-btn" data-action="nextGame">${g.index===g.qs.length-1?'Finish':'Next random question →'}</button></div>`;save()}
+function nextGame(){const g=state.game;if(!g)return;if(g.index>=g.qs.length-1){award('sharp');confetti();sound('win');state.history.unshift({date:new Date().toLocaleString(),type:'Method Challenge',score:g.score,questions:g.qs.length});state.history=state.history.slice(0,20);save();state.game=null;toast('Challenge complete!');nav('progress');return}g.index++;g.answered=false;renderGame()}
+function renderCompetition(){const c=state.competition;if(!c)return;const q=c.qs[c.index],opts=shuffle(q.options.map(text=>({text,correct:text===q.correct})));c.currentOpts=opts;const scores=c.teams.map((t,i)=>`<div class="score ${i===c.team?'leader':''}"><span>${i===c.team?'🎯 ':''}${esc(t.name)}</span><strong>${t.score}</strong><small>${t.correct} correct</small></div>`).join('');document.getElementById('app').innerHTML=shell(`<div class="game-shell"><div class="game-head"><button class="ghost-btn" data-nav="competition">← Exit</button><span class="pill">${c.index+1}/${c.qs.length}</span><span class="pill">${esc(c.teams[c.team].name)} turn</span><span id="comp-timer" class="timer">20</span></div><div class="scoreboard">${scores}</div><div class="question-card" style="margin-top:15px"><div class="q-meta"><span class="pill">${q.diff}</span><span class="pill">${q.method}</span></div><h1 class="q-title">${esc(q.text)}</h1><div class="choices">${opts.map((o,i)=>`<button class="choice" data-comp-answer="${i}"><span class="letter">${String.fromCharCode(65+i)}</span><span>${esc(o.text)}</span></button>`).join('')}</div><div id="comp-feedback"></div></div></div>`);startCompTimer()}
+function startCompTimer(){const c=state.competition;if(!c)return;clearInterval(c.timer);c.seconds=20;const el=document.getElementById('comp-timer');c.timer=setInterval(()=>{c.seconds--;if(el){el.textContent=c.seconds;el.classList.toggle('hot',c.seconds<=5)}sound(c.seconds<=5?'tick':'click');if(c.seconds<=0){clearInterval(c.timer);answerCompetition(-1)}},1000)}
+function answerCompetition(i){const c=state.competition;if(!c||c.answered)return;c.answered=true;clearInterval(c.timer);const q=c.qs[c.index],o=i>=0?c.currentOpts[i]:null,good=!!o?.correct;c.teams[c.team].score+=good?100:0;c.teams[c.team].correct+=good?1:0;earn(good?15:2,good);const buttons=[...document.querySelectorAll('[data-comp-answer]')];buttons.forEach((b,idx)=>{if(c.currentOpts[idx].correct)b.classList.add('correct');if(idx===i&&!good)b.classList.add('wrong')});if(good)sound('correct');else sound('wrong');document.getElementById('comp-feedback').innerHTML=`<div class="feedback"><strong>${good?'🎯 Correct!':'⏱ Time/answer used.'}</strong><p>${esc(q.why)}</p><button class="primary-btn" data-action="nextCompetition">${c.index===c.qs.length-1?'Final scoreboard':'Next team →'}</button></div>`;save()}
+function nextCompetition(){const c=state.competition;if(!c)return;if(c.index>=c.qs.length-1){clearInterval(c.timer);confetti();sound('win');state.history.unshift({date:new Date().toLocaleString(),type:'Team Competition',score:c.teams.reduce((a,t)=>a+t.score,0),questions:c.qs.length,teams:c.teams.map(t=>`${t.name}: ${t.score}`).join(' · ')});state.history=state.history.slice(0,20);save();const winner=c.teams.slice().sort((a,b)=>b.score-a.score)[0];const body=`<div class="game-shell"><div class="hero"><span class="eyebrow">Competition complete</span><h1>🏆 ${esc(winner.name)}</h1><p>Final scoreboard. The result shows the game score; it is not a research measure of critical thinking ability.</p></div><div class="scoreboard" style="margin-top:18px">${c.teams.map(t=>`<div class="score ${t===winner?'leader':''}"><span>${esc(t.name)}</span><strong>${t.score}</strong><small>${t.correct} correct</small></div>`).join('')}</div><div style="margin-top:18px;display:flex;gap:10px"><button class="primary-btn" data-nav="competition">🔁 Play again</button><button class="ghost-btn" data-nav="progress">📈 My Progress</button></div></div>`;state.competition=null;document.getElementById('app').innerHTML=shell(body);return}c.index++;c.team=(c.team+1)%c.teams.length;c.answered=false;renderCompetition()}
+function competitionSetup(){return gameSetup('competition')}
+function progress(){return shell(`<div class="section-title"><div><h2>📈 My Progress</h2><p>Personal activity indicators — not a validated psychological measurement.</p></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="ghost-btn" data-action="profile">Edit profile</button><button class="primary-btn" data-action="exportProgress">⬇ Export progress</button></div></div><div class="stats"><div class="stat"><strong>${state.xp}</strong><span>XP</span></div><div class="stat"><strong>${state.correct}</strong><span>Correct</span></div><div class="stat"><strong>${state.best}</strong><span>Best streak</span></div><div class="stat"><strong>${level()}</strong><span>Level</span></div></div><div class="section-title"><div><h2>Badges</h2></div></div><div class="badge-grid">${BADGES.map(b=>`<span class="badge ${state.badges.includes(b[0])?'':'muted'}">${b[3]} ${b[1]} ${state.badges.includes(b[0])?'✓':'○'}</span>`).join('')}</div><div class="section-title"><div><h2>Recent activity</h2></div></div><div class="card">${state.history.length?`<table class="table"><thead><tr><th>Date</th><th>Activity</th><th>Score</th><th>Questions</th></tr></thead><tbody>${state.history.map(h=>`<tr><td>${esc(h.date)}</td><td>${esc(h.type)}</td><td>${esc(h.score)}</td><td>${esc(h.questions)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No activity yet. Start a challenge to build your learning history.</div>'}</div>`)}
+function teacher(){
+ const total=METHOD_BANK.length+COMP_EXTRA.length;
+ const code=state.classCode||'Not created';
+ const link=state.classCode?`${location.origin}${location.pathname}?class=${encodeURIComponent(state.classCode)}`:'';
+ return shell(`<div class="section-title"><div><h2>👩‍🏫 Teacher Dashboard</h2><p>Create a class code, share it with students, and collect their progress files.</p></div><span class="pill">Teacher mode</span></div>
+ <div class="grid grid-3">
+  <div class="card teacher-stat"><span class="big-icon">🎯</span><strong>${total}</strong><p>short quiz questions</p></div>
+  <div class="card teacher-stat"><span class="big-icon">🧩</span><strong>${SCENARIOS.length}</strong><p>real classroom scenarios</p></div>
+  <div class="card teacher-stat"><span class="big-icon">👥</span><strong>${esc(code)}</strong><p>current class code</p></div>
+ </div>
+ <div class="card class-card">
+   <h2>👥 My Class</h2>
+   <p class="muted">Students can enter this code on their profile. For a true live shared dashboard, a secure database/backend is still needed; this version uses a simple export/import workflow.</p>
+   <div class="class-code">${esc(code)}</div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="primary-btn" data-action="createClass">✨ Create new class</button>
+    ${link?`<button class="ghost-btn" data-action="copyClassLink">🔗 Copy student link</button>`:''}
+   </div>
+ </div>
+ <div class="card import-card">
+   <h2>📥 Student progress</h2>
+   <p class="muted">Ask students to open <b>My Progress → Export progress</b> and send the JSON file. Import their files here to see a simple class table.</p>
+   <input id="progress-files" type="file" accept=".json,application/json" multiple>
+   <div id="teacher-results" style="margin-top:14px"></div>
+ </div>
+ <div class="section-title"><div><h2>Launch a lesson</h2><p>Ready-to-use classroom activities.</p></div></div>
+ <div class="grid grid-3">
+  <button class="card feature-card" data-nav="challenge"><div class="big-icon">🎮</div><h3>Method Challenge</h3><p>Real English-teaching methods.</p></button>
+  <button class="card feature-card" data-nav="competition"><div class="big-icon">🏆</div><h3>Team Competition</h3><p>Short classroom questions.</p></button>
+  <button class="card feature-card" data-nav="cycle"><div class="big-icon">🧠</div><h3>6C Scenario</h3><p>One situation, two questions.</p></button>
+ </div>`);
+}
 function aiLab(){
  return shell(`<div class="section-title"><div><h2>🤖 AI Critical Thinking Coach</h2><p>No prompt writing. Give your answer, press the button, and the coach responds.</p></div><span class="pill">One-click AI</span></div>
  <div class="ai-box">
@@ -323,7 +462,6 @@ function ensureStyle(){
  .section-title p{color:#5c6785!important}
  @media(min-width:801px){.layout{display:block!important}.sidebar{display:none!important}.main{display:block!important;position:relative!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding-left:125px!important;padding-right:28px!important;box-sizing:border-box!important}.main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}.mobile-nav{display:grid!important}}
  @media(max-width:800px){.main{padding-left:16px!important;padding-right:16px!important;width:100%!important;box-sizing:border-box!important}.mobile-nav{display:grid!important;grid-template-columns:repeat(4,1fr)!important;left:12px!important;right:12px!important;bottom:12px!important}.mobile-nav button:nth-child(n+5){display:none!important}}
- .scenario-title-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;flex-wrap:wrap!important}.scenario-choice-buttons{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important}.scenario-choice-buttons button{min-height:48px!important;white-space:nowrap!important}.scenario-choice-buttons .primary-btn,.scenario-choice-buttons .ghost-btn{padding:12px 18px!important;border-radius:14px!important}@media(max-width:800px){.scenario-title-row{align-items:flex-start!important}.scenario-choice-buttons{width:100%!important}.scenario-choice-buttons button{flex:1 1 150px!important}}
  .scenario-choice-backdrop{position:fixed;inset:0;background:rgba(20,28,58,.38);backdrop-filter:blur(5px);z-index:199}
  .scenario-choice-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));padding:30px;border-radius:24px;background:#fff!important;color:var(--ink)!important;border:1px solid var(--line);box-shadow:0 24px 70px rgba(20,28,58,.25);z-index:200;text-align:center}
  .scenario-choice-modal h2{margin:6px 0 8px;color:#17213d!important;font-size:28px}
@@ -334,7 +472,24 @@ function ensureStyle(){
  .mobile-nav{position:fixed;left:18px;right:18px;bottom:16px;z-index:50;background:rgba(255,255,255,.96)!important;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 36px rgba(38,48,90,.18);display:grid!important;grid-template-columns:repeat(8,1fr);padding:8px;gap:5px;backdrop-filter:blur(12px)}
  .mobile-nav button{border:0;background:transparent;color:#56607d;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:18px;min-height:54px}
  .mobile-nav button small{font-size:10px;font-weight:700;white-space:nowrap}.mobile-nav button.active{background:#eceaff;color:#4f43c9}
- @media(min-width:801px){.mobile-nav{position:fixed;left:18px;right:auto;top:92px;bottom:18px;width:86px;grid-template-columns:1fr;align-content:start;overflow:auto;padding:9px}.mobile-nav button{min-height:68px}.mobile-nav button small{font-size:10px}.main{padding-left:125px!important;padding-right:28px!important}.main>.grid,.main>.section-title,.main>.tabs,.main>.hero,.main>.stats,.main>.cycle{width:100%!important;max-width:none!important}.grid{display:grid!important;width:100%!important;grid-template-columns:repeat(4,minmax(240px,1fr))!important;gap:20px!important}.grid-4{grid-template-columns:repeat(4,minmax(240px,1fr))!important}.card{min-width:0!important}.footer{padding-bottom:30px}}
+ @media(min-width:801px){
+  .app-shell{display:block!important;width:100%!important;min-width:0!important}
+  .mobile-nav{position:fixed!important;left:18px!important;right:auto!important;top:92px!important;bottom:18px!important;width:178px!important;grid-template-columns:1fr!important;align-content:start!important;overflow-y:auto!important;overflow-x:hidden!important;padding:10px!important;z-index:1000!important;pointer-events:auto!important}
+  .mobile-nav button{min-height:64px!important;width:100%!important;pointer-events:auto!important;cursor:pointer!important;justify-content:flex-start!important;flex-direction:row!important;gap:12px!important;padding:10px 14px!important;font-size:22px!important}
+  .mobile-nav button small{font-size:13px!important;white-space:nowrap!important;font-weight:800!important}
+  .main{display:block!important;position:relative!important;float:none!important;left:auto!important;right:auto!important;width:calc(100% - 214px)!important;max-width:none!important;min-width:0!important;margin:0 0 0 214px!important;padding:28px 28px 40px!important;box-sizing:border-box!important}
+  .main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+  .main>.grid,.main>.section-title,.main>.tabs,.main>.hero,.main>.stats,.main>.cycle{width:100%!important;max-width:none!important}
+  .grid{display:grid!important;width:100%!important;grid-template-columns:repeat(4,minmax(220px,1fr))!important;gap:20px!important}
+  .grid-4{grid-template-columns:repeat(4,minmax(220px,1fr))!important}
+  .card{min-width:0!important}
+  .footer{padding-bottom:30px}
+}
+@media(min-width:801px) and (max-width:1250px){.grid,.grid-4{grid-template-columns:repeat(2,minmax(220px,1fr))!important}}
+@media(max-width:800px){
+  .mobile-nav{z-index:1000!important;pointer-events:auto!important}
+  .mobile-nav button{pointer-events:auto!important;cursor:pointer!important}
+}
  @media(max-width:800px){.mobile-nav{grid-template-columns:repeat(4,1fr);overflow-x:auto}.mobile-nav button:nth-child(n+5){display:none}.main{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;padding:16px 16px 105px!important;box-sizing:border-box!important}.main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}.grid{display:grid!important;width:100%!important;grid-template-columns:1fr!important;gap:16px!important}.grid-4{grid-template-columns:1fr!important}.card{min-width:0!important}.sidebar{display:none!important}}
  @media(min-width:801px) and (max-width:1250px){.grid,.grid-4{grid-template-columns:repeat(2,minmax(240px,1fr))!important}}
  @media(max-width:800px){.answer-summary{grid-template-columns:1fr}.scenario-title-row{align-items:flex-start}.scenario-title-row h1{font-size:30px!important}.choice{font-size:16px!important}.sidebar{display:none!important}}
@@ -359,8 +514,6 @@ document.addEventListener('click',e=>{
  else if(a==='newScenario')startScenario();
  else if(a==='scenarioNewConfirm')startScenario();
  else if(a==='scenarioContinue')closeScenarioChoice();
- else if(a==='scenarioNewDirect')startScenario();
- else if(a==='scenarioContinueDirect'){sound('click');}
  else if(a==='chooseScenario')chooseScenario();
  else if(a==='finishScenario')finishScenario();
  else if(a==='beginGame')beginGame(act.dataset.kind);
