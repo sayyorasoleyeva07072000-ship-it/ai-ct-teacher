@@ -5,29 +5,32 @@
 Author: **Sarvinoz Solexonovna**  
 Institution: **Samarkand State Institute of Foreign Languages (SamDChTI)**
 
-## What is included
-- AI-CT 7C Cycle: Context → Consult → Critique → Check → Challenge → Conclude → Reflect
-- 24 short real-life education scenarios, each with 2 reasoning questions
-- 60 Method Challenge questions across 12 critical-thinking methods
-- 84+ Team Competition questions including Uzbekistan-friendly teaching scenarios
-- Random question order and random A/B/C/D option order
-- Easy / Medium / Advanced / Mixed difficulty
-- Solo and 2–4 team competition, 20-second timer
-- XP, levels, streaks, badges and local progress history
-- Web Audio sound effects and lightweight animations
-- AI Critical Thinking Lab with a local reasoning coach
-- Secure AI endpoint setting for future real-model integration
-- Responsive mobile/desktop layout
+Scientific topic: **“SUN’IY INTELLEKT VOSITALARI ASOSIDA BO‘LAJAK INGLIZ TILI O‘QITUVCHILARINING TANQIDIY FIKRLASH KO‘NIKMALARINI RIVOJLANTIRISH METODIKASI”**
 
-## Important AI note
-GitHub Pages is a static host. A private AI API key must **not** be placed in `app/js/app.js`.
-The AI Lab therefore works immediately with a local reasoning coach and supports a secure backend/serverless endpoint when one is available.
+## 6C model
+Context → Consult → Critique → Check → Challenge → Conclude. Reflection is integrated into Conclude.
 
-Expected endpoint contract:
-- POST JSON: `{ "action": "critical-thinking-feedback", "prompt": "...", "context": {...} }`
-- Response JSON: `{ "text": "..." }` (plain text is also accepted)
+## Architecture
+- Frontend: static GitHub Pages application.
+- AI: secure Node/Express server using Google Gemini API.
+- Secret: `GEMINI_API_KEY` is stored only on the backend.
+- Students do **not** enter or see an API key.
+
+## Setup
+1. Copy `.env.example` to `.env` in `backend/`.
+2. Add your Gemini API key to `GEMINI_API_KEY`.
+3. Set `GEMINI_MODEL` if needed.
+4. Run `npm install` and `npm start` in `backend/`.
+5. Deploy the backend to a serverless/container provider.
+6. Put the deployed `/api/ai` URL into `assets/config.js` once. Students then use AI automatically.
+
+## Important security rule
+Never put `GEMINI_API_KEY` in frontend JavaScript, HTML, localStorage, or GitHub.
 
 ## GitHub Pages
-Repository: `sssprojectai/ai-ct-teacher`
-Site: `https://sssprojectai.github.io/ai-ct-teacher/`
-App: `https://sssprojectai.github.io/ai-ct-teacher/app/`
+Frontend URLs:
+- https://sssprojectai.github.io/ai-ct-teacher/
+- https://sssprojectai.github.io/ai-ct-teacher/app/
+
+## Research-use limitation
+The software provides structured learning activity data and performance indicators. It is not, by itself, a scientifically validated psychological test.

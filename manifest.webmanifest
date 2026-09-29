@@ -1,1 +1,1 @@
-{"name":"AI-CT TEACHER","short_name":"AI-CT Teacher","start_url":"./app/","display":"standalone","background_color":"#0b1024","theme_color":"#101a36","description":"AI & Critical Thinking platform for future English teachers","icons":[{"src":"assets/icons/favicon.svg","sizes":"any","type":"image/svg+xml"}]}
+{"name":"AI-CT TEACHER","short_name":"AI-CT","start_url":"./app/","display":"standalone","background_color":"#f5f7ff","theme_color":"#6657e8","icons":[{"src":"./favicon.svg","sizes":"any","type":"image/svg+xml"}]}
