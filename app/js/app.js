@@ -109,7 +109,7 @@ function cycle(){
     <div class="sixc">${labels.map((label,i)=>`<span class="sixc-step ${i===state.scenario.step?'active':''}"><b>${STAGES[i][2]}</b>${label}</span>`).join('')}</div>
     <div class="scenario-hero">
       <span class="eyebrow">Real classroom scenario</span>
-      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><button class="primary-btn" data-action="newScenario">🔀 New Scenario</button></div>
+      <div class="scenario-title-row"><h1>${esc(s[0])}</h1><div class="scenario-hero-actions"><button class="primary-btn" data-action="continueCycle">▶ Continue</button><button class="ghost-btn" data-action="newScenario">🔀 New Scenario</button></div></div>
       <p class="scenario-text">${esc(s[1])}</p>
     </div>
     <div id="sc-q"></div>
@@ -138,6 +138,11 @@ function renderScenario(){
   const root=document.getElementById('sc-q'), s=state.scenario;
   if(!root||!s)return;
   const step=s.step, labels=['CONTEXT','CONSULT','CRITIQUE','CHECK','CHALLENGE','CONCLUDE'];
+  // Keep the 6C header synchronized with the current question stage.
+  document.querySelectorAll('.sixc-step').forEach((el,i)=>{
+    el.classList.toggle('active', i===step);
+    if(i===step) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
+  });
   let body='';
   if(step===0){
     body=`<p class="stage-kicker">📍 CONTEXT · Understand the situation</p><h2 class="q-title">${esc(s.s[2])}</h2><div class="choices">${shuffle(s.s[3]).map((o,i)=>`<button class="choice scenario-choice" data-scenario-answer="${esc(o)}"><span class="letter">${String.fromCharCode(65+i)}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
@@ -154,7 +159,22 @@ function renderScenario(){
   }
   const action=step===0?'chooseScenario':step===5?'finishScenario':'nextCycleStage';
   const label=step===0?'Continue to Consult →':step===5?'Finish 6C ✓':'Continue to next stage →';
-  root.innerHTML=`<div class="question-card pop"><div class="q-meta"><span class="pill">${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${action}">${label}</button></div></div>`;
+  root.innerHTML=`<div class="question-card pop"><div class="q-meta"><span class="pill">${STAGES[step][2]} ${labels[step]} · ${step+1}/6</span><span class="muted">Short thinking task</span></div>${body}<div class="scenario-action"><button class="primary-btn" data-action="${action}">${label}</button></div></div>`;
+  syncSixCHeader();
+}
+function syncSixCHeader(){
+  const step=state.scenario?.step ?? 0;
+  document.querySelectorAll('.sixc-step').forEach((el,i)=>{
+    el.classList.toggle('active', i===step);
+    if(i===step) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
+  });
+}
+
+function continueCycle(){
+  const step=state.scenario?.step||0;
+  if(step===0){chooseScenario();return}
+  if(step===5){finishScenario();return}
+  nextCycleStage();
 }
 function chooseScenario(){
   const btn=document.querySelector('.scenario-choice.selected');
@@ -440,6 +460,7 @@ function ensureStyle(){
  .sixc-step b{margin-right:5px}
  .scenario-hero{padding:28px;border-radius:22px;margin-bottom:16px}
  .scenario-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .scenario-hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.scenario-hero-actions .ghost-btn{border:1px solid var(--line);background:#fff;padding:12px 18px;border-radius:14px;font-size:17px;cursor:pointer}.scenario-hero-actions button{cursor:pointer}
  .scenario-text{font-size:20px!important;line-height:1.55!important;max-width:950px}
  .scenario-action{display:flex;justify-content:flex-end;margin-top:14px}
  .answer-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -447,11 +468,16 @@ function ensureStyle(){
  .class-code{font-size:42px;font-weight:900;letter-spacing:7px;color:#5648d8;margin:18px 0}
  .teacher-stat strong{font-size:36px}
  .ai-checks{display:grid;gap:9px;margin:14px 0}.ai-checks div{padding:12px 14px;background:#f6f7ff;border-radius:12px;border:1px solid var(--line)}
- .ai-response{white-space:pre-wrap;line-height:1.65;font-size:17px}
+ .ai-response{white-space:pre-wrap;line-height:1.65;font-size:17px;color:#17213d!important;opacity:1!important;font-weight:500!important}
+ .cycle-ai{color:#17213d!important;opacity:1!important;background:#f4f6ff!important;border:1px solid #cfd6ee!important}
+ .cycle-ai::first-line{font-weight:800}
+ .stage-kicker{display:flex;align-items:center;gap:8px;color:#5648d8!important;opacity:1!important}
+ .sixc-step b{display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+ .sixc-step{opacity:1!important}
  .footer{color:#69738f!important}
  .sixc-step.active{background:#eceaff!important;border-color:#8a7df1!important;color:#4f43c9!important;box-shadow:0 6px 16px rgba(102,87,232,.12)}
  .stage-kicker{font-weight:800;letter-spacing:.08em;color:#5648d8;margin:0 0 10px}
- .cycle-ai{background:#f6f7ff;border:1px solid #dfe4f2;border-radius:16px;padding:18px;margin:12px 0 18px;white-space:pre-wrap;line-height:1.6}
+ .cycle-ai{border-radius:16px;padding:18px;margin:12px 0 18px;white-space:pre-wrap;line-height:1.6}
 
  .tabs{display:flex;flex-wrap:wrap;gap:10px!important;margin:18px 0!important}
  .tabs .chip{color:#34405f!important;background:#fff!important;border:1px solid #d6dcef!important;font-weight:700!important;opacity:1!important;box-shadow:none!important}
@@ -512,6 +538,7 @@ document.addEventListener('click',e=>{
  else if(a==='profile')profile();
  else if(a==='startScenario')startScenario();
  else if(a==='newScenario')startScenario();
+ else if(a==='continueCycle')continueCycle();
  else if(a==='scenarioNewConfirm')startScenario();
  else if(a==='scenarioContinue')closeScenarioChoice();
  else if(a==='chooseScenario')chooseScenario();
