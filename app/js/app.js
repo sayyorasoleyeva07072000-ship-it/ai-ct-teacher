@@ -269,10 +269,10 @@ function ensureStyle(){
  .app-shell{background:var(--bg)!important;min-height:100vh}
  .topbar{background:#fff!important;color:var(--ink)!important;border-bottom:1px solid var(--line)!important;box-shadow:0 2px 14px rgba(30,40,80,.06)}
  .brand strong,.brand small{color:var(--ink)!important}
- .sidebar{background:#f0f3ff!important;border-right:1px solid var(--line)!important}
- .nav-item{color:#34405f!important;font-size:17px!important;min-height:52px}
+ .sidebar{display:none!important;background:#f0f3ff!important;border-right:1px solid var(--line)!important}
+ .nav-item{color:#34405f!important;font-size:17px!important;min-height:52px;opacity:1!important}
  .nav-item.active{background:#e5e8ff!important;color:#4f43c9!important}
- .main{background:var(--bg)!important}
+ .main{background:var(--bg)!important;padding-left:0!important}
  .card,.question-card,.scenario-hero,.ai-box,.feedback{background:#fff!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:0 8px 28px rgba(38,48,90,.07)}
  .muted,.card p,.scenario-text{color:var(--muted)!important}
  h1{font-size:clamp(30px,4vw,48px)!important;line-height:1.12!important}
@@ -285,7 +285,15 @@ function ensureStyle(){
  textarea,input,select{background:#fff!important;color:var(--ink)!important;border:1px solid #cdd4e7!important;font-size:17px!important;border-radius:14px!important}
  textarea{min-height:120px!important}
  .primary-btn{font-size:17px!important;border-radius:14px!important}
- .ghost-btn,.icon-btn{color:var(--ink)!important}
+ .ghost-btn,.icon-btn{color:var(--ink)!important;opacity:1!important}
+ .chip{color:#34405f!important;opacity:1!important;background:#fff!important;border-color:#d8ddf0!important}
+ .chip.active{color:#4f43c9!important;background:#eceaff!important;border-color:#8a7df1!important}
+ .pill{color:#4f43c9!important;opacity:1!important}
+ .task-card .pill{color:#4f43c9!important;background:#f0edff!important;border-color:#c9c0ff!important}
+ .task-card h3,.task-card p{opacity:1!important}
+ .task-card p.muted{color:#66708f!important}
+ .tabs{opacity:1!important}
+
  .sixc{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
  .sixc-step{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:999px;color:#475170}
  .sixc-step b{margin-right:5px}
@@ -306,8 +314,8 @@ function ensureStyle(){
  .mobile-nav{position:fixed;left:18px;right:18px;bottom:16px;z-index:50;background:rgba(255,255,255,.96)!important;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 36px rgba(38,48,90,.18);display:grid!important;grid-template-columns:repeat(8,1fr);padding:8px;gap:5px;backdrop-filter:blur(12px)}
  .mobile-nav button{border:0;background:transparent;color:#56607d;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:18px;min-height:54px}
  .mobile-nav button small{font-size:10px;font-weight:700;white-space:nowrap}.mobile-nav button.active{background:#eceaff;color:#4f43c9}
- @media(min-width:801px){.mobile-nav{position:fixed;left:18px;right:auto;top:92px;bottom:18px;width:86px;grid-template-columns:1fr;align-content:start;overflow:auto;padding:9px}.mobile-nav button{min-height:68px}.mobile-nav button small{font-size:10px}.main{padding-left:105px!important}.footer{padding-bottom:30px}}
- @media(max-width:800px){.mobile-nav{grid-template-columns:repeat(4,1fr);overflow-x:auto}.mobile-nav button:nth-child(n+5){display:none}.main{padding-bottom:105px!important}.sidebar{display:none!important}}
+ @media(min-width:801px){.mobile-nav{position:fixed;left:18px;right:auto;top:92px;bottom:18px;width:96px;grid-template-columns:1fr;align-content:start;overflow:auto;padding:9px;display:grid!important}.mobile-nav button{min-height:68px}.mobile-nav button small{font-size:10px}.main{padding-left:125px!important}.footer{padding-bottom:30px}}
+ @media(max-width:800px){.mobile-nav{left:12px;right:12px;bottom:12px;grid-template-columns:repeat(4,1fr);overflow-x:auto;display:grid!important}.mobile-nav button:nth-child(n+5){display:none}.main{padding-bottom:105px!important}.sidebar{display:none!important}}
  @media(max-width:800px){.answer-summary{grid-template-columns:1fr}.scenario-title-row{align-items:flex-start}.scenario-title-row h1{font-size:30px!important}.choice{font-size:16px!important}.sidebar{display:none!important}}
  `;
  document.head.appendChild(s);
