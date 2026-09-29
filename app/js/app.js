@@ -216,5 +216,17 @@ body,.app-shell,.main{font-size:16px;color:var(--ink)!important}
 @media(max-width:900px){.cycle-6{grid-template-columns:repeat(2,minmax(0,1fr))!important}.q-title{font-size:23px!important}}
 </style>`);
 
+
+/* SVG ICON SAFETY PATCH: keep inline icons small, outlined and visible */
+const iconSafetyCSS = `<style>
+.brand-mark svg,.icon-btn svg,.primary-btn svg,.ghost-btn svg,.feature-card svg,.task-icon svg,.big-icon svg,.nav-icon svg,.mobile-nav svg,.cycle-step svg{width:1.35em!important;height:1.35em!important;display:inline-block!important;flex:0 0 auto!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;vertical-align:middle!important}
+.brand-mark svg{width:34px!important;height:34px!important;stroke-width:1.6!important}
+.icon-btn svg{width:22px!important;height:22px!important}
+.big-icon svg{width:34px!important;height:34px!important}
+.feature-card .big-icon{min-height:48px!important;display:grid!important;place-items:center!important}
+.ghost-btn,.primary-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}
+</style>`;
+document.head.insertAdjacentHTML('beforeend',iconSafetyCSS);
+
 render();
 })();
