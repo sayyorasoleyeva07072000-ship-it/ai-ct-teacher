@@ -97,7 +97,7 @@ function earn(xp,good=true){state.xp+=xp;state.answered++;if(good){state.correct
 function nav(page){state.page=page;state.libraryCategory=null;render();window.scrollTo({top:0,behavior:'smooth'});sound('click')}
 function shell(content){return `<div class="app-shell"><header class="topbar"><div class="brand"><div class="brand-mark">🧠</div><div><strong>${APP}</strong><small>${INSTITUTION}</small></div></div><div class="top-actions"><span class="pill">Lv ${level()} · ${state.xp} XP</span><button class="icon-btn" data-action="sound" title="Sound">${state.sound?'🔊':'🔇'}</button><button class="icon-btn" data-action="profile">👤</button></div></header><main class="main">${content}<div class="footer">${APP} · ${AUTHOR} · ${INSTITUTION}<br><small>AI is a thinking partner, not a substitute for evidence, teacher judgement or student reflection.</small></div></main>${mobileNav()}</div>`}
 function navHTML(){const items=[['home','🏠','Home'],['library','📚','Task Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Method Challenge'],['competition','🏆','Team Competition'],['ai','🤖','AI Critical Thinking Lab'],['progress','📈','My Progress'],['teacher','👩‍🏫','Teacher Dashboard']];return `<nav class="nav-group">${items.map(i=>`<button class="nav-item ${state.page===i[0]?'active':''}" data-nav="${i[0]}"><span class="nav-icon">${i[1]}</span>${i[2]}</button>`).join('')}</nav>`}
-function mobileNav(){return `<div class="mobile-nav">${[['home','🏠','Home'],['library','📚','Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Challenge'],['competition','🏆','Competition'],['ai','🤖','AI Lab'],['progress','📈','Progress'],['teacher','👩‍🏫','Teacher']].map(x=>`<button class="${state.page===x[0]?'active':''}" data-nav="${x[0]}"><span>${x[1]}</span><small>${x[2]}</small></button>`).join('')}</div>`}
+function mobileNav(){return `<div class="mobile-nav">${[['home','🏠','Home'],['library','📚','Library'],['cycle','🧠','6C Cycle'],['challenge','🎮','Method Challenge'],['competition','🏆','Competition'],['ai','🤖','AI Lab'],['progress','📈','Progress'],['teacher','👩‍🏫','Teacher']].map(x=>`<button class="${state.page===x[0]?'active':''}" data-nav="${x[0]}"><span>${x[1]}</span><small>${x[2]}</small></button>`).join('')}</div>`}
 function home(){const features=[['library','📚','Task Library','Short real-life scenarios across 8 critical-thinking areas.'],['cycle','🧠','6C Cycle','Context → Consult → Critique → Check → Challenge → Conclude.'],['challenge','🎮','Method Challenge','Fast, varied multiple-choice practice with 40 method questions.'],['competition','🏆','Team Competition','Solo or team quiz with timer, score and random questions.'],['ai','🤖','AI Critical Thinking Lab','One-click AI coaching for student answers.'],['progress','📈','My Progress','XP, streaks, badges and learning history.'],['teacher','👩‍🏫','Teacher Dashboard','Classroom-ready activity overview and quick launch tools.'],['library','🇺🇿','Real Classroom Context','Situations built around everyday English teaching.']];return shell(`<section class="hero"><span class="eyebrow">Artificial Intelligence · Critical Thinking · English Teacher Education</span><h1>Think first. Check twice. Teach better.</h1><p>A modern learning environment for future English teachers. Use AI as something to question, verify, challenge and reflect on — not simply as an answer machine.</p><div class="author"><div class="avatar">SS</div><div><strong>${AUTHOR}</strong><br><span class="muted">${INSTITUTION} · PhD Research Project</span></div></div><div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><button class="primary-btn" data-nav="cycle">🚀 Start 6C Learning</button><button class="ghost-btn" data-nav="challenge">🎮 Quick Challenge</button></div></section><div class="stats"><div class="stat"><strong>${state.xp}</strong><span>Total XP</span></div><div class="stat"><strong>${state.correct}</strong><span>Correct answers</span></div><div class="stat"><strong>${state.best}</strong><span>Best streak</span></div><div class="stat"><strong>${state.badges.length}</strong><span>Badges</span></div></div><div class="section-title"><div><h2>Learning Studio</h2><p>Choose a route — every route strengthens critical thinking.</p></div></div><div class="grid grid-4">${features.map(f=>`<button class="card feature-card" data-nav="${f[0]}"><div class="big-icon">${f[1]}</div><h3>${f[2]}</h3><p>${f[3]}</p><span class="arrow">→</span></button>`).join('')}</div><div class="section-title"><div><h2>AI-CT 6C Cycle</h2><p>Six small moves that keep the learner in control.</p></div></div><div class="cycle">${STAGES.map((s,i)=>`<div class="cycle-step"><b>${s[2]}</b><strong>${i+1}. ${s[0]}</strong><span>${s[1]}</span></div>`).join('')}</div>`)}
 function library(){let tasks=[];if(state.libraryCategory){tasks=SCENARIOS.map((s,i)=>({i,title:s[0],scenario:s[1],cat:CATEGORIES[i%8][0]})).filter(x=>x.cat===state.libraryCategory)}else tasks=SCENARIOS.map((s,i)=>({i,title:s[0],scenario:s[1],cat:CATEGORIES[i%8][0]}));return shell(`<div class="section-title"><div><h2>📚 Task Library</h2><p>Short, practical scenarios. No heavy vocabulary. No unnecessary reading.</p></div><span class="pill">${SCENARIOS.length} scenarios</span></div><div class="tabs"><button class="chip ${!state.libraryCategory?'active':''}" data-cat="All">All</button>${CATEGORIES.map(c=>`<button class="chip ${state.libraryCategory===c[0]?'active':''}" data-cat="${esc(c[0])}">${c[1]} ${c[0]}</button>`).join('')}</div><div class="grid grid-4">${tasks.map(t=>`<article class="card task-card"><div class="task-icon">${CATEGORIES[t.i%8][1]}</div><span class="pill">${t.cat}</span><h3>${esc(t.title)}</h3><p class="muted">${esc(t.scenario)}</p><div class="task-foot"><small class="muted">2 critical questions</small><button class="primary-btn" data-scenario="${t.i}">Open →</button></div></article>`).join('')}</div>`)}
 function cycle(){
@@ -120,7 +120,17 @@ function pickScenario(){
   const i=Math.floor(Math.random()*SCENARIOS.length);
   state.scenario={i,s:SCENARIOS[i],answers:[],step:0,selected:'',aiResponse:''};
 }
-function startScenario(){pickScenario();renderScenario();sound('start')}
+function scenarioChoice(){
+  let old=document.getElementById('scenario-choice-modal');
+  if(old) old.remove();
+  const modal=document.createElement('div');
+  modal.id='scenario-choice-modal';
+  modal.innerHTML=`<div class="scenario-choice-backdrop" data-action="scenarioContinue"></div><div class="scenario-choice-modal pop"><button class="scenario-choice-close" data-action="scenarioContinue" aria-label="Close">×</button><div class="big-icon">🧠</div><h2>What would you like to do?</h2><p class="muted">You are currently working on this scenario.</p><div class="scenario-choice-actions"><button class="primary-btn" data-action="scenarioNewConfirm">🔀 New Scenario</button><button class="ghost-btn" data-action="scenarioContinue">▶️ Continue</button></div></div>`;
+  document.body.appendChild(modal);
+  sound('click');
+}
+function closeScenarioChoice(){document.getElementById('scenario-choice-modal')?.remove()}
+function startScenario(){closeScenarioChoice();pickScenario();renderScenario();sound('start')}
 function aiDemoFor(s,choice){
   return `AI RESPONSE — DEMONSTRATION\n\nBased on the situation, I would suggest: “${choice}.”\n\nThis may be useful, but the teacher should still check whether it fits the students, available resources and lesson goal. The suggestion should not be accepted automatically.`;
 }
@@ -313,10 +323,34 @@ function ensureStyle(){
  .section-title p{color:#5c6785!important}
  @media(min-width:801px){.layout{display:block!important}.sidebar{display:none!important}.main{display:block!important;position:relative!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding-left:125px!important;padding-right:28px!important;box-sizing:border-box!important}.main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}.mobile-nav{display:grid!important}}
  @media(max-width:800px){.main{padding-left:16px!important;padding-right:16px!important;width:100%!important;box-sizing:border-box!important}.mobile-nav{display:grid!important;grid-template-columns:repeat(4,1fr)!important;left:12px!important;right:12px!important;bottom:12px!important}.mobile-nav button:nth-child(n+5){display:none!important}}
+ .scenario-choice-backdrop{position:fixed;inset:0;background:rgba(20,28,58,.38);backdrop-filter:blur(5px);z-index:199}
+ .scenario-choice-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));padding:30px;border-radius:24px;background:#fff!important;color:var(--ink)!important;border:1px solid var(--line);box-shadow:0 24px 70px rgba(20,28,58,.25);z-index:200;text-align:center}
+ .scenario-choice-modal h2{margin:6px 0 8px;color:#17213d!important;font-size:28px}
+ .scenario-choice-modal .big-icon{font-size:42px;margin-bottom:4px}
+ .scenario-choice-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+ .scenario-choice-actions button{min-width:155px}
+ .scenario-choice-close{position:absolute;right:14px;top:12px;width:34px;height:34px;border:0;border-radius:50%;background:#f3f4fb;color:#59637e;font-size:25px;line-height:1;cursor:pointer}
  .mobile-nav{position:fixed;left:18px;right:18px;bottom:16px;z-index:50;background:rgba(255,255,255,.96)!important;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 36px rgba(38,48,90,.18);display:grid!important;grid-template-columns:repeat(8,1fr);padding:8px;gap:5px;backdrop-filter:blur(12px)}
  .mobile-nav button{border:0;background:transparent;color:#56607d;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:18px;min-height:54px}
  .mobile-nav button small{font-size:10px;font-weight:700;white-space:nowrap}.mobile-nav button.active{background:#eceaff;color:#4f43c9}
- @media(min-width:801px){.mobile-nav{position:fixed;left:18px;right:auto;top:92px;bottom:18px;width:86px;grid-template-columns:1fr;align-content:start;overflow:auto;padding:9px}.mobile-nav button{min-height:68px}.mobile-nav button small{font-size:10px}.main{padding-left:125px!important;padding-right:28px!important}.main>.grid,.main>.section-title,.main>.tabs,.main>.hero,.main>.stats,.main>.cycle{width:100%!important;max-width:none!important}.grid{display:grid!important;width:100%!important;grid-template-columns:repeat(4,minmax(240px,1fr))!important;gap:20px!important}.grid-4{grid-template-columns:repeat(4,minmax(240px,1fr))!important}.card{min-width:0!important}.footer{padding-bottom:30px}}
+ @media(min-width:801px){
+  .app-shell{display:block!important;width:100%!important;min-width:0!important}
+  .mobile-nav{position:fixed!important;left:18px!important;right:auto!important;top:92px!important;bottom:18px!important;width:178px!important;grid-template-columns:1fr!important;align-content:start!important;overflow-y:auto!important;overflow-x:hidden!important;padding:10px!important;z-index:1000!important;pointer-events:auto!important}
+  .mobile-nav button{min-height:64px!important;width:100%!important;pointer-events:auto!important;cursor:pointer!important;justify-content:flex-start!important;flex-direction:row!important;gap:12px!important;padding:10px 14px!important;font-size:22px!important}
+  .mobile-nav button small{font-size:13px!important;white-space:nowrap!important;font-weight:800!important}
+  .main{display:block!important;position:relative!important;float:none!important;left:auto!important;right:auto!important;width:calc(100% - 214px)!important;max-width:none!important;min-width:0!important;margin:0 0 0 214px!important;padding:28px 28px 40px!important;box-sizing:border-box!important}
+  .main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+  .main>.grid,.main>.section-title,.main>.tabs,.main>.hero,.main>.stats,.main>.cycle{width:100%!important;max-width:none!important}
+  .grid{display:grid!important;width:100%!important;grid-template-columns:repeat(4,minmax(220px,1fr))!important;gap:20px!important}
+  .grid-4{grid-template-columns:repeat(4,minmax(220px,1fr))!important}
+  .card{min-width:0!important}
+  .footer{padding-bottom:30px}
+}
+@media(min-width:801px) and (max-width:1250px){.grid,.grid-4{grid-template-columns:repeat(2,minmax(220px,1fr))!important}}
+@media(max-width:800px){
+  .mobile-nav{z-index:1000!important;pointer-events:auto!important}
+  .mobile-nav button{pointer-events:auto!important;cursor:pointer!important}
+}
  @media(max-width:800px){.mobile-nav{grid-template-columns:repeat(4,1fr);overflow-x:auto}.mobile-nav button:nth-child(n+5){display:none}.main{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;padding:16px 16px 105px!important;box-sizing:border-box!important}.main>*{width:100%!important;max-width:none!important;box-sizing:border-box!important}.grid{display:grid!important;width:100%!important;grid-template-columns:1fr!important;gap:16px!important}.grid-4{grid-template-columns:1fr!important}.card{min-width:0!important}.sidebar{display:none!important}}
  @media(min-width:801px) and (max-width:1250px){.grid,.grid-4{grid-template-columns:repeat(2,minmax(240px,1fr))!important}}
  @media(max-width:800px){.answer-summary{grid-template-columns:1fr}.scenario-title-row{align-items:flex-start}.scenario-title-row h1{font-size:30px!important}.choice{font-size:16px!important}.sidebar{display:none!important}}
@@ -338,7 +372,9 @@ document.addEventListener('click',e=>{
  if(a==='sound'){state.sound=!state.sound;save();render();sound('click')}
  else if(a==='profile')profile();
  else if(a==='startScenario')startScenario();
- else if(a==='newScenario')startScenario();
+ else if(a==='newScenario')scenarioChoice();
+ else if(a==='scenarioNewConfirm')startScenario();
+ else if(a==='scenarioContinue')closeScenarioChoice();
  else if(a==='chooseScenario')chooseScenario();
  else if(a==='finishScenario')finishScenario();
  else if(a==='beginGame')beginGame(act.dataset.kind);
