@@ -1,3 +1,5 @@
+# AI-CT TEACHER: all crawlers are welcome to index the whole site.
 User-agent: *
 Allow: /
+
 Sitemap: https://sssprojectai.github.io/ai-ct-teacher/sitemap.xml

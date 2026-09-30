@@ -1,4 +1,11 @@
+# Never commit real secrets.
 .env
 .env.*
-node_modules/
+!.env.example
+backend/**/.dev.vars
+backend/**/wrangler.toml.local
+
+# Editor / OS noise
 .DS_Store
+Thumbs.db
+node_modules/

@@ -1,0 +1,12 @@
+# AI-CT TEACHER backend — Cloudflare Worker configuration (Gemini).
+# Deploy from this folder with:  wrangler deploy
+# Set the key as a secret (never in this file):  wrangler secret put GEMINI_API_KEY
+# See ../README.md for the complete step-by-step.
+
+name = "ai-ct-teacher-ai"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+# Optional non-secret override of the model name:
+# [vars]
+# GEMINI_MODEL = "gemini-2.5-flash"
