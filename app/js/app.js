@@ -920,6 +920,7 @@ const UZ={
  libLead:"ta real sinf vaziyati sakkizta kategoriyada. Har biri toʻliq 6 bosqichdan oʻtadi.",
  footNote:"Maʼlumotlar brauzeringizda saqlanadi.",
  j:{title:"Sinfga qoʻshilish",lead:"Quyida sinf nomini koʻrasiz. Ismingizni yozing va qoʻshiling.",nameLabel:"Ismingiz (taxallus ham mumkin)",btn:"Qoʻshilish",privacy:"Oʻqituvchi faqat ismingizni va ballaringizni koʻradi. Yozgan javoblaringiz yuborilmaydi."},
+ chat:{title:"AI bilan suhbat",ask:"AI ga kuzatuv savoli bering"},
  t:{notConnected:"Sinflar hozircha ulanmagan.",notConnectedP:"Oʻqituvchi sinf yaratib natijalarni koʻrishi uchun xavfsiz server ulangan boʻlishi kerak. Quyida namuna (demo) maʼlumotlar bilan koʻrinish koʻrsatilgan.",
   lead:"Sinf yarating, havolani talabalarga bering va ularning natijalarini koʻring.",preview:"Namuna koʻrinish",created:"Sinf yaratildi",code:"Sinf kodi",link:"Qoʻshilish havolasi",key:"Oʻqituvchi kaliti",
   keyWarn:"Kalitni saqlab qoʻying: u faqat shu qurilmada va hozir koʻrinadi. Kalit yoʻqolsa, sinf natijalarini koʻra olmaysiz. Uni talabalarga bermang.",openClass:"Sinfni ochish",create:"Yangi sinf yaratish",className:"Sinf nomi",classPh:"Masalan: 3-kurs, A guruh",yourName:"Ismingiz",optional:"ixtiyoriy",createBtn:"Sinf yaratish",
@@ -983,6 +984,12 @@ const arr=v=>Array.isArray(v)?v:[];
 function validAttempt(a){
   try{return isObj(a)&&typeof a.id==='string'&&TASK_BY_ID[a.taskId]&&isObj(a.d)&&['context','consult','critique','check','challenge','conclude'].every(k=>isObj(a.d[k]))
     &&Number.isInteger(a.stage)&&a.stage>=1&&a.stage<=6&&(a.status==='in_progress'||a.status==='completed')&&Array.isArray(a.d.check.rows)&&isObj(a.d.critique.tags)&&Array.isArray(a.d.consult.segs)}catch(e){return false}}
+/* Attempts saved before the Consult conversation existed hold one prompt and one answer: turn them into a two-message conversation. */
+function migrateChat(a){
+  const c=a.d.consult;
+  if(!Array.isArray(c.chat)){c.chat=[];
+    if(c.response){if(c.prompt)c.chat.push({role:'student',text:String(c.prompt),ts:c.ts||0});
+      c.chat.push({role:'ai',text:String(c.response),mode:c.mode||'demo',ts:c.ts||0,segs:Array.isArray(c.segs)?c.segs:splitSegs(String(c.response)),extra:c.extra||null})}}}
 function sanitizeState(raw){
   const d=defaultState();
   if(!isObj(raw))return d;
@@ -999,7 +1006,7 @@ function sanitizeState(raw){
   d.outbox=arr(raw.outbox).filter(o=>isObj(o)&&typeof o.cid==='string'&&typeof o.code==='string').slice(-500);
   if(raw.schema===SCHEMA){
     const at=isObj(raw.attempts)?raw.attempts:{};
-    Object.keys(at).forEach(id=>{if(validAttempt(at[id]))d.attempts[id]=at[id]});
+    Object.keys(at).forEach(id=>{if(validAttempt(at[id])){migrateChat(at[id]);d.attempts[id]=at[id]}});
     d.order=arr(raw.order).filter(id=>d.attempts[id]);
     d.notes=isObj(raw.notes)?raw.notes:{}}
   else d.legacy=Object.keys(isObj(raw.attempts)?raw.attempts:{}).length;   // older version: its task records are not shown, only counted
@@ -1014,12 +1021,12 @@ const ui={page:'home',params:{},menu:false,streaming:false,stream:'',aiErr:'',li
   mc:null,tc:{phase:'setup',mode:1,teams:[{name:'You',score:0}],count:5,diff:'easy',topic:'mixed'},
   teacher:{view:'home',code:null,data:null,loading:false,err:'',newKey:null,showKey:false,projector:false},
   join:{code:'',info:null,err:'',busy:false},sync:{busy:false,last:0,err:''},
-  tSort:{k:'avg',dir:-1},tTask:'All',tStudent:null,assessId:null,justCompleted:null,justBadges:null,justXp:0,feedback:null,aboutLang:'uz'};
+  tSort:{k:'avg',dir:-1},tTask:'All',tStudent:null,assessId:null,justCompleted:null,justBadges:null,justXp:0,feedback:null,aboutLang:'uz',chatDraft:''};
 
 /* ---------- attempts ---------- */
 function blankData(){return{
   context:{pick:-1,first:'',conf:0},
-  consult:{prompt:'',mode:'',response:'',segs:[],history:[],ts:0,extra:null},
+  consult:{prompt:'',mode:'',response:'',segs:[],history:[],ts:0,extra:null,chat:[]},
   critique:{tags:{},stance:'',reason:''},
   check:{rows:[],seeded:false},
   challenge:{pick:-1,own:'',limit:''},
@@ -1075,11 +1082,48 @@ const responseParas=t=>String(t||'').replace(/\*\*|__|`/g,'').split(/\n{2,}/).ma
 
 
 function demoParas(t){const a=t.ai,out=[];for(let i=0;i<a.length;i+=2)out.push(a.slice(i,i+2).join(' '));return out.join('\n\n')}
-function recordConsult(at,mode,prompt,text,segs,extra){
+/* =====================================================================
+   CONSULT CONVERSATION. consult.chat is the source of truth: a list of
+   {role:'ai'|'student', text, mode, ts, segs, extra}. The fields the rest of
+   the app reads (response, segs, extra, mode, prompt) are derived from it by
+   consultSync(), so Critique, Check, records and scoring keep working.
+   The AI's first message answers the scenario itself; the student then asks
+   follow-up questions. Everything goes through the secure server.
+   ===================================================================== */
+const CHAT_MAX_FOLLOWUPS=8, CHAT_Q_MAX=300;
+const chatAI=at=>at.d.consult.chat.filter(m=>m.role==='ai');
+const chatStudent=at=>at.d.consult.chat.filter(m=>m.role==='student');
+function consultSync(at){
+  const c=at.d.consult,ais=chatAI(at),stu=chatStudent(at),last=ais[ais.length-1];
+  c.mode=last?last.mode:'';c.response=last?last.text:'';c.ts=last?last.ts:0;
+  c.prompt=stu.length?stu[0].text:'';
+  c.segs=[];ais.forEach(m=>{(Array.isArray(m.segs)&&m.segs.length?m.segs:splitSegs(m.text)).forEach(x=>c.segs.push(x))});
+  const ex=ais.map(m=>m.extra).filter(Boolean),uniq=a=>[...new Set(a.map(String))];
+  c.extra=ex.length?{claims:uniq([].concat(...ex.map(e=>e.claims||[]))).slice(0,6),assumptions:uniq([].concat(...ex.map(e=>e.assumptions||[]))).slice(0,6),
+    uncertainty:(ex[ex.length-1].uncertainty||''),followUp:(ex[ex.length-1].followUp||'')}:null}
+function startChat(at,mode,text,segs,extra,firstPrompt){
   const c=at.d.consult;
-  if(c.response)c.history.push({prompt:c.prompt,mode:c.mode,response:c.response,ts:c.ts});
-  c.prompt=prompt;c.mode=mode;c.response=text;c.segs=segs;c.ts=Date.now();c.extra=extra||null;
-  at.d.critique.tags={};at.d.check.rows=[];at.d.check.seeded=false;touch(at)}
+  if(c.response)c.history.push({prompt:c.prompt,mode:c.mode,response:c.response,ts:c.ts,turns:c.chat.length});
+  c.chat=[];if(firstPrompt)c.chat.push({role:'student',text:String(firstPrompt),ts:Date.now()});
+  c.chat.push({role:'ai',text,mode,ts:Date.now(),segs:segs&&segs.length?segs:splitSegs(text),extra:extra||null});
+  at.d.critique.tags={};at.d.check.rows=[];at.d.check.seeded=false;consultSync(at);touch(at)}
+function addTurn(at,role,text,mode,segs,extra){
+  const c=at.d.consult;
+  c.chat.push(role==='ai'?{role,text,mode,ts:Date.now(),segs:segs&&segs.length?segs:splitSegs(text),extra:extra||null}:{role,text:String(text),ts:Date.now()});
+  if(role==='ai')at.d.check.seeded=false;          // new AI claims can be added to the Check stage
+  consultSync(at);touch(at)}
+function dropLastStudent(at){const c=at.d.consult;if(c.chat.length&&c.chat[c.chat.length-1].role==='student'){c.chat.pop();consultSync(at)}}
+/* The server is stateless, so the earlier turns travel inside the request text (newest kept first, within the server's 4000-character limit). */
+function chatTranscript(at,newQ){
+  const out=[];let budget=3300;
+  for(let i=at.d.consult.chat.length-1;i>=0;i--){
+    const m=at.d.consult.chat[i],t=(m.role==='ai'?'AI: ':'Student: ')+String(m.text).replace(/\s+/g,' ').slice(0,m.role==='ai'?600:300);
+    if(budget-t.length<0)break;budget-=t.length;out.unshift(t)}
+  return 'Conversation so far (the AI answers may contain mistakes):\n'+out.join('\n')+'\n\nNEW QUESTION FROM THE STUDENT: '+newQ+'\n\nAnswer this new question directly, in the same JSON format, and stay on the classroom scenario above.'}
+const lastAIMode=at=>{const a=chatAI(at);return a.length?a[a.length-1].mode:''};
+const chatCanAsk=at=>{const m=lastAIMode(at);return (m==='backend'||m==='live')&&!ui.streaming&&chatStudent(at).length<CHAT_MAX_FOLLOWUPS};
+/* kept for older callers (demo answer, sample record, tests): restart the conversation with this prompt and answer */
+function recordConsult(at,mode,prompt,text,segs,extra){startChat(at,mode,text,segs,extra,prompt||'')}
 /* =====================================================================
    API CLIENT
    API_BASE is the address of the secure server (Cloudflare Worker, see
@@ -1230,12 +1274,13 @@ function defaultPrompt(t){
 function seedCheckRows(at){
   const c=at.d.check;if(c.seeded)return;c.seeded=true;
   const t=TASK_BY_ID[at.taskId],tags=at.d.critique.tags,mk=(seg,claim,exp,why)=>({id:uid('r'),seg,claim,sourceType:'',evidence:'',verdict:'',exp:exp||'',why:why||''});
-  if(isDemo(at)){t.claims.forEach(cl=>c.rows.push(mk(cl.seg,cl.text,cl.verdict,cl.why)))}
+  const add=r=>{if(!c.rows.some(x=>x.claim===r.claim))c.rows.push(r)};
+  if(isDemo(at)){t.claims.forEach(cl=>add(mk(cl.seg,cl.text,cl.verdict,cl.why)))}
   else{
     const ex=at.d.consult.extra;
-    ((ex&&ex.claims)||[]).slice(0,3).forEach(text=>c.rows.push(mk(null,String(text).slice(0,300))));
-    at.d.consult.segs.forEach((s,i)=>{if(tags[i]==='check'&&c.rows.length<4)c.rows.push(mk(i,excerpt(s,240)))});
-    if(!c.rows.length){const q=Object.keys(tags).find(k=>tags[k]==='q');if(q!=null)c.rows.push(mk(+q,excerpt(at.d.consult.segs[+q]||'',240)))}}}
+    ((ex&&ex.claims)||[]).slice(0,4).forEach(text=>add(mk(null,String(text).slice(0,300))));
+    at.d.consult.segs.forEach((s,i)=>{if(tags[i]==='check'&&c.rows.length<4)add(mk(i,excerpt(s,240)))});
+    if(!c.rows.length){const q=Object.keys(tags).find(k=>tags[k]==='q');if(q!=null)add(mk(+q,excerpt(at.d.consult.segs[+q]||'',240)))}}}
 
 /* ---------- what is needed to move to the next stage (kept deliberately small) ---------- */
 function reqs(at,stage){
@@ -1255,14 +1300,15 @@ function canEnter(at,n){if(n>at.maxStage)return false;for(let s=1;s<n;s++)if(!st
 function computeAssessment(at){
   const d=at.d,t=TASK_BY_ID[at.taskId],demo=isDemo(at),ks=critiqueStats(at),rows=d.check.rows.filter(rowComplete),al=checkAlignment(at);
   const why=d.conclude.reasoning,link=/\b(because|since|so|but|however|although|if|therefore|which|as)\b/i,chk=/(check|source|evidence|verif|found)/i;
-  const reason=d.critique.reason,ind=(l,ok,tip)=>({l,ok:!!ok,tip});
+  const reason=d.critique.reason,ind=(l,ok,tip,na)=>({l,ok:!!ok,tip,na:!!na});
+  const stu=chatStudent(at),probe=/\b(why|evidence|source|sources|proof|prove|reason|reasons|alternative|alternatives|instead|another|other|better|sure|certain|uncertain|limit|limits|risk|risks|assum\w*|study|research)\b/i;
   const I=[
    [ind('Chose the most useful description of the problem',d.context.pick===t.q1.best,'Ask: what is the real problem, not only a symptom?'),
     ind('Wrote a first step of 5+ words',W(d.context.first)>=5,'Write a full, concrete first step.'),
     ind('First step uses a detail from the scenario',sharedCount(d.context.first,t.context)>=1,'Mention the level, class size, time or another detail.')],
-   [ind('Asked the AI a question',!!d.consult.response,'Ask the AI before you judge it.'),
-    ind('Question has 8+ words',W(d.consult.prompt)>=8,'A longer question gives the AI more to work with.'),
-    ind('Question mentions details from the scenario',sharedCount(d.consult.prompt,t.context)>=2,'Include class level, size or the problem itself.')],
+   [ind('Got an AI answer to examine',!!d.consult.response,'Open Consult and read the AI answer.'),
+    ind('Asked the AI a follow-up question',demo||stu.length>=1,'Ask a follow-up: why, what evidence, or is there another way?',demo),
+    ind('Asked about evidence, reasons or an alternative',demo||stu.some(m=>probe.test(m.text)),'Probe the answer: ask why, what evidence supports it, or what else could work.',demo)],
    demo?[ind('Found at least half of the weak parts',ks.hit/ks.flaws>=0.5,'Look for claims with no source, exact numbers, or words like always and never.'),
          ind('Did not mark many solid parts as weak',ks.flagged>0&&ks.falseFlags<=1,'Keep "questionable" for parts that really lack support.'),
          ind('Explained your position in 6+ words',!!d.critique.stance&&W(reason)>=6,'Give a full reason, not only a label.')]
@@ -1333,7 +1379,7 @@ function recordObject(at){
     student:S.profile.name||null,classCodes:S.classes.map(c=>c.code),
     task:{id:t.id,number:t.num,category:t.category,skill:t.skill,title:t.title,scenario:t.context},
     context:{mainProblemChoice:t.q1.options[d.context.pick]||null,correctChoice:d.context.pick===t.q1.best,firstStep:d.context.first,confidence:d.context.conf},
-    consult:{mode:d.consult.mode==='backend'?'LIVE (Gemini, via server)':d.consult.mode==='live'?'LIVE (Claude)':'DEMONSTRATION (pre-written)',prompt:d.consult.prompt,response:d.consult.response,aiExtra:d.consult.extra},
+    consult:{mode:d.consult.mode==='backend'?'LIVE (Gemini, via server)':d.consult.mode==='live'?'LIVE (Claude)':'DEMONSTRATION (pre-written)',prompt:d.consult.prompt,response:d.consult.response,aiExtra:d.consult.extra,followUpQuestions:chatStudent(at).length,followUpsAvailable:d.consult.mode!=='demo',conversation:d.consult.chat.map(m=>({speaker:m.role==='ai'?'AI':'Student',mode:m.role==='ai'?m.mode:undefined,text:m.text}))},
     critique:{marks:d.consult.segs.map((s,i)=>({text:s,mark:({ok:'convincing',q:'questionable',check:'check-this'})[d.critique.tags[i]]||'unmarked',weakInAnswerKey:isDemo(at)?t.flaws.includes(i):null})),stance:d.critique.stance,reason:d.critique.reason},
     check:{note:'Verdicts are the student\'s own judgments; the platform does not verify sources.',rows:d.check.rows.map(r=>({claim:r.claim,sourceType:r.sourceType,evidence:r.evidence,verdict:r.verdict,expectedVerdict:r.exp||null}))},
     challenge:{improvement:t.improve.options[d.challenge.pick]||null,bestFit:d.challenge.pick===t.improve.best,own:d.challenge.own,risk:d.challenge.limit},
@@ -1344,9 +1390,9 @@ const csvCell=v=>{const isNum=typeof v==='number'&&isFinite(v);v=v==null?'':Stri
   if(!isNum&&/^[=+\-@\t\r]/.test(v))v="'"+v;
   return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 function toCSV(list){
-  const cols=['record_id','sample','student','class_codes','task_id','category','task','started','completed','ai_mode','ai_prompt','main_problem_correct','first_step','confidence_start','critique_stance','critique_reason','critique_marks_json','check_rows_json','improvement','improvement_best_fit','own_alternative','risk','decision','reasoning','learned','confidence_end',...COMP.map(c=>'level_'+c.key),'total','max','percent','band','xp'];
+  const cols=['record_id','sample','student','class_codes','task_id','category','task','started','completed','ai_mode','ai_prompt','follow_up_questions','conversation_json','main_problem_correct','first_step','confidence_start','critique_stance','critique_reason','critique_marks_json','check_rows_json','improvement','improvement_best_fit','own_alternative','risk','decision','reasoning','learned','confidence_end',...COMP.map(c=>'level_'+c.key),'total','max','percent','band','xp'];
   const rows=list.map(at=>{const r=recordObject(at),a=computeAssessment(at);
-    return[at.id,at.sample?'yes':'no',r.student,r.classCodes.join(' '),r.task.id,r.task.category,r.task.title,r.startedAt,r.completedAt,r.consult.mode,r.consult.prompt,r.context.correctChoice,r.context.firstStep,r.context.confidence,r.critique.stance,r.critique.reason,JSON.stringify(r.critique.marks),JSON.stringify(r.check.rows),r.challenge.improvement,r.challenge.bestFit,r.challenge.own,r.challenge.risk,r.conclude.decision,r.conclude.reasoning,r.conclude.learned,r.conclude.confidence,...a.items.map(i=>i.level),a.total,a.max,a.pct,a.band,r.indicators.xp].map(csvCell).join(',')});
+    return[at.id,at.sample?'yes':'no',r.student,r.classCodes.join(' '),r.task.id,r.task.category,r.task.title,r.startedAt,r.completedAt,r.consult.mode,r.consult.prompt,r.consult.followUpQuestions,JSON.stringify(r.consult.conversation),r.context.correctChoice,r.context.firstStep,r.context.confidence,r.critique.stance,r.critique.reason,JSON.stringify(r.critique.marks),JSON.stringify(r.check.rows),r.challenge.improvement,r.challenge.bestFit,r.challenge.own,r.challenge.risk,r.conclude.decision,r.conclude.reasoning,r.conclude.learned,r.conclude.confidence,...a.items.map(i=>i.level),a.total,a.max,a.pct,a.band,r.indicators.xp].map(csvCell).join(',')});
   return[cols.join(','),...rows].join('\n')}
 async function doExport(kind,id){
   const list=id?[S.attempts[id]]:completedList();
@@ -1552,31 +1598,49 @@ function stage1(at){
     ${locked?`<p class="fb ${c.pick===q.best?'g':'w'}" role="status">${c.pick===q.best?'✓ Good thinking. ':'Not the best choice. '}${esc(q.why)}</p>`:`<p class="hint">Choose one. You can only choose once, so go with your first thought.</p>`}</div>
    <div class="card">${fld2(at,'context.first',{label:'What would you do first? (1 sentence)',min:3,ph:'First I would…'})}${scaleHTML(at,'context.conf','How sure are you of your choice?','1 = not sure','5 = very sure')}</div>`}
 
-/* ---------- Stage 2: Consult (the only AI stage) ---------- */
+/* ---------- Stage 2: Consult — a real conversation with the AI about THIS scenario ---------- */
 function aiStatusHTML(){const m=aiMode();
-  return m==='backend'?'<b>🟢 Live AI (Gemini) is connected.</b> You never enter an API key. Live answers can still contain errors.'
+  return m==='backend'?'<b>🟢 Live AI (Gemini) is connected.</b> You never enter an API key. Live answers can still contain errors, so treat them as claims to check.'
    :m==='live'?'<b>🟢 Live AI (Claude) is available in this view.</b> Live answers can still contain errors.'
-   :'<b>🟡 Demonstration mode.</b> This answer is pre-written and does not react to your question. When the secure AI service is connected, this button will use live AI automatically.'}
+   :'<b>🟡 Demonstration mode.</b> The answer below is pre-written and does not react to what you type, so follow-up questions are switched off. When the secure AI service is connected, Consult becomes a live conversation by itself.'}
 const aiParas=t=>responseParas(t).map(p=>`<p>${esc(p)}</p>`).join('');
-function aiExtraHTML(x){if(!x||(!x.claims.length&&!x.assumptions.length&&!x.uncertainty&&!x.followUp))return'';
-  return `<div class="ai-foot" style="display:grid;gap:8px">${x.claims.length?`<div><b>Claims worth checking:</b> ${x.claims.map(esc).join('; ')}</div>`:''}${x.assumptions.length?`<div><b>Possible assumptions:</b> ${x.assumptions.map(esc).join('; ')}</div>`:''}${x.uncertainty?`<div><b>The AI is least sure about:</b> ${esc(x.uncertainty)}</div>`:''}${x.followUp?`<div><b>The AI asks:</b> ${esc(x.followUp)}</div>`:''}</div>`}
-function aiOutHTML(at){
-  const c=at.d.consult;
-  if(ui.streaming)return `<div class="ai-box"><div class="ai-label"><span>${aiModeLabel(aiMode())}</span></div><div class="ai-body">${ui.stream?aiParas(ui.stream):`<span class="thinking" aria-live="polite">Thinking <i></i><i></i><i></i></span>`}</div></div>`;
-  const err=ui.aiErr?`<div class="notice b"><p>${esc(ui.aiErr)}</p></div>`:'';
-  if(!c.response)return `${err}<div class="empty"><p class="muted">Press "Ask AI". The answer appears here as material to examine.</p></div>`;
-  const live=c.mode==='live'||c.mode==='backend';
-  return `${err}<div class="ai-box"><div class="ai-label"><span>${aiModeLabel(c.mode)}</span><span class="small">${fmtTime(c.ts)}</span></div><div class="ai-body">${aiParas(c.response)}</div><div class="ai-foot">${live?'Generated from your question. AI output can contain mistakes, including invented facts and sources.':'Pre-written for this task with deliberate weak points. No live AI was used.'}</div>${aiExtraHTML(c.extra)}</div>
-   <div class="notice"><p><strong>This page does not say whether the answer is right.</strong> Judging it is your work in the next stages. <span class="uz">${UZ.consultNote}</span></p></div>`}
+const CHAT_STARTERS=['Why do you recommend this?','What evidence supports this?','Could another approach work better?','What are you least sure about?'];
+function aiExtraHTML(x,canAsk){if(!x||(!x.claims.length&&!x.assumptions.length&&!x.uncertainty&&!x.followUp))return'';
+  return `<div class="ai-foot" style="display:grid;gap:8px">${x.claims.length?`<div><b>Claims worth checking:</b> ${x.claims.map(esc).join('; ')}</div>`:''}${x.assumptions.length?`<div><b>Possible assumptions:</b> ${x.assumptions.map(esc).join('; ')}</div>`:''}${x.uncertainty?`<div><b>The AI is least sure about:</b> ${esc(x.uncertainty)}</div>`:''}${x.followUp?`<div><b>The AI asks:</b> ${esc(x.followUp)} ${canAsk?`<button type="button" class="chip-btn" data-act="chat-chip" data-q="${esc(x.followUp)}">Ask this question</button>`:''}</div>`:''}</div>`}
+function chatMsgHTML(m,i,isLast,canAsk){
+  if(m.role==='student')return `<div class="chat-msg you"><div class="chat-who">You <span class="small">${fmtTime(m.ts)}</span></div><div class="chat-bubble">${esc(m.text)}</div></div>`;
+  const live=m.mode==='live'||m.mode==='backend';
+  return `<div class="chat-msg ai"><div class="ai-box"><div class="ai-label"><span>${aiModeLabel(m.mode)}</span><span class="small">${fmtTime(m.ts)}</span></div><div class="ai-body">${aiParas(m.text)}</div>
+   <div class="ai-foot ai-warn">${live?'AI output can contain mistakes, including invented facts and sources.':'Pre-written for this task with deliberate weak points. No live AI was used.'}</div>${live?aiExtraHTML(m.extra,isLast&&canAsk):''}</div></div>`}
+function chatLogHTML(at){
+  const c=at.d.consult,canAsk=chatCanAsk(at);
+  let h=c.chat.map((m,i)=>chatMsgHTML(m,i,i===c.chat.length-1,canAsk)).join('');
+  if(ui.streaming)h+=`<div class="chat-msg ai"><div class="ai-box"><div class="ai-label"><span>${aiModeLabel(aiMode())}</span></div><div class="ai-body">${ui.stream?aiParas(ui.stream):`<span class="thinking" aria-live="polite">The AI is answering <i></i><i></i><i></i></span>`}</div></div></div>`;
+  if(ui.aiErr)h+=`<div class="notice b"><p>${esc(ui.aiErr)}</p>${!c.chat.length?`<p class="row" style="gap:8px;margin-top:8px"><button class="btn" data-act="ask">Try again</button><button class="btn quiet" data-act="ask-demo">Use the demonstration answer</button></p>`:''}</div>`;
+  if(!c.chat.length&&!ui.streaming&&!ui.aiErr)h+=`<div class="empty"><p class="muted">The AI answer to this situation appears here.</p><button class="btn" data-act="ask">Ask the AI</button></div>`;
+  return h}
+function chatHintText(at){
+  const n=chatStudent(at).length,left=CHAT_MAX_FOLLOWUPS-n,m=lastAIMode(at);
+  if(!at.d.consult.chat.length)return 'Waiting for the AI answer…';
+  if(m==='demo')return 'Follow-up questions need live AI. Read the answer, then continue to Critique.';
+  if(left<=0)return 'You have used all '+CHAT_MAX_FOLLOWUPS+' questions. Continue to Critique.';
+  return `${left} question${left===1?'':'s'} left. The AI answers about this situation only. Press Enter to send.`}
+function composerHTML(at){
+  const can=chatCanAsk(at),dis=can?'':'disabled';
+  return `<div class="composer"><label class="lab" for="chatIn">Ask the AI a follow-up question <span class="uz">${UZ.chat.ask}</span></label>
+   <div class="chat-starters" role="group" aria-label="Question ideas">${CHAT_STARTERS.map(q=>`<button type="button" class="chip-btn" data-act="chat-chip" data-q="${esc(q)}" ${dis}>${esc(q)}</button>`).join('')}</div>
+   <div class="chat-row"><textarea id="chatIn" rows="2" maxlength="${CHAT_Q_MAX}" placeholder="Type your question about this classroom situation…" ${dis}>${esc(ui.chatDraft||'')}</textarea><button type="button" class="btn" id="chatSend" data-act="chat-send" ${dis}>Send ▶</button></div>
+   <p class="hint" id="chatHint">${esc(chatHintText(at))}</p>
+   ${chatStudent(at).length||at.d.consult.chat.length>1?`<button type="button" class="btn quiet sm" data-act="chat-reset">Start a new conversation</button>`:''}</div>`}
 function stage2(at){
-  const t=TASK_BY_ID[at.taskId],c=at.d.consult,has=!!c.response,m=aiMode(),n=W(c.prompt);
+  const t=TASK_BY_ID[at.taskId];
   return `${scenarioCard(t)}
    <div class="card ai-card"><div class="ai-status" id="aiStatus">${aiStatusHTML()}</div>
-    <div class="fld"><label class="lab" for="f-consult-prompt">Your question to the AI (you can change it)</label><textarea id="f-consult-prompt" rows="4" data-b="consult.prompt" maxlength="900">${esc(c.prompt)}</textarea><div class="cnt ${n>=4?'ok':''}" data-cnt="consult.prompt" data-min="4">${n} words</div></div>
-    <div class="row" style="gap:10px;flex-wrap:wrap" id="aiCtl">${aiCtlHTML(at)}</div></div>
-   <div id="aiOut" aria-live="polite">${aiOutHTML(at)}</div>`}
-function aiCtlHTML(at){const c=at.d.consult,ok=W(c.prompt)>=4&&!ui.streaming,has=!!c.response,m=aiMode();
-  return `<button class="btn" data-act="ask" ${ok?'':'disabled'}>${ui.streaming?'Asking…':has?'Ask again':'Ask AI ▶'} <small>${m==='demo'?'demo':'live'}</small></button>${m!=='demo'?`<button class="btn quiet" data-act="ask-demo" ${ok?'':'disabled'}>Use the demonstration answer</button>`:''}`}
+    <h3 class="chat-title">Conversation with the AI <span class="uz">${UZ.chat.title}</span></h3>
+    <div id="aiOut" class="chat" role="log" aria-live="polite" aria-label="Conversation with the AI">${chatLogHTML(at)}</div>
+    <div id="composer">${composerHTML(at)}</div></div>
+   <div class="notice"><p><strong>Treat every AI answer as a claim to examine, not as the truth.</strong> Ask about reasons, evidence and alternatives, then judge the answers in the next stages. This page does not say whether the AI is right. <span class="uz">${UZ.consultNote}</span></p></div>`}
+const aiOutHTML=chatLogHTML;
 
 /* ---------- Stage 3: Critique ---------- */
 const TAGS=[['ok','✅','Convincing'],['q','❓','Questionable'],['check','🔍','Check this']];
@@ -1667,7 +1731,7 @@ function viewAssessment(){
    ${a.calib?`<div class="notice b"><p>${esc(a.calib)}</p></div>`:''}
    <h2>${UZ.stageBy} <span class="en">Stage-by-stage feedback</span></h2>
    <div class="stage-cards">${a.items.map(it=>`<article class="sc2 ${it.key==='consult'?'ai':''}"><header><span class="sc2-ic" aria-hidden="true">${STAGE_ICONS[it.stage-1]}</span><div><b>${it.stage}. ${it.short}</b> <em>${UZ.stage[it.stage-1].n}</em><small>${esc(it.name)}</small></div><div class="sc2-l">${dotsHTML(it.level)}<span>${it.level}/4 · ${LEVELS[it.level]}</span></div></header>
-    <ul>${it.indicators.map(x=>`<li class="${x.ok?'g':'w'}"><span aria-hidden="true">${x.ok?'✓':'○'}</span><span>${esc(x.l)}${x.ok?'':`<small> Tip: ${esc(x.tip)}</small>`}</span></li>`).join('')}</ul></article>`).join('')}</div>
+    <ul>${it.indicators.map(x=>`<li class="${x.na?'':x.ok?'g':'w'}"><span aria-hidden="true">${x.na?'–':x.ok?'✓':'○'}</span><span>${esc(x.l)}${x.na?'<small> Not available in demonstration mode (counted as met).</small>':x.ok?'':`<small> Tip: ${esc(x.tip)}</small>`}</span></li>`).join('')}</ul></article>`).join('')}</div>
    <div class="panel" style="margin:18px 0"><p>${esc(pt.strong)}</p><p>${esc(pt.dev)}</p><p class="small muted">These are learning-activity indicators, not a validated measure of critical thinking, and they cannot judge the quality of an idea.</p></div>
    ${at.sample?'':`<div class="row" style="gap:8px;margin-bottom:12px"><span class="small muted">${UZ.classStatus}:</span>${syncChipHTML()}</div>`}
    <div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn" data-act="random-task">🎲 ${UZ.home.random}</button><button class="btn ghost" data-go="record" data-id="${at.id}">${UZ.record}</button><button class="btn ghost" data-go="progress">${UZ.nav.progress}</button><button class="btn quiet" data-go="library">${UZ.nav.tasks}</button></div></div>`}
@@ -1679,7 +1743,7 @@ function viewRecord(){
   return `<div class="page"><div class="page-head"><h1>Record: ${esc(r.task.title)}</h1><p>${fmtDate(at.completedAt)} ${at.sample?'· <span class="chip demo">SAMPLE RECORD</span>':''}</p></div>
    <div class="row" style="gap:8px;margin-bottom:16px;flex-wrap:wrap"><button class="btn quiet" data-go="progress">← My progress</button><button class="btn" data-go="assessment" data-id="${at.id}">Result</button><button class="btn ghost" data-act="export" data-kind="json" data-id="${at.id}">JSON</button><button class="btn ghost" data-act="export" data-kind="csv" data-id="${at.id}">CSV</button><button class="btn danger" data-act="delete-record" data-id="${at.id}">Delete</button></div>
    <div class="rec-sec"><h3>1 Context</h3>${QA('Scenario',r.task.scenario)}${QA('Main problem (your choice)',r.context.mainProblemChoice)}${QA('First step',r.context.firstStep)}${QA('Confidence',r.context.confidence+' / 5')}</div>
-   <div class="rec-sec"><h3>2 Consult</h3>${QA('Mode',r.consult.mode)}${QA('Your question',r.consult.prompt)}${QA('AI answer',r.consult.response)}</div>
+   <div class="rec-sec"><h3>2 Consult</h3>${QA('Mode',r.consult.mode)}${r.consult.conversation.map(m=>`<div class="qa"><div class="q">${m.speaker}${m.mode?' ('+esc(m.mode)+')':''}</div><div class="a">${esc(m.text)}</div></div>`).join('')}${QA('Follow-up questions asked',r.consult.followUpQuestions)}</div>
    <div class="rec-sec"><h3>3 Critique</h3>${r.critique.marks.map((m,i)=>`<div class="qa"><div class="q">Part ${i+1}: ${m.mark}</div><div class="a">${esc(m.text)}</div></div>`).join('')}${QA('Position',r.critique.stance)}${QA('Reason',r.critique.reason)}</div>
    <div class="rec-sec"><h3>4 Check</h3>${r.check.rows.map((x,i)=>`<div class="qa"><div class="q">Claim ${i+1}: ${esc(x.claim)}</div><div class="a">${esc(x.sourceType)}; ${esc(x.evidence)}; verdict: ${esc(VERDICT_LABEL[x.verdict]||'')}</div></div>`).join('')}</div>
    <div class="rec-sec"><h3>5 Challenge</h3>${QA('Chosen improvement',r.challenge.improvement)}${QA('Your own version',r.challenge.own)}${QA('Risk',r.challenge.risk)}</div>
@@ -1710,7 +1774,7 @@ function viewTeacher(){
   if(!API.base)return viewTeacherDemo().replace('<div class="page">','<div class="page">'+lockedPanels(setupBanner()));
   if(!API.caps.checked||API.caps.checking)return `<div class="page">${tHead()}${lockedPanels('<div class="panel"><span class="thinking">Connecting to the server <i></i><i></i><i></i></span></div>')}</div>`;
   if(API.caps.err)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice b"><p><strong>${UZ.t.lockedTitle}</strong> ${errText(API.caps.err)}</p><p><button class="btn" data-act="api-retry">Try again</button></p></div>`)}</div>`;
-  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet: see <code>backend/README.md</code>, step 4 "Classes".</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
+  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet. In the backend folder run <code>npm install -g wrangler@latest</code> and then <code>wrangler deploy</code> (the included <code>wrangler.toml</code> creates and connects the database by itself), then press Ctrl+F5 here. Details: <code>backend/README.md</code>, step 4.</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
   return T.view==='class'&&T.code?classView():teacherHome()}
 
 function teacherHome(){
@@ -1870,7 +1934,8 @@ function tcSetMode(n){
   const g=ui.tc,old=g.teams;
   g.mode=n;
   if(n===1){g.teams=[{name:'You',score:0}]}
-  else{g.teams=Array.from({length:n},(_,i)=>({name:(old[i]&&old[i].name&&old[i].name!=='You')?old[i].name:`Team ${String.fromCharCode(65+i)}`,score:0}))}}
+  else{g.teams=Array.from({length:n},(_,i)=>({name:(old[i]&&old[i].name&&old[i].name!=='You')?old[i].name:`Team ${String.fromCharCode(65+i)}`,score:0}))}
+  tcClamp()}
 
 const TC_TOPICS=[['mixed','🔀','Mixed'],['methods','🎓','Methods'],['situations','🏫','Classroom situations'],['grammar','✍️','Grammar']];
 const tcTopics=t=>t==='methods'?['methods']:t==='situations'?['situations']:t==='grammar'?['grammar']:['methods','situations','grammar'];
@@ -1882,8 +1947,11 @@ function tcBuildOrder(diff,count,topic){
   if(out.length<count){const ids=new Set(out.map(q=>q.id));shuffle(qPool(tp).filter(q=>!ids.has(q.id))).slice(0,count-out.length).forEach(q=>out.push(q))}
   return shuffle(out).slice(0,count).map(q=>q.id)}
 
-const TC_PER_TEAM=[3,5,8,10];
+const TC_PER_TEAM=[5,10,20];
 const tcTurn=g=>g.idx%g.teams.length;
+/* No question may repeat inside one game, so each team can get at most (questions in the topic) / (number of teams). */
+const tcMaxPer=g=>Math.floor(qPool(tcTopics(g.topic||'mixed')).length/g.teams.length);
+function tcClamp(){const g=ui.tc,max=tcMaxPer(g);if(g.count>max){const ok=TC_PER_TEAM.filter(n=>n<=max);g.count=ok.length?ok[ok.length-1]:Math.max(1,max)}}
 const tcTotal=g=>g.count*g.teams.length;
 
 function tcClearTimer(){if(ui.tc.timerId){clearInterval(ui.tc.timerId);ui.tc.timerId=null}}
@@ -1900,6 +1968,7 @@ function tcStartTimer(){
 function tcStart(){
   const g=ui.tc;
   if(!TC_PER_TEAM.includes(g.count))g.count=5;
+  tcClamp();
   g.teams.forEach(t=>{t.score=0;t.correct=0;t.answered=0});
   g.order=tcBuildOrder(g.diff,tcTotal(g),g.topic||'mixed');
   g.qs=g.order.map(id=>mcShuffleQ(MC_QUESTIONS.find(x=>x.id===id)));
@@ -1931,7 +2000,7 @@ function viewCompetition(){
 
 function tcAvailNote(g){
   const tp=tcTopics(g.topic||'mixed'),all=qPool(tp).length,diff=qPool(tp,g.diff).length,total=tcTotal(g);
-  return `${g.teams.length>1?`${g.teams.length} teams × ${g.count} questions = ${total} questions in total. `:''}Question bank for this choice: ${all} questions (${diff} at this difficulty). Questions do not repeat until the bank has been used. ${total>diff?'Some extra questions from other difficulties will be added.':''}`}
+  return `${g.teams.length>1?`${g.teams.length} teams × ${g.count} questions = ${total} questions in total. `:''}Question bank for this choice: ${all} questions (${diff} at this difficulty). Questions do not repeat until the bank has been used. ${total>diff?'Some extra questions from other difficulties will be added. ':''}No question repeats inside a game, so this choice allows up to ${tcMaxPer(g)} questions per team.`}
 function tcSetupHTML(){
   const g=ui.tc;
   return `<div class="page"><div class="game-head"><div><h1>🏆 Team Competition</h1><p class="muted" style="margin:0">A classroom quiz on one screen. Teams play in turns: each question goes to one team, which answers and scores on its own.</p></div>${sndToggleBtn()}</div>
@@ -1947,7 +2016,7 @@ function tcSetupHTML(){
    <div><h3 style="margin-bottom:8px">Topic</h3>
     <div class="tc-choice" role="group" aria-label="Topic">${TC_TOPICS.map(([k,ic,l])=>`<button data-act="tc-topic" data-topic="${k}" aria-pressed="${(g.topic||'mixed')===k}">${ic} ${l}</button>`).join('')}</div></div>
    <div><h3 style="margin-bottom:8px">Questions per team</h3>
-    <div class="tc-choice" role="group" aria-label="Questions per team">${TC_PER_TEAM.map(n=>`<button data-act="tc-count" data-n="${n}" aria-pressed="${g.count===n}">${n}</button>`).join('')}</div>
+    <div class="tc-choice" role="group" aria-label="Questions per team">${TC_PER_TEAM.map(n=>{const off=n>tcMaxPer(g);return `<button data-act="tc-count" data-n="${n}" aria-pressed="${g.count===n}" ${off?'disabled title="Not enough different questions in this topic for this many teams"':''}>${n} questions</button>`}).join('')}</div>
     <p class="tiny dim" style="margin-top:6px">${tcAvailNote(g)}</p></div>
    <div><h3 style="margin-bottom:8px">Difficulty</h3>
     <div class="tc-choice" role="group" aria-label="Difficulty">
@@ -2037,7 +2106,7 @@ function go(page,params){
   if(page==='join')joinLoad()}
 function openAttempt(at){ui.aiErr='';ui.streaming=false;enterStage(at);go('cycle',{attemptId:at.id})}
 function enterStage(at){
-  if(at.stage===2&&!at.d.consult.prompt)at.d.consult.prompt=defaultPrompt(TASK_BY_ID[at.taskId]);
+  if(at.stage===2&&!at.d.consult.chat.length&&!ui.streaming&&at.status==='in_progress')startConsult(at);   /* the AI answers the scenario as soon as Consult opens */
   if(at.stage===4)seedCheckRows(at)}
 function rerenderStage(){const at=curAttempt(),m=$('#stageMain');if(!at||!m)return;const y=window.scrollY;m.innerHTML=stageHTML(at);updateLive();window.scrollTo(0,y)}
 
@@ -2049,31 +2118,62 @@ function updateLive(){
   const ul=$('#reqList');if(ul)ul.innerHTML=rq.map(r=>`<li class="${r.ok?'ok':'no'}"><i>${r.ok?'✓':'○'}</i><span>${esc(r.label)}</span></li>`).join('');
   const nb=$('#nextBtn');if(nb)nb.setAttribute('aria-disabled',String(at.stage<6?!all:![1,2,3,4,5,6].every(s=>stageOk(at,s))));
   const tl=$('#traceList');if(tl)tl.innerHTML=traceHTML(at);
-  if(at.stage===2){const ctl=$('#aiCtl');if(ctl){const want=aiCtlHTML(at);if(ctl.dataset.h!==want){ctl.innerHTML=want;ctl.dataset.h=want}}}}
-function refreshAi(){const at=curAttempt();if(!at||ui.page!=='cycle'||at.stage!==2)return;const o=$('#aiOut'),c=$('#aiCtl'),s=$('#aiStatus');if(s)s.innerHTML=aiStatusHTML();if(o)o.innerHTML=aiOutHTML(at);if(c){const w=aiCtlHTML(at);c.innerHTML=w;c.dataset.h=w}updateLive()}
-function refreshAiOut(){const at=curAttempt(),o=$('#aiOut');if(at&&o&&ui.page==='cycle'&&at.stage===2)o.innerHTML=aiOutHTML(at)}
+  if(at.stage===2)refreshComposer(at)}
+function refreshComposer(at){
+  const can=chatCanAsk(at);
+  [$('#chatIn'),$('#chatSend')].forEach(e=>{if(e)e.disabled=!can});
+  $$('.chat-starters .chip-btn').forEach(b=>{b.disabled=!can});
+  const h=$('#chatHint');if(h)h.textContent=chatHintText(at)}
+function scrollChatToEnd(){const l=$('#aiOut');if(!l)return;const last=l.lastElementChild;if(last&&last.scrollIntoView)last.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function refreshAi(){
+  const at=curAttempt();if(!at||ui.page!=='cycle'||at.stage!==2)return;
+  const o=$('#aiOut'),s=$('#aiStatus');if(s)s.innerHTML=aiStatusHTML();if(o)o.innerHTML=chatLogHTML(at);
+  const cp=$('#composer');if(cp&&!$('#chatIn')){cp.innerHTML=composerHTML(at)}   /* the composer is built once, so a half-typed question is never lost */
+  refreshComposer(at);updateLive();scrollChatToEnd()}
+function refreshAiOut(){const at=curAttempt(),o=$('#aiOut');if(at&&o&&ui.page==='cycle'&&at.stage===2)o.innerHTML=chatLogHTML(at)}
 
 /* ---------- AI (Consult) ---------- */
 const AI_DOWN='AI service is temporarily unavailable. You can continue the activity using the verification and reasoning steps. The demonstration answer is always available.';
-async function askAI(forceDemo){
-  const at=curAttempt();if(!at||ui.streaming)return;
-  const t=TASK_BY_ID[at.taskId],prompt=(at.d.consult.prompt||'').trim();
-  if(W(prompt)<4){toast('Write a question of at least 4 words');return}
-  if(at.d.consult.response&&(Object.keys(at.d.critique.tags).length||at.d.check.rows.length)){
-    const ok=await confirmBox('Replace the AI answer?','Your marks and checked claims for the current answer will be cleared.','Replace');if(!ok)return}
-  ui.aiErr='';const m=forceDemo?'demo':aiMode();
-  if(m==='demo'){recordConsult(at,'demo',prompt,demoParas(t),t.ai.slice());sndPlay('ai');refreshAi();return}
+const AI_BUSY='The AI is busy right now (many questions at the same time). Wait a few seconds, then try again.';
+const consultErrText=e=>(e&&(e.status===429||e.code==='rate_limited'))?AI_BUSY:AI_DOWN;
+const extraOf=d=>({claims:d.claims_to_check||[],assumptions:d.possible_assumptions||[],uncertainty:d.uncertainty||'',followUp:d.follow_up_question||''});
+async function capsReady(retry){
+  if(!API.base)return;
+  for(let i=0;i<40&&API.caps.checking;i++)await new Promise(r=>setTimeout(r,250));
+  if(retry||!API.caps.checked||API.caps.err)await apiCheck(true)}
+
+/* The AI's first message: its answer to the scenario itself, produced by the secure server (or the labelled demonstration answer). */
+async function startConsult(at,forceDemo){
+  if(ui.streaming)return;
+  const t=TASK_BY_ID[at.taskId];ui.aiErr='';
+  if(forceDemo){startChat(at,'demo',demoParas(t),t.ai.slice());sndPlay('ai');refreshAi();return}
   ui.streaming=true;ui.stream='';refreshAi();
   try{
-    if(m==='backend'){
-      const d=await askBackendAI(t.context,'consult',prompt);ui.streaming=false;
-      recordConsult(at,'backend',prompt,d.response,splitSegs(d.response),{claims:d.claims_to_check||[],assumptions:d.possible_assumptions||[],uncertainty:d.uncertainty||'',followUp:d.follow_up_question||''})}
-    else{
-      const r=await AI.sample(FRAME+'Scenario: '+t.context+'\n\nRequest: '+prompt,{cache:false,onText:({text})=>{ui.stream=text;refreshAiOut()}});
-      ui.streaming=false;recordConsult(at,'live',prompt,r.text,splitSegs(r.text))}
-    sndPlay('ai')}
-  catch(e){ui.streaming=false;ui.aiErr=AI_DOWN}
+    await capsReady(!!at.d.consult.retried);at.d.consult.retried=true;
+    if(API.base&&API.caps.err)throw apiErr(API.caps.err,0);       /* server configured but unreachable: say so, never silently fake a live answer */
+    const m=aiMode();
+    if(m==='demo'){ui.streaming=false;startChat(at,'demo',demoParas(t),t.ai.slice());sndPlay('ai');refreshAi();return}
+    if(m==='backend'){const d=await askBackendAI(t.context,'consult','');startChat(at,'backend',d.response,splitSegs(d.response),extraOf(d))}
+    else{const r=await AI.sample(FRAME+'Scenario: '+t.context+'\n\nGive your advice for this classroom situation.',{cache:false,onText:({text})=>{ui.stream=text;refreshAiOut()}});startChat(at,'live',r.text,splitSegs(r.text))}
+    ui.streaming=false;sndPlay('ai')}
+  catch(e){ui.streaming=false;ui.aiErr=consultErrText(e)}
   refreshAi()}
+
+/* A follow-up question: sent through the same secure server, together with the conversation so far. */
+async function sendFollowUp(){
+  const at=curAttempt();if(!at||at.stage!==2||!chatCanAsk(at))return;
+  const inp=$('#chatIn'),text=String(inp?inp.value:'').replace(/\s+/g,' ').trim();
+  if(text.length<3||W(text)<2){toast('Write a short question first');return}
+  if(text.length>CHAT_Q_MAX){toast('Please keep the question under '+CHAT_Q_MAX+' characters');return}
+  const t=TASK_BY_ID[at.taskId],m=lastAIMode(at),transcript=chatTranscript(at,text);      /* built before the new question is added */
+  ui.aiErr='';ui.chatDraft='';if(inp)inp.value='';
+  addTurn(at,'student',text);ui.streaming=true;ui.stream='';sndPlay('stage');refreshAi();
+  try{
+    if(m==='backend'){const d=await askBackendAI(t.context,'consult',transcript);addTurn(at,'ai',d.response,'backend',splitSegs(d.response),extraOf(d))}
+    else{const r=await AI.sample(FRAME+'Scenario: '+t.context+'\n\n'+transcript,{cache:false,onText:({text:x})=>{ui.stream=x;refreshAiOut()}});addTurn(at,'ai',r.text,'live',splitSegs(r.text))}
+    ui.streaming=false;sndPlay('ai')}
+  catch(e){ui.streaming=false;dropLastStudent(at);ui.chatDraft=text;ui.aiErr=consultErrText(e)}
+  refreshAi();const i2=$('#chatIn');if(i2&&ui.chatDraft)i2.value=ui.chatDraft}
 
 /* ---------- classes: student ---------- */
 async function joinLoad(){
@@ -2138,8 +2238,13 @@ document.addEventListener('click',async e=>{
    case 'pick1':{if(!at||at.d.context.pick>=0)break;at.d.context.pick=+el.dataset.i;touch(at);sndPlay(at.d.context.pick===TASK_BY_ID[at.taskId].q1.best?'correct':'wrong');rerenderStage();break}
    case 'pick5':{if(!at||at.d.challenge.pick>=0)break;at.d.challenge.pick=+el.dataset.i;touch(at);sndPlay('start');rerenderStage();break}
    case 'decide':if(at){at.d.conclude.decision=el.dataset.v;touch(at);$$('[data-act="decide"]').forEach(b=>b.setAttribute('aria-pressed',String(b===el)));updateLive()}break;
-   case 'ask':askAI(false);break;
-   case 'ask-demo':askAI(true);break;
+   case 'ask':if(at)startConsult(at);break;
+   case 'ask-demo':if(at)startConsult(at,true);break;
+   case 'chat-send':sendFollowUp();break;
+   case 'chat-chip':{const i=$('#chatIn');if(i&&!i.disabled){i.value=el.dataset.q;ui.chatDraft=i.value;i.focus()}break}
+   case 'chat-reset':{if(!at)break;const has=Object.keys(at.d.critique.tags).length||at.d.check.rows.length;
+     const ok=await confirmBox('Start a new conversation?',has?'The current conversation, your marks and your checked claims will be cleared.':'The current conversation will be cleared.','Start again');
+     if(!ok)break;at.d.consult.chat=[];consultSync(at);ui.chatDraft='';ui.aiErr='';startConsult(at);break}
    case 'tag':{if(!at)break;const tg=at.d.critique.tags,i=+el.dataset.i,t=el.dataset.t;if(tg[i]===t)delete tg[i];else tg[i]=t;touch(at);$('#segs').innerHTML=segsHTML(at);updateLive();break}
    case 'verdict':{if(!at)break;const r=at.d.check.rows.find(x=>x.id===el.dataset.rid);if(!r)break;r.verdict=r.verdict===el.dataset.v?'':el.dataset.v;touch(at);$$(`[data-act="verdict"][data-rid="${r.id}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===r.verdict)));updateLive();break}
    case 'add-row':if(at){at.d.check.rows.push({id:uid('r'),seg:null,claim:'',sourceType:'',evidence:'',verdict:'',exp:'',why:''});touch(at);rerenderStage()}break;
@@ -2172,9 +2277,9 @@ document.addEventListener('click',async e=>{
        persistNow();render()}break}
    case 'mc-restart':ui.mc={phase:'setup'};render();break;
    case 'tc-mode':tcSetMode(+el.dataset.n);render();break;
-   case 'tc-count':ui.tc.count=+el.dataset.n;render(true);break;
+   case 'tc-count':if(+el.dataset.n<=tcMaxPer(ui.tc))ui.tc.count=+el.dataset.n;render(true);break;
    case 'tc-diff':ui.tc.diff=el.dataset.diff;render(true);break;
-   case 'tc-topic':ui.tc.topic=el.dataset.topic;render(true);break;
+   case 'tc-topic':ui.tc.topic=el.dataset.topic;tcClamp();render(true);break;
    case 'tc-start':tcStart();sndPlay('start');render();break;
    case 'tc-answer':{const g=ui.tc;if(g.revealed)break;tcAnswer(+el.dataset.o);render();if(g.lastOk)celebrate();break}
    case 'tc-next':tcNextRound();render();break;
@@ -2227,12 +2332,14 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 /* ---------- input handling (autosave) ---------- */
 function onField(e){
   const t=e.target;if(!t||!t.dataset)return;
+  if(t.id==='chatIn'){ui.chatDraft=t.value;return}
   if(t.dataset.b){const at=curAttempt();if(!at||ui.page!=='cycle')return;setPath(at.d,t.dataset.b,t.value);touch(at);updateLive();return}
   if(t.dataset.rowF){const at=curAttempt();if(!at)return;const r=at.d.check.rows.find(x=>x.id===t.dataset.rid);if(!r)return;r[t.dataset.rowF]=t.value;touch(at);updateLive();return}
   if(t.dataset.team!==undefined){const g=ui.tc,i=+t.dataset.team;if(g&&g.teams[i])g.teams[i].name=t.value.slice(0,24)||`Team ${String.fromCharCode(65+i)}`;return}
   if(e.type==='change'){const s=t.dataset.sel;if(s==='ttask'){ui.tTask=t.value;ui.tStudent=null;render(true)}}}
 document.addEventListener('input',onField);document.addEventListener('change',onField);
 window.addEventListener('beforeunload',()=>{try{persistNow()}catch(e){}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.target&&e.target.id==='chatIn'){e.preventDefault();sendFollowUp()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='nameIn'){e.preventDefault();const b=$('[data-act="profile-save"]');b&&b.click()}});
 
 /* ---------- init ---------- */

@@ -668,3 +668,27 @@ button.tc-option:disabled{cursor:default;opacity:1}
 @keyframes tcTurnIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 @keyframes tcPulse{0%,100%{opacity:1}50%{opacity:.6}}
 @media (prefers-reduced-motion:reduce){.tc-option.correct,.tc-option.correct.pop,.tc-option.shake,.tc-verdict,.tc-verdict .vi,.tc-turnbanner,.tc-float,.tc-team .now{animation:none}.tc-timebar i{transition:none}}
+
+/* ===== Consult: conversation with the AI ===== */
+.chat{display:grid;gap:14px;margin:10px 0 16px}
+.chat-title{margin:14px 0 4px}
+.chat-msg{display:flex;flex-direction:column;max-width:100%;min-width:0}
+.chat-msg.ai{align-items:stretch}
+.chat-msg.you{align-items:flex-end}
+.chat-who{font-size:.8rem;font-weight:700;color:var(--ink-2);margin:0 6px 3px}
+.chat-bubble{max-width:min(92%,560px);background:var(--primary);color:#fff;padding:11px 15px;border-radius:16px 16px 4px 16px;overflow-wrap:anywhere;white-space:pre-wrap;animation:popIn .25s ease}
+.chat-msg.ai .ai-box{animation:tcVerdictIn .35s ease}
+.composer{border-top:1px dashed var(--line);padding-top:14px;margin-top:6px}
+.chat-starters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px}
+.chip-btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:8px 14px;min-height:40px;font:inherit;font-size:.9rem;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.chip-btn:hover:not(:disabled){border-color:var(--primary);background:var(--surface-2)}
+.chip-btn:disabled{opacity:.5;cursor:not-allowed}
+.chat-row{display:flex;gap:10px;align-items:flex-end}
+.chat-row textarea{flex:1;min-width:0;width:100%;box-sizing:border-box;resize:vertical;min-height:52px}
+.chat-row .btn{flex:none;min-height:52px}
+.composer .hint{margin:8px 0 6px}
+@media (max-width:560px){.chat-row{flex-direction:column;align-items:stretch}.chat-row .btn{width:100%}.chat-bubble{max-width:100%}}
+@media (prefers-reduced-motion:reduce){.chat-bubble,.chat-msg.ai .ai-box{animation:none}}
+
+/* long unbroken words or links (AI answers can contain them) must wrap instead of widening the page */
+.card,.card h3,.card p,.seg,.seg p,.ai-body,.ai-body p,.ai-foot,.ev-claim p,.tr-chip,.scen p,.fbl li,.qa .a,.qa .q,.sc2 li{min-width:0;overflow-wrap:anywhere}
