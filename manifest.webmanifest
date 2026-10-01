@@ -3,7 +3,7 @@
   "short_name": "AI-CT Teacher",
   "description": "An educational platform designed to develop the critical-thinking skills of future English teachers through structured interaction with artificial intelligence.",
   "lang": "en",
-  "start_url": "./app/",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

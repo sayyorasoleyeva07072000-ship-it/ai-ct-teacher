@@ -2,100 +2,87 @@
 
 **Artificial Intelligence – Critical Thinking for Future English Teachers**
 
-An electronic methodological prototype supporting a PhD research pilot on
-developing future English teachers' critical thinking through structured
-interaction with AI. Dissertation topic: *"Sun'iy intellekt vositalari
-asosida bo'lajak ingliz tili o'qituvchilarining tanqidiy fikrlash
-ko'nikmalarini rivojlantirish metodikasi"*.
-
-- **Author:** Sarvinoz Solexonovna
+- **Author:** PhD researcher Sarvinoz Solexonovna
 - **Institution:** Samarkand State Institute of Foreign Languages (SamDChTI)
-- **Live site:** https://sssprojectai.github.io/ai-ct-teacher/
-- **App:** https://sssprojectai.github.io/ai-ct-teacher/app/
-- **Repository:** sssprojectai/ai-ct-teacher
+- **Repository:** https://github.com/sssprojectai/ai-ct-teacher
+- **Site (GitHub Pages):** https://sssprojectai.github.io/ai-ct-teacher/
 
-## The scientific concept
+This is the author's research prototype. It is not an official product of, or endorsed by, any institution.
 
-AI-CT TEACHER treats artificial intelligence not as a source of ready
-answers but as an **object of critical analysis**. A student works
-through a realistic English-teaching scenario, consults AI once, and
-then critically examines, verifies, challenges, and finally judges
-what it produced — recording an independent, accountable conclusion
-that includes their own reflection.
+## Two separate parts: do not mix them up
 
-## The AI-CT 6C cycle
+| | GitHub Pages FRONTEND | Secure BACKEND (optional) |
+|---|---|---|
+| What | The website: `index.html`, `app/`, `assets/` ... | A Cloudflare Worker: live Gemini AI + class database |
+| Where it runs | GitHub Pages (static files, **no Node.js needed**) | Cloudflare (your own free account) |
+| Package | `ai-ct-teacher-github-pages.zip` | `ai-ct-teacher-backend.zip` |
+| Holds secrets? | **Never.** There is no key anywhere in it | The Gemini key, as a Cloudflare secret only |
 
-Exactly six stages, always in this order. There is no separate seventh
-"Reflect" stage — reflection is the closing part of Conclude.
+The website works completely without the backend (demo mode, see G).
 
-1. **Context** — analyse the classroom situation, no AI involved.
-2. **Consult** — the only stage where AI is used; write your own prompt and read the response.
-3. **Critique** — examine the response's claims, assumptions, and fit.
-4. **Check** — verify claims against sources you find yourself.
-5. **Challenge** — argue back and propose an alternative.
-6. **Conclude** — state a final decision (accept / modify / reject the AI response), with reasoning, evidence, and a short reflection on how your thinking changed.
+## A. What AI-CT TEACHER is
 
-## Features
+An electronic methodological prototype that develops future English teachers' critical thinking by treating AI as an **object of critical analysis**: the student thinks first, asks AI once, then examines, checks and challenges its answer, and records an accountable decision with a short reflection.
 
-- 11 English-teaching tasks across 8 categories (Critical Thinking, AI & Teaching, Fact Checking, Communication, Ethics, Media & Information, Teaching Methods, Problem Solving).
-- Transparent, indicator-based 6-component rubric (Analysis, Evaluation, Inference, Argumentation, Alternative Thinking, Reflection), explicitly labelled as a learning-activity indicator, not a validated psychological measurement.
-- Method Challenge: a 30-question quiz on ten ELT methods, with shuffled answer options so the correct answer is not predictably in one position.
-- Team Competition: Solo or 2–4 teams, timed rounds, shuffled options, animated scoreboard.
-- XP and badges (First Step, Deep Thinker, AI Critic, Method Master, Team Player), each tied to a real, verified trigger — never awarded for merely opening a page.
-- Student progress, reflection history, and a teacher dashboard (demo data, clearly labelled).
-- JSON/CSV export of every completed activity, structured for research use.
-- Optional real AI for Consult through a secure serverless backend that calls Gemini (see `backend/README.md`). It is disabled until you deploy it; the app works fully without it, using a clearly labelled demonstration response. The Gemini key is never in the frontend.
+## B. The 6C methodology (exactly six stages)
 
-## Architecture
+1. **Context** – read the situation and think for yourself. No AI.
+2. **Consult** – ask the AI. The only stage with AI.
+3. **Critique** – tap the parts that are convincing, questionable or worth checking.
+4. **Check** – say where you would verify each claim, what you found, and give a verdict.
+5. **Challenge** – improve the suggestion and name its risk.
+6. **Conclude** – accept, modify or reject, explain why, and say what you learned. Reflection is the closing part of this stage; there is no seventh stage.
+
+Each stage has three visible indicators (level = 1 + indicators met, total 6–24). These are learning-activity indicators, **not a validated test**. Content: 32 tasks in 8 categories, Method Challenge (75 questions), Team Competition (156 questions), XP, badges, streak, profile, export (JSON/CSV), projector mode, full screen, sound switch, Uzbek and English explanations.
+
+## C. Frontend deployment to GitHub Pages
+
+1. Unzip `ai-ct-teacher-github-pages.zip`. Its files are meant to sit **directly in the repository root** (`index.html` at the top, next to `app/` and `assets/`).
+2. Copy all of them into your local clone of `sssprojectai/ai-ct-teacher`, replacing old files. Do not touch `.git`. Delete old files that are no longer used (`js/site.js`, `css/site.css`).
+3. GitHub Desktop: write a summary, **Commit to main**, **Push origin**.
+4. github.com > repository > **Settings > Pages**: Source **Deploy from a branch**, Branch **main**, Folder **/ (root)**. Wait about a minute.
+5. Open https://sssprojectai.github.io/ai-ct-teacher/ and press Ctrl+F5 once.
+
+See `DEPLOYMENT.md` for Google Search Console and a custom domain.
+
+## D. Backend deployment (optional)
+
+Use `ai-ct-teacher-backend.zip` and follow its `backend/README.md`: `wrangler login`, `wrangler deploy`, then (E) the Gemini secret and (F) the class database. Finally put the Worker address in the single line `const API_BASE='';` of `app/js/app.js` in the frontend, and push. The backend is **never** uploaded to GitHub Pages.
+
+## E. Gemini configuration
+
+The Gemini key exists **only** as a Cloudflare Worker secret: `wrangler secret put GEMINI_API_KEY`. Students never see, enter or store a key; it is never in the frontend, `localStorage` or the repository. AI is used only in the Consult stage and returns `response`, `claims_to_check`, `possible_assumptions`, `uncertainty` and `follow_up_question`. If Gemini is unavailable, the app shows "AI service is temporarily unavailable", stays usable, and offers the demonstration answer, which is always labelled "DEMONSTRATION" and never presented as live.
+
+**Status: the Worker code is tested against a mocked Google API. A real Gemini request has NOT been executed by the author of this package (no key and no access to Google in the build environment): NOT TESTED — REQUIRES LIVE GEMINI KEY. Run `node tests/live-gemini-check.mjs` on your computer with your key in an environment variable (see `backend/README.md`, step 3b), then verify on the deployed site.** Default model chain: `gemini-3.8-flash`, `gemini-3.6-flash`, `gemini-2.5-flash` (Google announced 2.5 Flash for shutdown); override with the `GEMINI_MODEL` variable.
+
+## F. Teacher and class system
+
+With the backend connected: a teacher creates a class and receives a class code, a join link and a one-time **teacher key** (kept on the teacher's device; whoever has the code **and** the key can open the class). Students write a name (a nickname is fine), join by link, complete activities, and **only scores** (never their written text) are sent. The teacher sees students, scores, stage averages and per-task results, can export CSV, remove students or delete the class. Students can leave at any time.
+
+## G. Demo mode
+
+While `API_BASE` is empty, Consult shows a pre-written demonstration answer (labelled), and the Teacher page says that classes are not connected and shows **DEMO DATA** (randomly generated, clearly labelled, never real classroom data).
+
+## H. Local testing
 
 ```
-index.html          public landing page (SEO, JSON-LD, "Start Learning")
-app/                the application (index.html + css/app.css + js/app.js)
-assets/              icons, favicon, social-share image
-backend/             optional serverless Gemini backend (Cloudflare Worker) — see backend/README.md
-robots.txt, sitemap.xml, manifest.webmanifest, .gitignore, .env.example
+python3 -m http.server 8000          # serve the frontend, open http://localhost:8000/
+node tests/worker.test.mjs           # backend: AI route (mocked Google)      [needs the backend files]
+node tests/live-gemini-check.mjs     # backend: REAL Gemini with YOUR key from an environment variable
+node tests/classes.test.mjs          # backend: classes, real SQLite database  [needs the backend files]
+node tests/dev-server.mjs            # local API with mocked Gemini, for offline demonstrations
 ```
 
-The app is a single-page application with no framework and no build
-step required to run it (the `app/css/app.css` and `app/js/app.js`
-files are already built). If you edit the source modules under
-`build/` (not included in this deployment package), regenerate them
-with the project's `build_site.py` script.
+The browser tests (Playwright, Python) are in the complete-source package under `tests-browser/`.
+
+## I. How to update the project
+
+Edit the sources in the complete-source package (`source/build/*.js`, `head.html`; all Uzbek text is in `data-uz.js`), run `python3 source/build_site.py` to rebuild `site/`, run the tests, and copy the `site/` files (without `backend/` and `tests/`) to the repository as in C.
 
 ## Data and privacy
 
-All student progress (XP, badges, completed activities, records) is
-stored in the browser's own `localStorage`. There is no server
-database and no accounts in this version. Nothing personally
-identifying is collected beyond what a student chooses to type into
-free-text fields. See `backend/README.md` for the one piece that does
-talk to an external service — the optional AI backend — and exactly
-what it does and does not send.
+Progress, XP, badges and written answers are stored only in the browser's `localStorage`. In a class, the server stores a display name and scores only. Secrets (teacher keys, student tokens) are stored on the server only as SHA-256 hashes.
 
-## Local testing
+## Limits
 
-Serve the folder with any static file server, for example:
-
-```
-python3 -m http.server 8000
-```
-
-Then open `http://localhost:8000/` for the landing page or
-`http://localhost:8000/app/` for the application.
-
-## Deployment
-
-See `DEPLOYMENT.md` for GitHub Pages deployment, connecting a custom
-domain, and submitting to Google Search Console. See
-`backend/README.md` for deploying the optional AI backend.
-
-## Research-use limitations
-
-This is a prototype, not a validated instrument. Scores shown in the
-app are learning-activity indicators, computed from whether certain
-elements (a counterargument, a source with a verdict, a stated
-assumption) are present in a student's record — not a judgment of the
-quality of their thinking, and not a scientifically validated
-psychological measurement. Scientific validity for a research pilot
-comes from the study's design, sample, and analysis, not from the
-software alone.
+Scores cannot judge the quality of an idea. For research, trained human raters should score records with the same rubric; scientific validity comes from the study design, sample and analysis, not from the software. Teacher access has no passwords: it relies on the class code plus the teacher key.
