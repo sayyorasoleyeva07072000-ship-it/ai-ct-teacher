@@ -10,3 +10,7 @@ compatibility_date = "2024-09-01"
 # Optional non-secret override of the model name:
 # [vars]
 # GEMINI_MODEL = "gemini-2.5-flash"
+[[d1_databases]]
+binding = "ai_ct_teacher_db"
+database_name = "ai-ct-teacher-db"
+database_id = "ac7b2394-73f4-4a2b-a4d7-83f7a8d45007"
