@@ -692,3 +692,6 @@ button.tc-option:disabled{cursor:default;opacity:1}
 
 /* long unbroken words or links (AI answers can contain them) must wrap instead of widening the page */
 .card,.card h3,.card p,.seg,.seg p,.ai-body,.ai-body p,.ai-foot,.ev-claim p,.tr-chip,.scen p,.fbl li,.qa .a,.qa .q,.sc2 li{min-width:0;overflow-wrap:anywhere}
+
+/* build id in the dark sidebar footer: light text on the dark panel */
+.side-foot #buildId{display:block;color:#B4C0D6;margin-top:2px}

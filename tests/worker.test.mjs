@@ -3,15 +3,13 @@
 // This proves the Worker's own logic. It does NOT call the real Gemini API.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const src = fs.readFileSync(path.join(here, '..', 'backend', 'cloudflare-worker', 'worker.js'), 'utf8');
-const tmp = path.join(os.tmpdir(), 'ai-ct-worker-' + process.pid + '.mjs');
-fs.writeFileSync(tmp, src);
-const worker = (await import(pathToFileURL(tmp).href)).default;
+const dir = path.join(here, '..', 'backend', 'cloudflare-worker');
+const src = fs.readdirSync(dir).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n');
+const worker = (await import(pathToFileURL(path.join(dir, 'worker.js')).href)).default;
 
 const KEY = 'TEST-KEY-DO-NOT-LEAK-123456';
 const ORIGIN = 'https://sssprojectai.github.io';
@@ -19,7 +17,7 @@ const env = { GEMINI_API_KEY: KEY };
 const okBody = { scenario: 'A teacher wants to use an AI speaking activity for B1 students.', stage: 'consult', studentResponse: 'Suggest steps.' };
 const geminiOK = (text) => new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] }), { status: 200 });
 const goodModelJSON = JSON.stringify({ response: 'Try short pair tasks, but check the level.', claims_to_check: ['Short tasks raise speaking time'], possible_assumptions: ['Students are willing'], uncertainty: 'Not sure about class size.', follow_up_question: 'How would you check it?' });
-const req = (body, o = {}) => new Request('https://w.example/', { method: o.method || 'POST', headers: { 'content-type': 'application/json', 'Origin': o.origin === undefined ? ORIGIN : o.origin, 'CF-Connecting-IP': o.ip || '1.1.1.1' }, body: o.raw !== undefined ? o.raw : (o.method === 'GET' || o.method === 'OPTIONS' ? undefined : JSON.stringify(body)) });
+const req = (body, o = {}) => new Request('https://w.example/api/ai', { method: o.method || 'POST', headers: { 'content-type': 'application/json', 'Origin': o.origin === undefined ? ORIGIN : o.origin, 'CF-Connecting-IP': o.ip || '1.1.1.1' }, body: o.raw !== undefined ? o.raw : (o.method === 'GET' || o.method === 'OPTIONS' ? undefined : JSON.stringify(body)) });
 
 let calls = [];
 const realFetch = globalThis.fetch;
@@ -47,7 +45,7 @@ await t('success: request shape to Gemini is correct, key only in header, never 
   const out = await noLeak(r);
   assert.deepEqual(Object.keys(out).sort(), ['claims_to_check', 'follow_up_question', 'possible_assumptions', 'response', 'uncertainty']);
   const c = calls[0];
-  assert.ok(c.url.startsWith('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'));
+  assert.ok(c.url.startsWith('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent'));
   assert.ok(!c.url.includes(KEY) && !c.url.includes('key='), 'key must not be in URL');
   assert.equal(c.opts.headers['x-goog-api-key'], KEY);
   const sent = JSON.parse(c.opts.body);
@@ -55,6 +53,10 @@ await t('success: request shape to Gemini is correct, key only in header, never 
   assert.ok(/never invent a citation/i.test(sent.systemInstruction.parts[0].text));
   assert.ok(/do not write the student's final answer/i.test(sent.systemInstruction.parts[0].text));
   assert.equal(sent.generationConfig.responseMimeType, 'application/json');
+  const sc = sent.generationConfig.responseSchema;
+  assert.equal(sc.type, 'OBJECT'); assert.deepEqual(Object.keys(sc.properties).sort(), ['claims_to_check', 'follow_up_question', 'possible_assumptions', 'response', 'uncertainty']);
+  assert.deepEqual([...sc.required].sort(), Object.keys(sc.properties).sort()); assert.equal(sc.properties.claims_to_check.type, 'ARRAY');
+  assert.equal(sent.generationConfig.thinkingConfig, undefined, 'no thinkingConfig is sent to 3.x models');
   assert.ok(sent.contents[0].parts[0].text.includes('A teacher wants to use an AI speaking activity'));
 });
 await t('fenced ```json output is still parsed', async () => { stubCaches(); mockGoogle(() => geminiOK('```json\n' + goodModelJSON + '\n```')); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 200); });
@@ -65,11 +67,17 @@ await t('non-JSON upstream body -> 502 upstream_invalid_response', async () => {
 await t('model returns prose, not JSON -> 502 malformed_model_output', async () => { stubCaches(); mockGoogle(() => geminiOK('Sure! Here is my answer in plain prose.')); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 502); assert.equal((await r.json()).error, 'malformed_model_output'); });
 await t('safety-blocked / empty candidates -> 502 malformed_model_output', async () => { stubCaches(); mockGoogle(() => new Response(JSON.stringify({ promptFeedback: { blockReason: 'SAFETY' } }), { status: 200 })); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 502); assert.equal((await r.json()).error, 'malformed_model_output'); });
 await t('oversized / wrong-typed model fields are trimmed and sanitised', async () => { stubCaches(); mockGoogle(() => geminiOK(JSON.stringify({ response: 'ok '.repeat(2000), claims_to_check: Array(20).fill('c'), possible_assumptions: [1, 'a', null], uncertainty: 5, follow_up_question: 'q' }))); const r = await worker.fetch(req(okBody), env); const o = await r.json(); assert.ok(o.response.length <= 3000); assert.equal(o.claims_to_check.length, 6); assert.deepEqual(o.possible_assumptions, ['a']); assert.equal(o.uncertainty, ''); });
-await t('GEMINI_MODEL override honoured; unsafe value ignored', async () => { stubCaches(); mockGoogle(() => geminiOK(goodModelJSON)); await worker.fetch(req(okBody), { ...env, GEMINI_MODEL: 'gemini-2.0-flash' }); assert.ok(calls[0].url.includes('/models/gemini-2.0-flash:')); assert.equal(JSON.parse(calls[0].opts.body).generationConfig.thinkingConfig, undefined); stubCaches(); await worker.fetch(req(okBody), { ...env, GEMINI_MODEL: '../../evil?x=' }); assert.ok(calls[1].url.includes('/models/gemini-2.5-flash:')); });
+await t('GEMINI_MODEL override honoured; unsafe value ignored', async () => { stubCaches(); mockGoogle(() => geminiOK(goodModelJSON)); await worker.fetch(req(okBody), { ...env, GEMINI_MODEL: 'gemini-2.0-flash' }); assert.ok(calls[0].url.includes('/models/gemini-2.0-flash:')); assert.equal(JSON.parse(calls[0].opts.body).generationConfig.thinkingConfig, undefined); stubCaches(); await worker.fetch(req(okBody), { ...env, GEMINI_MODEL: '../../evil?x=' }); assert.ok(calls[1].url.includes('/models/gemini-3.8-flash:')); });
+await t('model not found (404): the next model in the chain is tried, and the student gets a normal answer', async () => { stubCaches(); mockGoogle((url) => String(url).includes('gemini-3.8-flash') ? new Response('{}', { status: 404 }) : geminiOK(goodModelJSON)); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 200); assert.equal(calls.length, 2); assert.ok(calls[1].url.includes('/models/gemini-3.6-flash:')); const o = await noLeak(r); assert.ok(o.response); });
+await t('every model 404: exactly 3 attempts, then a generic 502 upstream_error with status 404', async () => { stubCaches(); mockGoogle(() => new Response('{"error":{"message":"model gone"}}', { status: 404 })); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 502); const o = await noLeak(r); assert.equal(o.error, 'upstream_error'); assert.equal(o.status, 404); assert.equal(calls.length, 3); assert.ok(!JSON.stringify(o).includes('model gone')); });
+await t('429 / 403 / 500 are NOT retried on other models (one call only)', async () => { for (const st of [429, 403, 500]) { stubCaches(); calls = []; mockGoogle(() => new Response('{}', { status: st })); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 502); assert.equal(calls.length, 1, 'status ' + st); } });
+await t('GEMINI_MODEL=gemini-2.5-flash is tried first and gets thinkingBudget 0; chain is at most 3 long', async () => { stubCaches(); mockGoogle(() => new Response('{}', { status: 404 })); await worker.fetch(req(okBody), { ...env, GEMINI_MODEL: 'gemini-2.5-flash' }); assert.equal(calls.length, 3); assert.ok(calls[0].url.includes('/models/gemini-2.5-flash:')); assert.deepEqual(JSON.parse(calls[0].opts.body).generationConfig.thinkingConfig, { thinkingBudget: 0 }); });
+await t('truncated output (MAX_TOKENS with broken JSON) -> clean 502 malformed_model_output', async () => { stubCaches(); mockGoogle(() => new Response(JSON.stringify({ candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [{ text: '{"response":"half an ans' }] } }] }), { status: 200 })); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 502); assert.equal((await r.json()).error, 'malformed_model_output'); });
+await t('the key is never logged: no console output during a failing request', async () => { const logs = []; const o = { log: console.log, error: console.error, warn: console.warn }; console.log = console.error = console.warn = (...a) => logs.push(a.join(' ')); try { stubCaches(); mockGoogle(() => new Response('boom ' + KEY, { status: 500 })); await worker.fetch(req(okBody), env); } finally { Object.assign(console, o); } assert.ok(!logs.join('\n').includes(KEY)); });
 await t('rate limit: 8 requests/min per IP then 429; other IP unaffected', async () => { stubCaches(); mockGoogle(() => geminiOK(goodModelJSON)); for (let i = 0; i < 8; i++) assert.equal((await worker.fetch(req(okBody, { ip: '9.9.9.9' }), env)).status, 200); const r = await worker.fetch(req(okBody, { ip: '9.9.9.9' }), env); assert.equal(r.status, 429); assert.equal((await worker.fetch(req(okBody, { ip: '8.8.8.8' }), env)).status, 200); });
 await t('rate limiter failure does not block students (fail-open)', async () => { delete globalThis.caches; mockGoogle(() => geminiOK(goodModelJSON)); const r = await worker.fetch(req(okBody), env); assert.equal(r.status, 200); });
 await t('worker source contains no hard-coded key', async () => { assert.ok(!/AIza[0-9A-Za-z_-]{20,}/.test(src)); assert.ok(!/sk-[A-Za-z0-9]{20,}/.test(src)); assert.ok(!/anthropic/i.test(src)); });
 
-globalThis.fetch = realFetch; fs.unlinkSync(tmp);
+globalThis.fetch = realFetch; 
 console.log(results.join('\n')); console.log('\n' + passed + '/' + results.length + ' passed');
 process.exit(passed === results.length ? 0 : 1);

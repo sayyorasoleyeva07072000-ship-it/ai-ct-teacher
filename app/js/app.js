@@ -881,12 +881,12 @@ const UZ={
  role:"PhD tadqiqotchi",
  forTeachers:"Oʻqituvchilar uchun",
  bn:{home:"Bosh",tasks:"Topshiriq",methods:"Metodlar",comp:"Musobaqa",progress:"Natija"},
- nav:{home:"Bosh sahifa",tasks:"Topshiriqlar",cycle:"6C sikli",methods:"Metodlar oʻyini",comp:"Jamoaviy musobaqa",progress:"Natijalarim",about:"Loyiha haqida",teacher:"Oʻqituvchi paneli"},
+ nav:{chat:"AI bilan suhbat",home:"Bosh sahifa",tasks:"Topshiriqlar",cycle:"6C sikli",methods:"Metodlar oʻyini",comp:"Jamoaviy musobaqa",progress:"Natijalarim",about:"Loyiha haqida",teacher:"Oʻqituvchi paneli"},
  home:{eyebrow:"Elektron metodik prototip",sub:"Boʻlajak ingliz tili oʻqituvchilari uchun sunʼiy intellekt va tanqidiy fikrlash",choose:"Nima qilmoqchisiz?",hello:"Salom",nameAsk:"Ismingizni yozing",namePh:"Ismingiz (taxallus ham mumkin)",save:"Saqlash",
   nameHint:"Ism faqat shu qurilmada saqlanadi. Sinfga qoʻshilsangiz, oʻqituvchi shu ismni koʻradi.",days:"kun ketma-ket",cont:"Davom etish",random:"Tasodifiy topshiriq",how:"6 qadamda qanday ishlaydi",
   aiNote:"AI faqat 2-qadamda ishlatiladi. Qolgan besh qadam — sizning oʻz fikringiz va tekshiruvingiz.",what:"AI-CT TEACHER nima?",
   whatP:"Bu platforma boʻlajak ingliz tili oʻqituvchilariga sunʼiy intellekt javoblarini koʻr-koʻrona qabul qilmasdan, tanqidiy oʻrganishni, tekshirishni va oʻz qarorini asoslashni oʻrgatadi.",more:"Batafsil"},
- tiles:{tasks:"32 ta real sinf vaziyati, 8 ta kategoriya",cycle:"6 qadamli oʻrganish sikli",methods:"Metodlar boʻyicha tez savollar",comp:"Sinf bilan jamoaviy oʻyin",progress:"XP, nishonlar va natijalaringiz",teacher:"Sinf yarating va natijalarni koʻring"},
+ tiles:{chat:"Sinf vaziyati haqida AI bilan mashq suhbati.",tasks:"32 ta real sinf vaziyati, 8 ta kategoriya",cycle:"6 qadamli oʻrganish sikli",methods:"Metodlar boʻyicha tez savollar",comp:"Sinf bilan jamoaviy oʻyin",progress:"XP, nishonlar va natijalaringiz",teacher:"Sinf yarating va natijalarni koʻring"},
  stage:[
   {n:"Vaziyat",t:"Vaziyatni oʻqing va AI ishlatmasdan oʻzingiz tahlil qiling."},
   {n:"Maslahat (AI)",t:"AIʼdan javob soʻrang. Bu — AI ishlatiladigan yagona bosqich."},
@@ -920,7 +920,7 @@ const UZ={
  libLead:"ta real sinf vaziyati sakkizta kategoriyada. Har biri toʻliq 6 bosqichdan oʻtadi.",
  footNote:"Maʼlumotlar brauzeringizda saqlanadi.",
  j:{title:"Sinfga qoʻshilish",lead:"Quyida sinf nomini koʻrasiz. Ismingizni yozing va qoʻshiling.",nameLabel:"Ismingiz (taxallus ham mumkin)",btn:"Qoʻshilish",privacy:"Oʻqituvchi faqat ismingizni va ballaringizni koʻradi. Yozgan javoblaringiz yuborilmaydi."},
- chat:{title:"AI bilan suhbat",ask:"AI ga kuzatuv savoli bering"},
+ chat:{title:"AI bilan suhbat",ask:"AI ga kuzatuv savoli bering",page:"Tanlangan sinf vaziyati haqida AI ga savol bering. Bu mashq suhbati: natijalar saqlanmaydi va 6C yozuvlariga qoʻshilmaydi.",pick:"Vaziyatni tanlang"},
  t:{notConnected:"Sinflar hozircha ulanmagan.",notConnectedP:"Oʻqituvchi sinf yaratib natijalarni koʻrishi uchun xavfsiz server ulangan boʻlishi kerak. Quyida namuna (demo) maʼlumotlar bilan koʻrinish koʻrsatilgan.",
   lead:"Sinf yarating, havolani talabalarga bering va ularning natijalarini koʻring.",preview:"Namuna koʻrinish",created:"Sinf yaratildi",code:"Sinf kodi",link:"Qoʻshilish havolasi",key:"Oʻqituvchi kaliti",
   keyWarn:"Kalitni saqlab qoʻying: u faqat shu qurilmada va hozir koʻrinadi. Kalit yoʻqolsa, sinf natijalarini koʻra olmaysiz. Uni talabalarga bermang.",openClass:"Sinfni ochish",create:"Yangi sinf yaratish",className:"Sinf nomi",classPh:"Masalan: 3-kurs, A guruh",yourName:"Ismingiz",optional:"ixtiyoriy",createBtn:"Sinf yaratish",
@@ -1467,6 +1467,8 @@ function viewTeacherDemo(){
    ===================================================================== */
 const curAttempt=()=>S.attempts[ui.params.attemptId];
 const MARK=`<span class="mark" aria-hidden="true"><span>AI<b>–</b>CT</span></span>`;
+const BUILD_ID='2026-10-01-d1';   /* shown in the menu footer and the browser console, so you can see which version is live */
+try{console.info('AI-CT TEACHER build '+BUILD_ID)}catch(e){}
 const AUTHOR_NAME='SARVINOZ SOLEXONOVNA', INSTITUTION='Samarkand State Institute of Foreign Languages (SamDChTI)';
 const statusOf=t=>{const ip=inProgressFor(t.id),done=attemptsFor(t.id).filter(a=>a.status==='completed');
   if(ip)return{chip:`<span class="chip w">In progress, stage ${ip.stage} of 6</span>`,ip,done};
@@ -1479,7 +1481,7 @@ function badgeHTML(key,anim){const b=BADGES[key];if(!b)return'';return `<span cl
 const soundBtn=()=>`<button class="ic-btn" data-act="sound" aria-pressed="${sndEnabled()}" aria-label="Sound on or off" title="Sound on / off">${sndEnabled()?'🔊':'🔇'}</button>`;
 
 /* ---------- navigation ---------- */
-const NAV=[['home','🏠','home','Home'],['library','📚','tasks','Tasks'],['cycle','🧭','cycle','6C cycle'],['methods','🎓','methods','Method Challenge'],
+const NAV=[['home','🏠','home','Home'],['library','📚','tasks','Tasks'],['cycle','🧭','cycle','6C cycle'],['aichat','🤖','chat','AI Chat'],['methods','🎓','methods','Method Challenge'],
   ['competition','🏆','comp','Team Competition'],['progress','📈','progress','My progress'],['about','ℹ️','about','About the project']];
 const navBtn=(k,ic,uzk,en,page)=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span class="nav-ic" aria-hidden="true">${ic}</span><span class="nav-tx"><b>${UZ.nav[uzk]}</b><small>${en}</small></span></button>`;
 function brandHTML(){
@@ -1491,7 +1493,7 @@ function renderShell(){
   $('#side').innerHTML=`${brandHTML()}
    <nav class="nav" aria-label="Pages">${NAV.map(n=>navBtn(n[0],n[1],n[2],n[3],page)).join('')}<div class="sep"></div><div class="grp">${UZ.forTeachers} · For teachers</div>${navBtn('teacher','👩‍🏫','teacher','Teacher dashboard',page)}</nav>
    <div class="side-foot"><div class="tools">${soundBtn()}<button class="ic-btn" data-act="projector" aria-pressed="${!!S.prefs.projector}" title="Projector mode: larger text for interactive whiteboards">📽️</button><button class="ic-btn" data-act="fullscreen" title="Full screen">⛶</button><button class="ic-btn" data-act="theme" title="Light / dark">🌓</button></div>
-    ${inClass}<span id="storeState">${storageOk?'Saved in this browser':'Memory only (not persistent)'}</span></div>`;
+    ${inClass}<span id="storeState">${storageOk?'Saved in this browser':'Memory only (not persistent)'}</span><span class="tiny dim" id="buildId">build ${BUILD_ID}</span></div>`;
   $('#topbar').innerHTML=`${MARK}<span class="tb-t"><strong class="serif">AI-CT TEACHER</strong><span class="tb-a">PhD researcher · <b>${AUTHOR_NAME}</b></span></span>${soundBtn()}<button class="menu" data-act="menu" aria-expanded="${ui.menu}" aria-controls="side">☰</button>`;
   let b=$('#bnav');if(!b){b=document.createElement('nav');b.id='bnav';b.className='bnav';b.setAttribute('aria-label','Quick navigation');document.body.appendChild(b)}
   b.innerHTML=[['home','🏠','home'],['library','📚','tasks'],['methods','🎓','methods'],['competition','🏆','comp'],['progress','📈','progress']].map(([k,ic,u])=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span aria-hidden="true">${ic}</span><small>${UZ.bn[u]}</small></button>`).join('');
@@ -1506,7 +1508,7 @@ function greetHTML(){
   return `<section class="panel greet"><div><h3>${UZ.home.hello}, ${esc(n)}! 👋</h3><div class="row" style="gap:8px;margin-top:8px">${xpPillHTML()}<span class="chip ${st?'w':''}">🔥 ${st} ${UZ.home.days}</span><span class="chip">🏅 ${S.badges.length}/${Object.keys(BADGES).length}</span>${S.classes.length?`<span class="chip g">👥 ${esc(S.classes[0].className||S.classes[0].code)}</span>`:''}</div></div>
    ${ip?`<button class="btn" data-act="continue" data-attempt="${ip.id}">${UZ.home.cont} ▶ <small>Continue: ${esc(TASK_BY_ID[ip.taskId].title)}</small></button>`:`<button class="btn" data-act="random-task">🎲 ${UZ.home.random}</button>`}</section>`}
 function viewHome(){
-  const tiles=[['library','📚','tasks','Tasks',UZ.tiles.tasks],['cycle','🧭','cycle','6C cycle',UZ.tiles.cycle],['methods','🎓','methods','Method Challenge',UZ.tiles.methods],['competition','🏆','comp','Team Competition',UZ.tiles.comp],['progress','📈','progress','My progress',UZ.tiles.progress],['teacher','👩‍🏫','teacher','Teacher dashboard',UZ.tiles.teacher]];
+  const tiles=[['library','📚','tasks','Tasks',UZ.tiles.tasks],['cycle','🧭','cycle','6C cycle',UZ.tiles.cycle],['methods','🎓','methods','Method Challenge',UZ.tiles.methods],['competition','🏆','comp','Team Competition',UZ.tiles.comp],['aichat','🤖','chat','AI Chat',UZ.tiles.chat],['progress','📈','progress','My progress',UZ.tiles.progress],['teacher','👩‍🏫','teacher','Teacher dashboard',UZ.tiles.teacher]];
   return `<div class="page home">
    <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
     <div class="hero-in"><p class="eyebrow">${UZ.home.eyebrow}</p><h1 class="hero-t">AI-CT TEACHER</h1>
@@ -1536,6 +1538,19 @@ function viewAbout(){
    <div class="about-id"><div class="author"><span class="author-l">PhD RESEARCHER · ${UZ.role}</span><span class="author-n">${AUTHOR_NAME}</span></div><div class="author"><span class="author-l">${uz?UZ.institution:'INSTITUTION'}</span><span class="author-n">${INSTITUTION}</span></div></div>
    <p class="diss"><b>${uz?UZ.dissLabel:'Dissertation topic'}:</b> <em>${UZ.dissertation}</em></p>
    ${src.map(s=>`<h3>${s.h}</h3>${(s.p||[]).map(p=>`<p>${p}</p>`).join('')}${s.table?`<div class="tablewrap"><table><thead><tr><th>${uz?UZ.cols[0]:'Stage'}</th><th>${uz?UZ.cols[1]:'What the student does'}</th><th>${uz?UZ.cols[2]:'Oʻzbekcha'}</th></tr></thead><tbody>${UZ_CYCLE_ROWS()}</tbody></table></div><p class="muted small">${uz?UZ.cycleNote:'Exactly six stages, always in this order. Reflection is the closing part of Conclude.'}</p>`:''}`).join('')}</div>`}
+
+/* ---------- AI CHAT: a practice conversation about a classroom situation (separate from the 6C Consult stage; nothing is scored or saved) ---------- */
+function viewAIChat(){
+  const at=ui.freeAt||newFreeChat(ui.freeTask||TASKS[0].id),t=TASK_BY_ID[at.taskId];
+  const opts=TASKS.map(x=>`<option value="${x.id}" ${x.id===at.taskId?'selected':''}>${x.num}. ${esc(x.title)}</option>`).join('');
+  return `<div class="page"><div class="page-head"><h1>${UZ.nav.chat} <span class="en">AI Chat</span></h1><p>${UZ.chat.page}</p></div>
+   <div class="notice"><p><strong>Practice conversation.</strong> Choose a classroom situation and talk with the AI about it. Nothing here is scored or added to your 6C records, and the AI can be wrong, so treat its answers as claims to examine. For the full six-stage activity (Context, Consult, Critique, Check, Challenge, Conclude) open <button class="linkbtn" data-go="library">${UZ.nav.tasks}</button>.</p></div>
+   <div class="fld"><label class="lab" for="aichatTask">${UZ.chat.pick}</label><select id="aichatTask" data-sel="aichatTask">${opts}</select></div>
+   ${scenarioCard(t)}
+   <div class="card ai-card"><div class="ai-status" id="aiStatus">${aiStatusHTML()}</div>
+    <h3 class="chat-title">Conversation with the AI <span class="uz">${UZ.chat.title}</span></h3>
+    <div id="aiOut" class="chat" role="log" aria-live="polite" aria-label="Conversation with the AI">${chatLogHTML(at)}</div>
+    <div id="composer">${composerHTML(at)}</div></div></div>`}
 
 /* ---------- MY PROGRESS (student account) ---------- */
 function syncChipHTML(){const s=syncState();return `<span class="chip ${s.cls}" id="syncChip">${s.text}</span>`}
@@ -1774,7 +1789,7 @@ function viewTeacher(){
   if(!API.base)return viewTeacherDemo().replace('<div class="page">','<div class="page">'+lockedPanels(setupBanner()));
   if(!API.caps.checked||API.caps.checking)return `<div class="page">${tHead()}${lockedPanels('<div class="panel"><span class="thinking">Connecting to the server <i></i><i></i><i></i></span></div>')}</div>`;
   if(API.caps.err)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice b"><p><strong>${UZ.t.lockedTitle}</strong> ${errText(API.caps.err)}</p><p><button class="btn" data-act="api-retry">Try again</button></p></div>`)}</div>`;
-  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet. In the backend folder run <code>npm install -g wrangler@latest</code> and then <code>wrangler deploy</code> (the included <code>wrangler.toml</code> creates and connects the database by itself), then press Ctrl+F5 here. Details: <code>backend/README.md</code>, step 4.</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
+  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet. In the backend folder run <code>npm install -g wrangler@latest</code> and then <code>wrangler deploy</code> (the included <code>wrangler.toml</code> creates and connects the database by itself), then press Ctrl+F5 here. Details: <code>backend/README.md</code>, step 4.</p><p class="small"><b>What this page sees:</b> it asked <code>${esc(API.base)}/api/health</code> and the server answered: AI <b>${API.caps.ai?'ready':'not ready'}</b>, class database <b>${API.caps.classes?'ready':'NOT connected'}</b>. The database must be attached to <i>this</i> Worker: the <code>name</code> in <code>wrangler.toml</code> has to be the first part of this address.</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
   return T.view==='class'&&T.code?classView():teacherHome()}
 
 function teacherHome(){
@@ -2061,10 +2076,10 @@ function tcDoneHTML(){
 /* =====================================================================
    APP CONTROLLER
    ===================================================================== */
-const VIEWS={home:viewHome,about:viewAbout,cycle:viewCycle,library:viewLibrary,methods:viewMethods,competition:viewCompetition,progress:viewProgress,assessment:viewAssessment,record:viewRecord,teacher:viewTeacher,join:viewJoin};
+const VIEWS={home:viewHome,about:viewAbout,cycle:viewCycle,library:viewLibrary,methods:viewMethods,competition:viewCompetition,progress:viewProgress,assessment:viewAssessment,record:viewRecord,teacher:viewTeacher,aichat:viewAIChat,join:viewJoin};
 const PAGE_ALIAS={dashboard:'progress',history:'progress'};
-const HASH_PAGES=['home','about','cycle','library','methods','competition','progress','assessment','teacher'];
-const PAGE_TITLES={home:'AI-CT TEACHER',about:'About the project / Loyiha haqida',cycle:'AI-CT 6C cycle',library:'Tasks / Topshiriqlar',methods:'Method Challenge',competition:'Team Competition',progress:'My progress / Natijalarim',assessment:'Result',record:'Record',teacher:'Teacher dashboard',join:'Join a class'};
+const HASH_PAGES=['home','about','cycle','library','methods','competition','progress','assessment','teacher','aichat'];
+const PAGE_TITLES={home:'AI-CT TEACHER',about:'About the project / Loyiha haqida',cycle:'AI-CT 6C cycle',library:'Tasks / Topshiriqlar',methods:'Method Challenge',competition:'Team Competition',progress:'My progress / Natijalarim',assessment:'Result',record:'Record',teacher:'Teacher dashboard',aichat:'AI Chat / AI bilan suhbat',join:'Join a class'};
 let teacherTimer=null;
 function stopTeacherTimer(){if(teacherTimer){clearInterval(teacherTimer);teacherTimer=null}}
 function startTeacherTimer(){stopTeacherTimer();teacherTimer=setInterval(()=>{if(ui.page==='teacher'&&ui.teacher.view==='class'&&!document.hidden)teacherLoad(true);else if(ui.page!=='teacher')stopTeacherTimer()},30000)}
@@ -2075,6 +2090,7 @@ function render(keep){
   afterRender();window.scrollTo(0,keep?y:0)}
 function afterRender(){
   updateLive();updateSaved();
+  if(ui.page==='aichat')ensureFreeChat();
   if(ui.page==='assessment'&&ui.justCompleted){
     const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
     [['#scoreNum',n=>String(n)],['#xpGain',n=>'⭐ +'+n+' XP']].forEach(([sel,fmt])=>{const el=$(sel);if(!el)return;const to=+el.dataset.to;
@@ -2093,6 +2109,7 @@ function parseHash(){const h=(location.hash||'').replace(/^#/,''),m=h.match(/^jo
 function syncUrl(page){try{document.title=(PAGE_TITLES[page]||'AI-CT TEACHER')+' | AI-CT TEACHER';
   const want=page==='join'?'#join='+ui.join.code:HASH_PAGES.includes(page)?'#'+page:null;if(want&&location.hash!==want)history.pushState(null,'',want)}catch(e){}}
 function go(page,params){
+  if(page==='aichat')ui.aiErr='';
   page=PAGE_ALIAS[page]||page;params=params||{};
   if(ui.page==='competition'&&page!=='competition')tcClearTimer();
   if(ui.page==='teacher'&&page!=='teacher')stopTeacherTimer();
@@ -2111,6 +2128,7 @@ function enterStage(at){
 function rerenderStage(){const at=curAttempt(),m=$('#stageMain');if(!at||!m)return;const y=window.scrollY;m.innerHTML=stageHTML(at);updateLive();window.scrollTo(0,y)}
 
 function updateLive(){
+  if(ui.page==='aichat'){if(ui.freeAt)refreshComposer(ui.freeAt);return}
   if(ui.page!=='cycle')return;const at=curAttempt();if(!at)return;
   $$('[data-cnt]').forEach(el=>{const n=W(getPath(at.d,el.dataset.cnt)),min=+el.dataset.min;el.classList.toggle('ok',n>=min);el.textContent=min?`${n} / ${min}+ words`:`${n} words`});
   const rq=reqs(at,at.stage),okc=rq.filter(r=>r.ok).length,all=okc===rq.length;
@@ -2119,6 +2137,13 @@ function updateLive(){
   const nb=$('#nextBtn');if(nb)nb.setAttribute('aria-disabled',String(at.stage<6?!all:![1,2,3,4,5,6].every(s=>stageOk(at,s))));
   const tl=$('#traceList');if(tl)tl.innerHTML=traceHTML(at);
   if(at.stage===2)refreshComposer(at)}
+/* The conversation works in two places: inside the 6C Consult stage, and on the separate practice page "AI Chat". */
+const chatAt=()=>ui.page==='aichat'?ui.freeAt:curAttempt();
+const inChatView=at=>ui.page==='aichat'||(ui.page==='cycle'&&!!at&&at.stage===2);
+const newFreeChat=taskId=>({id:'free',taskId,status:'free',stage:2,maxStage:2,createdAt:Date.now(),updatedAt:Date.now(),d:blankData()});
+function ensureFreeChat(){
+  if(!ui.freeAt||!TASK_BY_ID[ui.freeAt.taskId])ui.freeAt=newFreeChat(ui.freeTask||TASKS[0].id);
+  const at=ui.freeAt;if(!at.d.consult.chat.length&&!ui.streaming&&!ui.aiErr)startConsult(at)}
 function refreshComposer(at){
   const can=chatCanAsk(at);
   [$('#chatIn'),$('#chatSend')].forEach(e=>{if(e)e.disabled=!can});
@@ -2126,11 +2151,11 @@ function refreshComposer(at){
   const h=$('#chatHint');if(h)h.textContent=chatHintText(at)}
 function scrollChatToEnd(){const l=$('#aiOut');if(!l)return;const last=l.lastElementChild;if(last&&last.scrollIntoView)last.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function refreshAi(){
-  const at=curAttempt();if(!at||ui.page!=='cycle'||at.stage!==2)return;
+  const at=chatAt();if(!at||!inChatView(at))return;
   const o=$('#aiOut'),s=$('#aiStatus');if(s)s.innerHTML=aiStatusHTML();if(o)o.innerHTML=chatLogHTML(at);
   const cp=$('#composer');if(cp&&!$('#chatIn')){cp.innerHTML=composerHTML(at)}   /* the composer is built once, so a half-typed question is never lost */
   refreshComposer(at);updateLive();scrollChatToEnd()}
-function refreshAiOut(){const at=curAttempt(),o=$('#aiOut');if(at&&o&&ui.page==='cycle'&&at.stage===2)o.innerHTML=chatLogHTML(at)}
+function refreshAiOut(){const at=chatAt(),o=$('#aiOut');if(at&&o&&inChatView(at))o.innerHTML=chatLogHTML(at)}
 
 /* ---------- AI (Consult) ---------- */
 const AI_DOWN='AI service is temporarily unavailable. You can continue the activity using the verification and reasoning steps. The demonstration answer is always available.';
@@ -2161,7 +2186,7 @@ async function startConsult(at,forceDemo){
 
 /* A follow-up question: sent through the same secure server, together with the conversation so far. */
 async function sendFollowUp(){
-  const at=curAttempt();if(!at||at.stage!==2||!chatCanAsk(at))return;
+  const at=chatAt();if(!at||!inChatView(at)||!chatCanAsk(at))return;
   const inp=$('#chatIn'),text=String(inp?inp.value:'').replace(/\s+/g,' ').trim();
   if(text.length<3||W(text)<2){toast('Write a short question first');return}
   if(text.length>CHAT_Q_MAX){toast('Please keep the question under '+CHAT_Q_MAX+' characters');return}
@@ -2219,7 +2244,7 @@ document.addEventListener('click',async e=>{
   if(el.getAttribute('aria-disabled')==='true'&&!['stage','next','finish','pick1','pick5'].includes(el.dataset.act))return;
   if(el.dataset.go){go(el.dataset.go,el.dataset.id?{id:el.dataset.id}:{});return}
   if(el.dataset.scale){const at=curAttempt();if(!at)return;setPath(at.d,el.dataset.scale,+el.dataset.val);touch(at);$$(`[data-scale="${el.dataset.scale}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b===el)));updateLive();return}
-  const a=el.dataset.act,at=curAttempt(),T=ui.teacher;
+  const a=el.dataset.act,at=ui.page==='aichat'?ui.freeAt:curAttempt(),T=ui.teacher;
   switch(a){
    case 'menu':ui.menu=!ui.menu;renderShell();break;
    case 'theme':{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');S.prefs.theme=cur==='dark'?'light':'dark';persist();applyPrefs();break}
@@ -2336,7 +2361,8 @@ function onField(e){
   if(t.dataset.b){const at=curAttempt();if(!at||ui.page!=='cycle')return;setPath(at.d,t.dataset.b,t.value);touch(at);updateLive();return}
   if(t.dataset.rowF){const at=curAttempt();if(!at)return;const r=at.d.check.rows.find(x=>x.id===t.dataset.rid);if(!r)return;r[t.dataset.rowF]=t.value;touch(at);updateLive();return}
   if(t.dataset.team!==undefined){const g=ui.tc,i=+t.dataset.team;if(g&&g.teams[i])g.teams[i].name=t.value.slice(0,24)||`Team ${String.fromCharCode(65+i)}`;return}
-  if(e.type==='change'){const s=t.dataset.sel;if(s==='ttask'){ui.tTask=t.value;ui.tStudent=null;render(true)}}}
+  if(e.type==='change'){const s=t.dataset.sel;if(s==='ttask'){ui.tTask=t.value;ui.tStudent=null;render(true)}
+    if(s==='aichatTask'&&TASK_BY_ID[t.value]&&!ui.streaming){ui.freeTask=t.value;ui.freeAt=newFreeChat(t.value);ui.aiErr='';ui.chatDraft='';render(true)}}}
 document.addEventListener('input',onField);document.addEventListener('change',onField);
 window.addEventListener('beforeunload',()=>{try{persistNow()}catch(e){}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.target&&e.target.id==='chatIn'){e.preventDefault();sendFollowUp()}});

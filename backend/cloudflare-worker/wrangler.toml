@@ -1,16 +1,22 @@
-# AI-CT TEACHER backend — Cloudflare Worker configuration (Gemini).
-# Deploy from this folder with:  wrangler deploy
-# Set the key as a secret (never in this file):  wrangler secret put GEMINI_API_KEY
-# See ../README.md for the complete step-by-step.
+# AI-CT TEACHER backend — Cloudflare Worker configuration.
+# Deploy FROM THIS FOLDER with:  npx wrangler deploy
+#
+# IMPORTANT: `name` below must be the name of the Worker the website uses:
+#   https://ai-ct-teacher-api.<your-subdomain>.workers.dev   ->   name = "ai-ct-teacher-api"
+# A different name creates a DIFFERENT Worker (with no Gemini secret and no database).
+#
+# The Gemini key is a secret (never in this file) and stays on the Worker:  wrangler secret put GEMINI_API_KEY
 
-name = "ai-ct-teacher-ai"
+name = "ai-ct-teacher-api"
 main = "worker.js"
 compatibility_date = "2024-09-01"
 
-# Optional non-secret override of the model name:
-# [vars]
-# GEMINI_MODEL = "gemini-2.5-flash"
+# Keep variables you set in the Cloudflare dashboard (for example GEMINI_MODEL) when you deploy.
+keep_vars = true
+
+# The class database that ALREADY exists in your account (not a new one). The Worker also finds a D1 binding
+# under any other name (for example ai_ct_teacher_db) and creates its own tables on first use.
 [[d1_databases]]
-binding = "ai_ct_teacher_db"
+binding = "DB"
 database_name = "ai-ct-teacher-db"
 database_id = "ac7b2394-73f4-4a2b-a4d7-83f7a8d45007"
