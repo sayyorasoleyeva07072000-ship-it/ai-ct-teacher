@@ -874,62 +874,38 @@ const TASKS_NEW=[
   TASKS.sort((a,b)=>parseInt(a.id.slice(1))-parseInt(b.id.slice(1)));
   TASKS.forEach((t,i)=>{t.num=i+1;t.kw=[...contentSet(t.context)];TASK_BY_ID[t.id]=t});
 })();
-/* All Uzbek (Latin) text of the app lives here. Written with ASCII apostrophes inside
-   double-quoted strings; build_site.py converts them to the correct marks:
+/* Uzbek (Latin) text of the app: SHORT supportive explanations only. English is the main interface language.
+   Written with ASCII apostrophes inside double-quoted strings; build_site.py converts them to the correct marks:
    o' and g'  ->  oʻ gʻ  (U+02BB),  any other apostrophe between letters -> ʼ  (U+02BC). */
 const UZ={
- role:"PhD tadqiqotchi",
- forTeachers:"Oʻqituvchilar uchun",
- bn:{home:"Bosh",tasks:"Topshiriq",methods:"Metodlar",comp:"Musobaqa",progress:"Natija"},
- nav:{chat:"AI bilan suhbat",home:"Bosh sahifa",tasks:"Topshiriqlar",cycle:"6C sikli",methods:"Metodlar oʻyini",comp:"Jamoaviy musobaqa",progress:"Natijalarim",about:"Loyiha haqida",teacher:"Oʻqituvchi paneli"},
- home:{eyebrow:"Elektron metodik prototip",sub:"Boʻlajak ingliz tili oʻqituvchilari uchun sunʼiy intellekt va tanqidiy fikrlash",choose:"Nima qilmoqchisiz?",hello:"Salom",nameAsk:"Ismingizni yozing",namePh:"Ismingiz (taxallus ham mumkin)",save:"Saqlash",
-  nameHint:"Ism faqat shu qurilmada saqlanadi. Sinfga qoʻshilsangiz, oʻqituvchi shu ismni koʻradi.",days:"kun ketma-ket",cont:"Davom etish",random:"Tasodifiy topshiriq",how:"6 qadamda qanday ishlaydi",
-  aiNote:"AI faqat 2-qadamda ishlatiladi. Qolgan besh qadam — sizning oʻz fikringiz va tekshiruvingiz.",what:"AI-CT TEACHER nima?",
-  whatP:"Bu platforma boʻlajak ingliz tili oʻqituvchilariga sunʼiy intellekt javoblarini koʻr-koʻrona qabul qilmasdan, tanqidiy oʻrganishni, tekshirishni va oʻz qarorini asoslashni oʻrgatadi.",more:"Batafsil"},
- tiles:{chat:"Sinf vaziyati haqida AI bilan mashq suhbati.",tasks:"32 ta real sinf vaziyati, 8 ta kategoriya",cycle:"6 qadamli oʻrganish sikli",methods:"Metodlar boʻyicha tez savollar",comp:"Sinf bilan jamoaviy oʻyin",progress:"XP, nishonlar va natijalaringiz",teacher:"Sinf yarating va natijalarni koʻring"},
+ home:{support:"Boʻlajak ingliz tili oʻqituvchilari uchun sunʼiy intellekt va tanqidiy fikrlash.",
+  whatSupport:"Platforma AI javoblarini tahlil qilish va tekshirishni oʻrgatadi."},
  stage:[
-  {n:"Vaziyat",t:"Vaziyatni oʻqing va AI ishlatmasdan oʻzingiz tahlil qiling."},
-  {n:"Maslahat (AI)",t:"AIʼdan javob soʻrang. Bu — AI ishlatiladigan yagona bosqich."},
-  {n:"Tanqid",t:"AI javobining qaysi qismi ishonarli, qaysi biri shubhali ekanini belgilang."},
-  {n:"Tekshiruv",t:"Daʼvolarni tekshiring: manba turi, topilgan dalil va hukm (tasdiqlandi, qisman, tasdiqlanmadi, noaniq)."},
-  {n:"Yaxshilash",t:"Yaxshiroq variantni tanlang yoki oʻzingiz yozing va uning xavfini ayting."},
-  {n:"Xulosa",t:"Qaror qiling: qabul qilish, oʻzgartirish yoki rad etish. Sababini yozing va nimani oʻrganganingizni ayting."}],
- consultNote:"Bu sahifa javob toʻgʻri yoki notoʻgʻri ekanini aytmaydi. Buni keyingi bosqichlarda oʻzingiz aniqlaysiz.",
- checkNote:"Ilova manbalarni sizning oʻrningizga tekshirmaydi: hukmni oʻzingiz chiqarasiz.",
+  {t:"Vaziyatni oʻqing va AIʼsiz oʻzingiz tahlil qiling."},
+  {t:"AI bilan suhbatlashing. Bu yagona AI bosqichi."},
+  {t:"AI javobining ishonarli va shubhali qismlarini belgilang."},
+  {t:"Daʼvolarni tekshirib, hukm chiqaring."},
+  {t:"Yaxshiroq variantni tanlang va xavfini ayting."},
+  {t:"Qaror qiling va nimani oʻrganganingizni yozing."}],
+ consultNote:"Bu yerda javob toʻgʻrimi yoki yoʻqmi, aytilmaydi. Buni keyingi bosqichlarda oʻzingiz aniqlaysiz.",
+ checkNote:"Ilova manbalarni siz uchun tekshirmaydi: hukmni oʻzingiz chiqarasiz.",
  lookBack:"Orqaga nazar",
- cycleLead:"Har bir topshiriq aynan 6 bosqichdan oʻtadi va bosqichlar har doim shu tartibda keladi.",
- cycleNote:"Aynan olti bosqich, har doim shu tartibda. Mulohaza (refleksiya) alohida bosqich emas, u Xulosa bosqichining yakuniy qismi.",
- result:"Natijangiz",stageBy:"Bosqichlar boʻyicha fikr-mulohaza",classStatus:"Sinf holati",record:"Yozuvni koʻrish",
+ cycleLead:"Har bir topshiriq aynan shu 6 bosqichdan oʻtadi.",
+ chat:{ask:"Kuzatuv savoli bering",page:"Istalgan savolingizni yozing.",
+  ex:["Men ingliz tilini oʻrganishda qiynalayapman. Speakingimni qanday yaxshilashim mumkin?","Present Perfect va Past Simple oʻrtasidagi farqni tushuntirib ber."]},
+ /* ---- About page, Uzbek tab (optional) ---- */
  aboutTitle:"Loyiha haqida",aboutLead:"Sunʼiy intellekt bilan tuzilgan oʻzaro taʼsir orqali tanqidiy fikrlashni rivojlantiruvchi elektron metodik prototip.",
  institution:"MUASSASA",dissLabel:"Dissertatsiya mavzusi",
  dissertation:"Sunʼiy intellekt vositalari asosida boʻlajak ingliz tili oʻqituvchilarining tanqidiy fikrlash koʻnikmalarini rivojlantirish metodikasi",
  cols:["Bosqich","Talaba nima qiladi","Qisqacha"],
+ cycleNote:"Aynan olti bosqich, har doim shu tartibda. Mulohaza alohida bosqich emas, u Conclude bosqichining yakuniy qismi.",
  about:[
-  {h:"AI-CT TEACHER nima?",p:["AI-CT TEACHER — boʻlajak ingliz tili oʻqituvchilarining tanqidiy fikrlashini sunʼiy intellekt bilan tuzilgan oʻzaro taʼsir orqali rivojlantirishga moʻljallangan elektron metodik prototip.","Koʻpchilik vositalar talabaga tayyor javob beradi va uni qabul qilishni kutadi. Bu platforma esa sunʼiy intellektni tanqidiy tahlil obʼekti sifatida koʻradi: talaba avval oʻzi oʻylaydi, AIʼdan bir marta soʻraydi, soʻng javobni tahlil qiladi, tekshiradi, unga eʼtiroz bildiradi va oʻz masʼuliyatli qarorini yozadi."]},
+  {h:"AI-CT TEACHER nima?",p:["AI-CT TEACHER — boʻlajak ingliz tili oʻqituvchilarining tanqidiy fikrlashini sunʼiy intellekt bilan tuzilgan oʻzaro taʼsir orqali rivojlantirishga moʻljallangan elektron metodik prototip.","Platforma sunʼiy intellektni tanqidiy tahlil obʼekti sifatida koʻradi: talaba avval oʻzi oʻylaydi, AIʼdan bir marta soʻraydi, soʻng javobni tahlil qiladi, tekshiradi, unga eʼtiroz bildiradi va oʻz masʼuliyatli qarorini yozadi."]},
   {h:"AI-CT 6C sikli",p:[],table:true},
-  {h:"AI qanday ishlatiladi?",p:["AI faqat 2-bosqichda (Maslahat) ishlatiladi. Xavfsiz AI xizmati ulangan boʻlsa, javobni Gemini server orqali beradi: API kaliti serverda saqlanadi, talaba hech qachon kalit kiritmaydi. Ulanmagan boʻlsa, ilova oldindan yozilgan namunaviy javobni koʻrsatadi; u har doim \"DEMONSTRATION\" deb belgilanadi va savolingizga bogʻliq emas.","AI javoblarida xato boʻlishi mumkin. Aynan shu xatolarni topish oʻrganilayotgan koʻnikmadir."]},
-  {h:"Ballar va fikr-mulohaza",p:["Olti bosqichning har birida uchta koʻrinadigan koʻrsatkich bor. Daraja = 1 + bajarilgan koʻrsatkichlar soni (1 dan 4 gacha); jami ball 6 dan 24 gacha. Nima uchun aynan shu daraja berilgani har doim koʻrinib turadi.","Bu oʻquv faoliyati koʻrsatkichlari: ular tanqidiy fikrlash elementlari ishingizda borligini koʻrsatadi. Bu tasdiqlangan (validatsiya qilingan) psixologik test emas va gʻoyaning sifatini baholay olmaydi."]},
-  {h:"Oʻqituvchi va talaba sinflari",p:["Oʻqituvchi sinf yaratishi, havola ulashishi va qoʻshilgan talabalarning natijalarini koʻrishi mumkin. Talaba ism (taxallus ham boʻladi) yozadi va havola orqali qoʻshiladi.","Sinfga faqat ballar yuboriladi: topshiriq, har bosqich darajasi, jami ball, XP va oʻyin natijalari. Yozgan javoblaringiz faqat oʻz qurilmangizda qoladi. Sinfdan istalgan vaqtda chiqish mumkin.","Sinflar ishlashi uchun xavfsiz server ulangan boʻlishi kerak. U ulanmaguncha bu boʻlim faqat nima qilishini tushuntiradi."]},
-  {h:"Tadqiqotda foydalanish va cheklovlar",p:["Bu tadqiqot prototipi boʻlib, biror muassasaning rasmiy mahsuloti yoki u tomonidan tasdiqlangan vosita emas. Tadqiqotda yozuvlarni oʻqitilgan baholovchilar oʻsha mezon boʻyicha baholashi kerak; ilmiy asoslilik dasturdan emas, tadqiqot dizaynidan, tanlanmadan va tahlildan keladi."]}],
- cls:{title:"Mening sinfim",none:"Siz hozircha hech qanday sinfga qoʻshilmagansiz.",ph:"Sinf kodi yoki havolasi",join:"Qoʻshilish",privacy:"Sinfga faqat ballar yuboriladi, yozgan javoblaringiz yuborilmaydi."},
- progLead:"Sizning hisobingiz, XP, nishonlar va natijalar. Maʼlumotlar shu qurilmada saqlanadi.",
- prof:{title:"Mening hisobim",update:"Yangilash",note:"Hisob shu brauzerda saqlanadi (parolsiz). Boshqa qurilmada alohida hisob ochiladi."},
- badges:"Nishonlar",profile6c:"Mening 6C profilim",recent:"Soʻnggi faoliyat",learned:"Nimani oʻrgandim",nothing:"Hozircha natija yoʻq",nothingP:"Birinchi topshiriqni bajaring, natijalar shu yerda paydo boʻladi.",
- exportT:"Eksport va maʼlumotlar",exportP:"Yozuvlarni JSON yoki CSV koʻrinishida yuklab olish mumkin (oʻqituvchiga yoki tadqiqot uchun).",
- cat:{"critical-thinking":"Tanqidiy fikrlash","ai-teaching":"AI va oʻqitish","fact-checking":"Faktlarni tekshirish","communication":"Muloqot","ethics":"Etika","media-info":"Media va axborot","methods":"Oʻqitish metodlari","problem-solving":"Muammolarni yechish"},
- libLead:"ta real sinf vaziyati sakkizta kategoriyada. Har biri toʻliq 6 bosqichdan oʻtadi.",
- footNote:"Maʼlumotlar brauzeringizda saqlanadi.",
- j:{title:"Sinfga qoʻshilish",lead:"Quyida sinf nomini koʻrasiz. Ismingizni yozing va qoʻshiling.",nameLabel:"Ismingiz (taxallus ham mumkin)",btn:"Qoʻshilish",privacy:"Oʻqituvchi faqat ismingizni va ballaringizni koʻradi. Yozgan javoblaringiz yuborilmaydi."},
- chat:{title:"AI bilan suhbat",ask:"AI ga kuzatuv savoli bering",page:"Tanlangan sinf vaziyati haqida AI ga savol bering. Bu mashq suhbati: natijalar saqlanmaydi va 6C yozuvlariga qoʻshilmaydi.",pick:"Vaziyatni tanlang"},
- t:{notConnected:"Sinflar hozircha ulanmagan.",notConnectedP:"Oʻqituvchi sinf yaratib natijalarni koʻrishi uchun xavfsiz server ulangan boʻlishi kerak. Quyida namuna (demo) maʼlumotlar bilan koʻrinish koʻrsatilgan.",
-  lead:"Sinf yarating, havolani talabalarga bering va ularning natijalarini koʻring.",preview:"Namuna koʻrinish",created:"Sinf yaratildi",code:"Sinf kodi",link:"Qoʻshilish havolasi",key:"Oʻqituvchi kaliti",
-  keyWarn:"Kalitni saqlab qoʻying: u faqat shu qurilmada va hozir koʻrinadi. Kalit yoʻqolsa, sinf natijalarini koʻra olmaysiz. Uni talabalarga bermang.",openClass:"Sinfni ochish",create:"Yangi sinf yaratish",className:"Sinf nomi",classPh:"Masalan: 3-kurs, A guruh",yourName:"Ismingiz",optional:"ixtiyoriy",createBtn:"Sinf yaratish",
-  myClasses:"Mening sinflarim",open:"Ochish",noClasses:"Hozircha sinf yoʻq.",otherDevice:"Boshqa qurilmada yaratilgan sinfni ochish",classLead:"Talabalar havola orqali qoʻshiladi. Faqat ballar koʻrinadi.",showCode:"Kodni ekranga chiqarish",
-  joinHow:"Talabalar havolani oching yoki ilovada \"Natijalarim\" boʻlimida kodni kiritadi.",joinAt:"Qoʻshilish kodi",refresh:"Yangilash",exportCsv:"CSV yuklab olish",hideKey:"Kalitni yashirish",showKeyBtn:"Kalitni koʻrsatish",updated:"Yangilandi",deleteClass:"Sinfni oʻchirish",
-  students:"talaba",activities:"faoliyat",avgScore:"oʻrtacha ball",games:"oʻyinlar",stageProfile:"Bosqichlar boʻyicha natija",byTask:"Topshiriqlar boʻyicha",noResults:"Hozircha 6C natijalari yoʻq. Talabalar topshiriqni tugatganda shu yerda koʻrinadi.",studentTable:"Talabalar",noStudents:"Hali hech kim qoʻshilmagan.",
-  lockedTitle:"Sinf yaratish hozircha mavjud emas.",soon:"server ulanmagan",example:"namuna",
-  afterCreate:"Sinf yaratilgach siz sinf kodi, qoʻshilish havolasi va oʻqituvchi kalitini olasiz. Havolani talabalarga yuborasiz, ular ism yozib qoʻshiladi.",
-  privacy:"Serverda faqat ismlar va ballar saqlanadi. Talabalarning yozgan javoblari yuborilmaydi."}
+  {h:"AI qanday ishlatiladi?",p:["AI 6C siklida faqat Consult bosqichida ishlatiladi. Alohida AI Chat sahifasida esa istalgan savolni erkin soʻrash mumkin. Javoblarni Gemini xavfsiz server orqali beradi: API kaliti serverda saqlanadi, talaba hech qachon kalit kiritmaydi. Server ulanmagan boʻlsa, Consult oldindan yozilgan namunaviy javobni koʻrsatadi va u har doim 'DEMONSTRATION' deb belgilanadi.","AI javoblarida xato boʻlishi mumkin. Aynan shu xatolarni topish oʻrganilayotgan koʻnikmadir."]},
+  {h:"Ballar va fikr-mulohaza",p:["Olti bosqichning har birida uchta koʻrinadigan koʻrsatkich bor. Daraja = 1 + bajarilgan koʻrsatkichlar soni (1 dan 4 gacha); jami ball 6 dan 24 gacha.","Bu oʻquv faoliyati koʻrsatkichlari: tasdiqlangan psixologik test emas va gʻoyaning sifatini baholay olmaydi."]},
+  {h:"Maʼlumotlar",p:["Natijalar, XP, nishonlar va yozgan javoblaringiz faqat shu qurilmaning brauzerida saqlanadi. Yozuvlarni JSON yoki CSV koʻrinishida yuklab olish mumkin."]},
+  {h:"Tadqiqotda foydalanish va cheklovlar",p:["Bu tadqiqot prototipi boʻlib, biror muassasaning rasmiy mahsuloti emas. Tadqiqotda yozuvlarni oʻqitilgan baholovchilar oʻsha mezon boʻyicha baholashi kerak; ilmiy asoslilik dasturdan emas, tadqiqot dizaynidan keladi."]}]
 };
 /* =====================================================================
    SOUND — short Web Audio beeps only. No audio files, no autoplay music.
@@ -971,14 +947,13 @@ function sndToggleBtn(){return `<button class="sound-toggle" data-act="snd-toggl
 /* =====================================================================
    STATE — everything is stored in this browser's localStorage and is
    validated on load, so corrupted or old data can never crash the app.
-   Sensitive items kept on this device only: the student's class token
-   and a teacher's class key (see README, "Data and privacy").
+   Nothing here is sent anywhere: progress, XP, badges and written answers stay on this device.
    ===================================================================== */
 const KEY='aict-teacher:prototype:v1', SCHEMA=2;
 let storageOk=true, persistT=null, lastSaved=null;
 
 function defaultState(){return{schema:SCHEMA,attempts:{},order:[],notes:{},prefs:{},xp:0,badges:[],competitions:[],methodRounds:[],
-  seenQ:{},streak:{last:'',count:0},profile:{name:'',id:''},classes:[],teacherClasses:[],outbox:[],legacy:0}}
+  seenQ:{},streak:{last:'',count:0},profile:{name:'',id:''},legacy:0}}
 const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);
 const arr=v=>Array.isArray(v)?v:[];
 function validAttempt(a){
@@ -1001,9 +976,6 @@ function sanitizeState(raw){
   d.seenQ=isObj(raw.seenQ)?raw.seenQ:{};
   const st=isObj(raw.streak)?raw.streak:{};d.streak={last:typeof st.last==='string'?st.last:'',count:Number.isFinite(st.count)?st.count:0};
   const pr=isObj(raw.profile)?raw.profile:{};d.profile={name:typeof pr.name==='string'?pr.name.slice(0,40):'',id:typeof pr.id==='string'?pr.id.slice(0,40):''};
-  d.classes=arr(raw.classes).filter(c=>isObj(c)&&typeof c.code==='string'&&typeof c.token==='string'&&typeof c.studentId==='string');
-  d.teacherClasses=arr(raw.teacherClasses).filter(c=>isObj(c)&&typeof c.code==='string'&&typeof c.key==='string');
-  d.outbox=arr(raw.outbox).filter(o=>isObj(o)&&typeof o.cid==='string'&&typeof o.code==='string').slice(-500);
   if(raw.schema===SCHEMA){
     const at=isObj(raw.attempts)?raw.attempts:{};
     Object.keys(at).forEach(id=>{if(validAttempt(at[id])){migrateChat(at[id]);d.attempts[id]=at[id]}});
@@ -1019,9 +991,7 @@ function updateSaved(){const el=$('#savedAt');if(el)el.textContent=lastSaved?`Sa
 
 const ui={page:'home',params:{},menu:false,streaming:false,stream:'',aiErr:'',libCategory:null,
   mc:null,tc:{phase:'setup',mode:1,teams:[{name:'You',score:0}],count:5,diff:'easy',topic:'mixed'},
-  teacher:{view:'home',code:null,data:null,loading:false,err:'',newKey:null,showKey:false,projector:false},
-  join:{code:'',info:null,err:'',busy:false},sync:{busy:false,last:0,err:''},
-  tSort:{k:'avg',dir:-1},tTask:'All',tStudent:null,assessId:null,justCompleted:null,justBadges:null,justXp:0,feedback:null,aboutLang:'uz',chatDraft:''};
+  assessId:null,justCompleted:null,justBadges:null,justXp:0,feedback:null,aboutLang:'en',chatDraft:'',gchat:{msgs:[],busy:false,err:'',draft:''}};
 
 /* ---------- attempts ---------- */
 function blankData(){return{
@@ -1125,24 +1095,24 @@ const chatCanAsk=at=>{const m=lastAIMode(at);return (m==='backend'||m==='live')&
 /* kept for older callers (demo answer, sample record, tests): restart the conversation with this prompt and answer */
 function recordConsult(at,mode,prompt,text,segs,extra){startChat(at,mode,text,segs,extra,prompt||'')}
 /* =====================================================================
-   API CLIENT
-   API_BASE is the address of the secure server (Cloudflare Worker, see
-   backend/README.md). It is an address, not a secret. While it is empty
-   the app works fully on its own: demonstration AI, and classes are
-   explained but not available. Once it is set, the server reports what
-   it has ready (Gemini key, class database) and the app switches those
-   features on by itself.
+   API CLIENT — ONE address: API_BASE, the secure server (a Cloudflare Worker).
+   It is only used for Gemini (the 6C Consult stage and the AI Chat page).
+   API_BASE is an address, not a secret: the Gemini key lives only on the
+   server and is never in this file, in the browser or in localStorage.
+   While API_BASE is empty the app still works: Consult shows a clearly
+   labelled demonstration answer and AI Chat explains that it needs the server.
    ===================================================================== */
-const API_BASE='https://ai-ct-teacher-api.ai-ct-teacher-api.workers.dev';
-const API={base:String(API_BASE||'').replace(/\/+$/,''),caps:{ai:false,classes:false,checked:false,checking:false,err:''}};
+const API_BASE='https://ai-ct-teacher-ai.ai-ct-teacher-api.workers.dev';
+const API={base:String(API_BASE||'').replace(/\/+$/,''),caps:{ai:false,checked:false,checking:false,err:''}};
 
 function apiErr(code,status){const e=new Error(code);e.code=code;e.status=status||0;return e}
-async function apiFetch(path,o={}){
+async function apiFetch(path,o){
+  o=o||{};
   if(!API.base)throw apiErr('not_configured',0);
   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),o.timeout||15000);
   let res;
   try{res=await fetch(API.base+path,{method:o.method||'GET',signal:ctl.signal,
-    headers:Object.assign({},o.body?{'content-type':'application/json'}:{},o.token?{authorization:'Bearer '+o.token}:{}),
+    headers:o.body?{'content-type':'application/json'}:{},
     body:o.body?JSON.stringify(o.body):undefined})}
   catch(e){clearTimeout(timer);throw apiErr('network',0)}
   clearTimeout(timer);
@@ -1150,85 +1120,26 @@ async function apiFetch(path,o={}){
   if(!res.ok)throw apiErr((data&&typeof data.error==='string'&&data.error)||'server_error',res.status);
   return data||{}}
 
+/* GET /api/health tells whether the server has its Gemini key ready. */
 async function apiCheck(force){
   if(!API.base){API.caps.checked=true;return API.caps}
   if(API.caps.checking||(API.caps.checked&&!force&&!API.caps.err))return API.caps;
   API.caps.checking=true;
-  try{const d=await apiFetch('/api/health',{timeout:8000});API.caps.ai=!!d.ai;API.caps.classes=!!d.classes;API.caps.err=''}
-  catch(e){API.caps.ai=false;API.caps.classes=false;API.caps.err=e.code||'network'}
+  try{const d=await apiFetch('/api/health',{timeout:8000});API.caps.ai=!!d.ai;API.caps.err=''}
+  catch(e){API.caps.ai=false;API.caps.err=e.code||'network'}
   API.caps.checking=false;API.caps.checked=true;return API.caps}
 
-/* ---------- AI through the server ---------- */
+/* 6C Consult: the scenario (and, for follow-ups, the conversation so far) */
 async function askBackendAI(scenario,stage,studentResponse){
   const d=await apiFetch('/api/ai',{method:'POST',body:{scenario,stage,studentResponse},timeout:25000});
   if(typeof d.response!=='string'||!d.response.trim())throw apiErr('bad_response',0);
   return d}
 
-/* ---------- links and codes ---------- */
-function siteBase(){
-  if(typeof location==='undefined')return '';
-  return location.origin+location.pathname.replace(/(index\.html)?$/,'').replace(/app\/$/,'')}
-const joinLink=code=>siteBase()+'#join='+code;
-function parseClassCode(s){
-  const t=String(s||'').trim();
-  const m=t.match(/join=([A-Za-z0-9]{6})\b/);if(m)return m[1].toUpperCase();
-  const c=t.replace(/[^A-Za-z0-9]/g,'').toUpperCase();return c.length===6?c:''}
-const memberOf=code=>S.classes.find(c=>c.code===code);
-
-/* ---------- student: join, leave ---------- */
-async function classInfo(code){return apiFetch('/api/classes/'+code,{timeout:10000})}
-async function joinClass(code,name){
-  const ex=memberOf(code);if(ex)return ex;
-  const d=await apiFetch('/api/classes/'+code+'/join',{method:'POST',body:{name}});
-  const m={code,className:d.className,studentId:d.studentId,token:d.token,name:d.name,joinedAt:Date.now()};
-  S.classes.push(m);if(!S.profile.name)setProfileName(d.name);persistNow();return m}
-async function leaveClass(code,localOnly){
-  const m=memberOf(code);if(!m)return;
-  if(!localOnly)await apiFetch('/api/classes/'+code+'/me',{method:'DELETE',token:m.token});
-  S.classes=S.classes.filter(c=>c.code!==code);S.outbox=S.outbox.filter(o=>o.code!==code);persistNow()}
-
-/* ---------- student: results outbox (idempotent, retried until the server confirms) ---------- */
-let flushing=false;
-function queueResult(kind,ref,data){
-  if(!S.classes.length)return 0;
-  const at=Date.now();
-  S.classes.forEach(m=>S.outbox.push({cid:uid('r'),code:m.code,kind,ref:String(ref||''),at,data}));
-  persistNow();flushOutbox();return S.classes.length}
-async function flushOutbox(){
-  if(flushing||!API.base||!S.outbox.length)return;
-  flushing=true;ui.sync.busy=true;
-  try{
-    for(const code of [...new Set(S.outbox.map(o=>o.code))]){
-      const m=memberOf(code);
-      if(!m){S.outbox=S.outbox.filter(o=>o.code!==code);continue}
-      for(;;){
-        const batch=S.outbox.filter(o=>o.code===code).slice(0,20);
-        if(!batch.length)break;
-        const ids=new Set(batch.map(o=>o.cid));
-        try{
-          await apiFetch('/api/classes/'+code+'/results',{method:'POST',token:m.token,body:{items:batch.map(o=>({cid:o.cid,kind:o.kind,ref:o.ref,at:o.at,data:o.data}))}});
-          S.outbox=S.outbox.filter(o=>!ids.has(o.cid));ui.sync.err='';ui.sync.last=Date.now()}
-        catch(e){
-          if(e.status===401||e.status===403||e.status===404){S.classes=S.classes.filter(c=>c.code!==code);S.outbox=S.outbox.filter(o=>o.code!==code);ui.sync.err='class_gone';break}
-          if(e.status===400){S.outbox=S.outbox.filter(o=>!ids.has(o.cid));continue}   // invalid item: drop it so it cannot block the queue
-          ui.sync.err=e.code||'network';return}}}}
-  finally{flushing=false;ui.sync.busy=false;persistNow();if(typeof refreshSyncChip==='function')refreshSyncChip()}}
-function syncState(){
-  if(!S.classes.length)return{text:'Not in a class',cls:''};
-  if(S.outbox.length)return{text:ui.sync.err==='class_gone'?'Class no longer exists':`Waiting to send (${S.outbox.length})`,cls:'w'};
-  return{text:'Results sent to your teacher',cls:'g'}}
-
-/* ---------- teacher ---------- */
-async function createClass(className,teacherName){
-  const d=await apiFetch('/api/classes',{method:'POST',body:{className,teacherName}});
-  const c={code:d.code,key:d.teacherKey,name:className,createdAt:Date.now()};
-  S.teacherClasses=S.teacherClasses.filter(x=>x.code!==c.code);S.teacherClasses.push(c);persistNow();return c}
-const teacherClass=code=>S.teacherClasses.find(c=>c.code===code);
-async function fetchDashboard(code){const c=teacherClass(code);if(!c)throw apiErr('no_key',0);return apiFetch('/api/classes/'+code+'/dashboard',{token:c.key})}
-async function deleteClass(code){const c=teacherClass(code);if(!c)return;await apiFetch('/api/classes/'+code,{method:'DELETE',token:c.key});S.teacherClasses=S.teacherClasses.filter(x=>x.code!==code);persistNow()}
-async function removeStudent(code,sid){const c=teacherClass(code);if(!c)throw apiErr('no_key',0);return apiFetch('/api/classes/'+code+'/students/'+encodeURIComponent(sid),{method:'DELETE',token:c.key})}
-function openClassWithKey(code,key,name){
-  S.teacherClasses=S.teacherClasses.filter(x=>x.code!==code);S.teacherClasses.push({code,key:String(key).replace(/\s+/g,''),name:name||code,createdAt:Date.now()});persistNow()}
+/* AI Chat page: a free, general conversation (mode "chat"). The scenario field is only a placeholder for older servers. */
+async function askBackendChat(transcript){
+  const d=await apiFetch('/api/ai',{method:'POST',body:{mode:'chat',scenario:'General chat',stage:'consult',studentResponse:transcript},timeout:30000});
+  if(typeof d.response!=='string'||!d.response.trim())throw apiErr('bad_response',0);
+  return d}
 /* =====================================================================
    6C CORE — requirements to move on, transparent scoring, XP, badges,
    records and export.
@@ -1353,9 +1264,7 @@ function completeAttempt(at,opt){
     if(at.d.check.rows.some(r=>r.seg!=null&&(tags[r.seg]==='q'||tags[r.seg]==='check')&&rowComplete(r))&&awardBadge('ai-critic'))badges.push('ai-critic');
     if(a.demo&&a.ks.hit===a.ks.flaws&&a.ks.falseFlags===0&&awardBadge('sharp-eye'))badges.push('sharp-eye');
     if(a.demo&&a.al===1&&at.d.check.rows.filter(r=>rowComplete(r)&&r.exp).length>=2&&awardBadge('fact-checker'))badges.push('fact-checker');
-    if(currentStreak()>=3&&awardBadge('streak-3'))badges.push('streak-3');
-    queueResult('6c',t.id,{task:t.id,total:a.total,max:24,pct:a.pct,band:a.band,levels:a.items.map(i=>i.level),decision:at.d.conclude.decision,conf:at.d.conclude.confidence,
-      aiMode:at.d.consult.mode||'demo',xp,hit:a.demo?a.ks.hit:0,flaws:a.demo?a.ks.flaws:0,align:a.al===null?-1:Math.round(a.al*100)})}
+    if(currentStreak()>=3&&awardBadge('streak-3'))badges.push('streak-3');}
   persistNow();return{assessment:a,xp,badges}}
 
 /* ---------- sample record (built from the task's own answer key; no XP, no badges, never sent) ---------- */
@@ -1376,7 +1285,7 @@ const VERDICT_LABEL={SUPPORTED:'Supported',PARTIALLY:'Partially supported',UNSUP
 function recordObject(at){
   const t=TASK_BY_ID[at.taskId],d=at.d,a=computeAssessment(at);
   return{recordId:at.id,sampleRecord:!!at.sample,status:at.status,startedAt:new Date(at.createdAt).toISOString(),completedAt:at.completedAt?new Date(at.completedAt).toISOString():null,
-    student:S.profile.name||null,classCodes:S.classes.map(c=>c.code),
+    student:S.profile.name||null,
     task:{id:t.id,number:t.num,category:t.category,skill:t.skill,title:t.title,scenario:t.context},
     context:{mainProblemChoice:t.q1.options[d.context.pick]||null,correctChoice:d.context.pick===t.q1.best,firstStep:d.context.first,confidence:d.context.conf},
     consult:{mode:d.consult.mode==='backend'?'LIVE (Gemini, via server)':d.consult.mode==='live'?'LIVE (Claude)':'DEMONSTRATION (pre-written)',prompt:d.consult.prompt,response:d.consult.response,aiExtra:d.consult.extra,followUpQuestions:chatStudent(at).length,followUpsAvailable:d.consult.mode!=='demo',conversation:d.consult.chat.map(m=>({speaker:m.role==='ai'?'AI':'Student',mode:m.role==='ai'?m.mode:undefined,text:m.text}))},
@@ -1390,9 +1299,9 @@ const csvCell=v=>{const isNum=typeof v==='number'&&isFinite(v);v=v==null?'':Stri
   if(!isNum&&/^[=+\-@\t\r]/.test(v))v="'"+v;
   return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 function toCSV(list){
-  const cols=['record_id','sample','student','class_codes','task_id','category','task','started','completed','ai_mode','ai_prompt','follow_up_questions','conversation_json','main_problem_correct','first_step','confidence_start','critique_stance','critique_reason','critique_marks_json','check_rows_json','improvement','improvement_best_fit','own_alternative','risk','decision','reasoning','learned','confidence_end',...COMP.map(c=>'level_'+c.key),'total','max','percent','band','xp'];
+  const cols=['record_id','sample','student','task_id','category','task','started','completed','ai_mode','ai_prompt','follow_up_questions','conversation_json','main_problem_correct','first_step','confidence_start','critique_stance','critique_reason','critique_marks_json','check_rows_json','improvement','improvement_best_fit','own_alternative','risk','decision','reasoning','learned','confidence_end',...COMP.map(c=>'level_'+c.key),'total','max','percent','band','xp'];
   const rows=list.map(at=>{const r=recordObject(at),a=computeAssessment(at);
-    return[at.id,at.sample?'yes':'no',r.student,r.classCodes.join(' '),r.task.id,r.task.category,r.task.title,r.startedAt,r.completedAt,r.consult.mode,r.consult.prompt,r.consult.followUpQuestions,JSON.stringify(r.consult.conversation),r.context.correctChoice,r.context.firstStep,r.context.confidence,r.critique.stance,r.critique.reason,JSON.stringify(r.critique.marks),JSON.stringify(r.check.rows),r.challenge.improvement,r.challenge.bestFit,r.challenge.own,r.challenge.risk,r.conclude.decision,r.conclude.reasoning,r.conclude.learned,r.conclude.confidence,...a.items.map(i=>i.level),a.total,a.max,a.pct,a.band,r.indicators.xp].map(csvCell).join(',')});
+    return[at.id,at.sample?'yes':'no',r.student,r.task.id,r.task.category,r.task.title,r.startedAt,r.completedAt,r.consult.mode,r.consult.prompt,r.consult.followUpQuestions,JSON.stringify(r.consult.conversation),r.context.correctChoice,r.context.firstStep,r.context.confidence,r.critique.stance,r.critique.reason,JSON.stringify(r.critique.marks),JSON.stringify(r.check.rows),r.challenge.improvement,r.challenge.bestFit,r.challenge.own,r.challenge.risk,r.conclude.decision,r.conclude.reasoning,r.conclude.learned,r.conclude.confidence,...a.items.map(i=>i.level),a.total,a.max,a.pct,a.band,r.indicators.xp].map(csvCell).join(',')});
   return[cols.join(','),...rows].join('\n')}
 async function doExport(kind,id){
   const list=id?[S.attempts[id]]:completedList();
@@ -1439,37 +1348,15 @@ const DEMO=(()=>{const m=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,
     for(let k=0;k<n;k++){const wk=Math.min(8,1+Math.floor(k*8/n+rnd()*1.5));at.push({task:Math.floor(rnd()*8),week:wk,scores:COMP.map((_,c)=>cl(Math.round(base+bias[c]+k*.07+(rnd()-.5)*1.1),1,4))})}
     st.push({id:'S'+String(i).padStart(2,'0'),at})}return st})();
 const sPct=s=>pct(s.reduce((a,b)=>a+b,0),24);
-function teacherStats(taskFilter){
-  const rows=DEMO.map(s=>{const at=s.at.filter(a=>taskFilter==='All'||TASKS[a.task].id===taskFilter);if(!at.length)return null;
-    const cm=COMP.map((_,c)=>avg(at.map(a=>a.scores[c]))),ap=avg(at.map(a=>sPct(a.scores)));return{id:s.id,n:at.length,avg:ap,cm,low:COMP[cm.indexOf(Math.min(...cm))].name,at}}).filter(Boolean);
-  return rows}
-function viewTeacherDemo(){
-  const rows=teacherStats(ui.tTask),allAt=rows.flatMap(r=>r.at),cm=COMP.map((_,c)=>avg(allAt.map(a=>a.scores[c])));
-  const weeks=[1,2,3,4,5,6,7,8].map(w=>{const a=allAt.filter(x=>x.week===w);return a.length?{label:'W'+w,v:Math.round(avg(a.map(x=>sPct(x.scores))))}:null}).filter(Boolean);
-  const comp=TASKS.map((t,i)=>({t,n:DEMO.filter(s=>s.at.some(a=>a.task===i)).length}));
-  const {k,dir}=ui.tSort,sorted=[...rows].sort((a,b)=>{const va=k==='id'?a.id:k==='n'?a.n:k==='avg'?a.avg:k==='low'?a.low:a.cm[+k.slice(1)],vb=k==='id'?b.id:k==='n'?b.n:k==='avg'?b.avg:k==='low'?b.low:b.cm[+k.slice(1)];return(va>vb?1:va<vb?-1:0)*dir});
-  const sel=rows.find(r=>r.id===ui.tStudent);
-  const th=(key,l)=>`<th ${k===key?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button data-act="teacher-sort" data-k="${key}">${l}${k===key?(dir>0?' ▲':' ▼'):''}</button></th>`;
-  return `<div class="page"><div class="page-head"><h1>Teacher dashboard</h1><p>A prototype of what a teacher-educator could see for a cohort: completion, performance and critical-thinking component profile.</p></div>
-  <div class="demo-banner"><span class="chip demo">DEMO DATA</span><span><b>All figures on this page are randomly generated.</b> They show the layout only and have no evidential meaning. Your own records are on My progress.</span></div>
-  <div class="notice w" style="margin-bottom:18px"><p><strong>How data works in this version.</strong> This dashboard is not connected to a shared database. Every student's records are stored only in that student's own browser, so a teacher cannot see live class data here. For a pilot, each student exports their records (JSON or CSV) from <b>My progress</b> and sends the file to the researcher or teacher. A real shared class dashboard would need a secure database and teacher sign-in, which this prototype does not include.</p></div>
-  <div class="row" style="margin-bottom:18px"><div class="fld" style="min-width:260px"><label class="lab" for="tt">Task</label><select id="tt" data-sel="ttask"><option value="All">All tasks</option>${TASKS.map(t=>`<option value="${t.id}" ${ui.tTask===t.id?'selected':''}>Task ${t.num}: ${esc(t.title)}</option>`).join('')}</select></div></div>
-  <div class="panel" style="margin-bottom:22px"><div class="grid4"><div class="stat"><b>${DEMO.length}</b><span>students enrolled (demo)</span></div><div class="stat"><b>${allAt.length}</b><span>completed task records</span></div><div class="stat"><b>${allAt.length?Math.round(avg(allAt.map(a=>sPct(a.scores))))+'%':'—'}</b><span>average performance</span></div><div class="stat"><b>${rows.length}</b><span>students with records${ui.tTask==='All'?'':' on this task'}</span></div></div></div>
-  <div class="grid2" style="margin-bottom:22px"><div class="panel"><h3>Component profile (cohort mean)</h3>${allAt.length?radarSVG(cm,COMP.map(c=>c.short)):'<p class="muted">No records for this task.</p>'}<div class="stack" style="gap:8px;margin-top:10px">${COMP.map((c,i)=>`<div class="row" style="gap:10px;flex-wrap:nowrap"><span class="small" style="width:120px;flex:none">${c.name}</span><div class="bar" style="flex:1"><i style="width:${cm[i]/4*100}%"></i></div><span class="small num" style="width:28px;text-align:right">${cm[i].toFixed(1)}</span></div>`).join('')}</div></div>
-  <div class="panel"><h3>Progress over time (weeks)</h3>${weeks.length?lineSVG(weeks,560,240,'weeks'):'<p class="muted">No data.</p>'}<p class="small muted">Mean percentage of rubric maximum for records completed each week.</p></div></div>
-  <div class="panel" style="margin-bottom:22px"><h3>Task completion</h3><p class="small muted">Share of students who completed each task at least once.</p><div class="stack" style="gap:10px">${comp.map(c=>`<div class="row" style="gap:10px;flex-wrap:nowrap"><span class="small" style="width:min(240px,42%);flex:none">${c.t.num}. ${esc(c.t.title)}</span><div class="bar" style="flex:1"><i style="width:${pct(c.n,DEMO.length)}%"></i></div><span class="small num" style="width:44px;text-align:right">${pct(c.n,DEMO.length)}%</span></div>`).join('')}</div></div>
-  <h2>Individual student results</h2><p class="small muted">Select a column to sort, or a row for detail. IDs are anonymised demo IDs.</p>
-  <div class="tablewrap"><table><thead><tr>${th('id','Student')}${th('n','Records')}${th('avg','Average')}${COMP.map((c,i)=>th('c'+i,c.short)).join('')}${th('low','Development area')}</tr></thead><tbody>${sorted.map(r=>`<tr class="click" tabindex="0" data-act="teacher-student" data-id="${r.id}" ${ui.tStudent===r.id?'style="background:var(--primary-soft)"':''}><td><b>${r.id}</b></td><td class="num">${r.n}</td><td class="num">${Math.round(r.avg)}%</td>${r.cm.map(v=>`<td class="num">${v.toFixed(1)}</td>`).join('')}<td>${esc(r.low)}</td></tr>`).join('')||'<tr><td colspan="10">No students have records for this task.</td></tr>'}</tbody></table></div>
-  ${sel?`<div class="panel" style="margin-top:22px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Student ${sel.id} <span class="chip demo">DEMO DATA</span></h3><button class="btn quiet sm" data-act="teacher-student" data-id="">Close</button></div><div class="grid2"><div>${radarSVG(sel.cm,COMP.map(c=>c.short),260)}</div><div>${lineSVG(sel.at.map((a,i)=>({label:'#'+(i+1),v:sPct(a.scores)})),480,220,'records')}<p class="small muted">Records in order. Average ${Math.round(sel.avg)}%. Lowest component: ${esc(sel.low)}.</p></div></div></div>`:''}</div>`}
-
 /* =====================================================================
-   SHELL + MAIN PAGES
+   SHELL + MAIN PAGES. English is the main language; Uzbek appears only as short, smaller support text (.support-uz).
    ===================================================================== */
 const curAttempt=()=>S.attempts[ui.params.attemptId];
 const MARK=`<span class="mark" aria-hidden="true"><span>AI<b>–</b>CT</span></span>`;
-const BUILD_ID='2026-10-01-d1';   /* shown in the menu footer and the browser console, so you can see which version is live */
+const BUILD_ID='2026-10-02-e1';   /* shown in the menu footer and the browser console, so you can see which version is live */
 try{console.info('AI-CT TEACHER build '+BUILD_ID)}catch(e){}
 const AUTHOR_NAME='SARVINOZ SOLEXONOVNA', INSTITUTION='Samarkand State Institute of Foreign Languages (SamDChTI)';
+const uzs=t=>t?`<p class="support-uz">${t}</p>`:'';
 const statusOf=t=>{const ip=inProgressFor(t.id),done=attemptsFor(t.id).filter(a=>a.status==='completed');
   if(ip)return{chip:`<span class="chip w">In progress, stage ${ip.stage} of 6</span>`,ip,done};
   if(done.length)return{chip:`<span class="chip g">Completed${done.length>1?' ×'+done.length:''}</span>`,ip:null,done};
@@ -1480,102 +1367,115 @@ const xpPillHTML=()=>`<span class="xp-pill" id="xpPill">⭐ ${S.xp||0} XP</span>
 function badgeHTML(key,anim){const b=BADGES[key];if(!b)return'';return `<span class="badge ${anim?'new':''}" title="${esc(b.desc)}">${b.icon} ${esc(b.name)}</span>`}
 const soundBtn=()=>`<button class="ic-btn" data-act="sound" aria-pressed="${sndEnabled()}" aria-label="Sound on or off" title="Sound on / off">${sndEnabled()?'🔊':'🔇'}</button>`;
 
-/* ---------- navigation ---------- */
-const NAV=[['home','🏠','home','Home'],['library','📚','tasks','Tasks'],['cycle','🧭','cycle','6C cycle'],['aichat','🤖','chat','AI Chat'],['methods','🎓','methods','Method Challenge'],
-  ['competition','🏆','comp','Team Competition'],['progress','📈','progress','My progress'],['about','ℹ️','about','About the project']];
-const navBtn=(k,ic,uzk,en,page)=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span class="nav-ic" aria-hidden="true">${ic}</span><span class="nav-tx"><b>${UZ.nav[uzk]}</b><small>${en}</small></span></button>`;
+/* ---------- navigation (English only) ---------- */
+const NAV=[['home','🏠','Home'],['library','📚','Tasks'],['cycle','🧭','6C cycle'],['aichat','🤖','AI Chat'],['methods','🎓','Method Challenge'],['competition','🏆','Team Competition'],['progress','📈','My progress'],['about','ℹ️','About the project']];
+const navBtn=(k,ic,label,page)=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span class="nav-ic" aria-hidden="true">${ic}</span><span class="nav-tx"><b>${label}</b></span></button>`;
 function brandHTML(){
   return `<div class="brandbox"><button class="brand" data-go="home" aria-label="AI-CT TEACHER, go to home">${MARK}<span class="brand-tt">AI-CT TEACHER</span></button>
-   <div class="authorcard" aria-label="Author"><span class="ac-role">PhD RESEARCHER <i>·</i> ${UZ.role}</span><span class="ac-name">${AUTHOR_NAME}</span><span class="ac-inst">${INSTITUTION}</span></div></div>`}
+   <div class="authorcard" aria-label="Author"><span class="ac-role">PhD RESEARCHER</span><span class="ac-name">${AUTHOR_NAME}</span><span class="ac-inst">${INSTITUTION}</span></div></div>`}
 function renderShell(){
   const page=ui.page==='record'||ui.page==='assessment'?(ui.page==='assessment'?'library':'progress'):ui.page==='dashboard'||ui.page==='history'?'progress':ui.page;
-  const inClass=S.classes.length?`<span class="chip g">In class: ${esc(S.classes.map(c=>c.className||c.code).join(', '))}</span>`:'';
   $('#side').innerHTML=`${brandHTML()}
-   <nav class="nav" aria-label="Pages">${NAV.map(n=>navBtn(n[0],n[1],n[2],n[3],page)).join('')}<div class="sep"></div><div class="grp">${UZ.forTeachers} · For teachers</div>${navBtn('teacher','👩‍🏫','teacher','Teacher dashboard',page)}</nav>
+   <nav class="nav" aria-label="Pages">${NAV.map(n=>navBtn(n[0],n[1],n[2],page)).join('')}</nav>
    <div class="side-foot"><div class="tools">${soundBtn()}<button class="ic-btn" data-act="projector" aria-pressed="${!!S.prefs.projector}" title="Projector mode: larger text for interactive whiteboards">📽️</button><button class="ic-btn" data-act="fullscreen" title="Full screen">⛶</button><button class="ic-btn" data-act="theme" title="Light / dark">🌓</button></div>
-    ${inClass}<span id="storeState">${storageOk?'Saved in this browser':'Memory only (not persistent)'}</span><span class="tiny dim" id="buildId">build ${BUILD_ID}</span></div>`;
-  $('#topbar').innerHTML=`${MARK}<span class="tb-t"><strong class="serif">AI-CT TEACHER</strong><span class="tb-a">PhD researcher · <b>${AUTHOR_NAME}</b></span></span>${soundBtn()}<button class="menu" data-act="menu" aria-expanded="${ui.menu}" aria-controls="side">☰</button>`;
+    <span id="storeState">${storageOk?'Saved in this browser':'Memory only (not persistent)'}</span><span class="tiny dim" id="buildId">build ${BUILD_ID}</span></div>`;
+  $('#topbar').innerHTML=`${MARK}<span class="tb-t"><strong>AI-CT TEACHER</strong><span class="tb-a">PhD researcher · <b>${AUTHOR_NAME}</b></span></span>${soundBtn()}<button class="menu" data-act="menu" aria-expanded="${ui.menu}" aria-controls="side" aria-label="Menu">☰</button>`;
   let b=$('#bnav');if(!b){b=document.createElement('nav');b.id='bnav';b.className='bnav';b.setAttribute('aria-label','Quick navigation');document.body.appendChild(b)}
-  b.innerHTML=[['home','🏠','home'],['library','📚','tasks'],['methods','🎓','methods'],['competition','🏆','comp'],['progress','📈','progress']].map(([k,ic,u])=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span aria-hidden="true">${ic}</span><small>${UZ.bn[u]}</small></button>`).join('');
+  b.innerHTML=[['home','🏠','Home'],['library','📚','Tasks'],['aichat','🤖','AI Chat'],['methods','🎓','Methods'],['progress','📈','Progress']].map(([k,ic,l])=>`<button data-go="${k}" ${page===k?'aria-current="page"':''}><span aria-hidden="true">${ic}</span><small>${l}</small></button>`).join('');
   $('#side').classList.toggle('open',ui.menu);$('#scrim').classList.toggle('hidden',!ui.menu)}
 
 /* ---------- HOME ---------- */
 const STAGE_ICONS=['📖','🤖','🧐','🧾','💡','✅'];
 function greetHTML(){
   const n=profileName(),st=currentStreak(),ip=latestInProgress();
-  if(!n)return `<section class="panel greet"><div><h3>${UZ.home.hello}! 👋 <span class="en">Welcome</span></h3><p class="muted">${UZ.home.nameAsk} <span class="en">— write your name to keep your own progress.</span></p>
-    <div class="namerow"><input id="nameIn" type="text" maxlength="40" autocomplete="nickname" placeholder="${UZ.home.namePh}" aria-label="Your name"><button class="btn" data-act="profile-save">${UZ.home.save}</button></div><p class="hint">${UZ.home.nameHint}</p></div></section>`;
-  return `<section class="panel greet"><div><h3>${UZ.home.hello}, ${esc(n)}! 👋</h3><div class="row" style="gap:8px;margin-top:8px">${xpPillHTML()}<span class="chip ${st?'w':''}">🔥 ${st} ${UZ.home.days}</span><span class="chip">🏅 ${S.badges.length}/${Object.keys(BADGES).length}</span>${S.classes.length?`<span class="chip g">👥 ${esc(S.classes[0].className||S.classes[0].code)}</span>`:''}</div></div>
-   ${ip?`<button class="btn" data-act="continue" data-attempt="${ip.id}">${UZ.home.cont} ▶ <small>Continue: ${esc(TASK_BY_ID[ip.taskId].title)}</small></button>`:`<button class="btn" data-act="random-task">🎲 ${UZ.home.random}</button>`}</section>`}
+  if(!n)return `<section class="panel greet"><div><h3>Welcome 👋</h3><p class="muted">Write your name to keep your own progress on this device.</p>
+    <div class="namerow"><input id="nameIn" type="text" maxlength="40" autocomplete="nickname" placeholder="Your name" aria-label="Your name"><button class="btn" data-act="profile-save">Save</button></div><p class="hint">Your name is stored only on this device.</p></div></section>`;
+  return `<section class="panel greet"><div><h3>Hello, ${esc(n)}! 👋</h3><div class="row" style="gap:8px;margin-top:8px">${xpPillHTML()}<span class="chip ${st?'w':''}">🔥 ${st} day${st===1?'':'s'} in a row</span><span class="chip">🏅 ${S.badges.length}/${Object.keys(BADGES).length} badges</span></div></div>
+   ${ip?`<button class="btn" data-act="continue" data-attempt="${ip.id}">Continue ▶ <small>${esc(TASK_BY_ID[ip.taskId].title)}</small></button>`:`<button class="btn" data-act="random-task">🎲 Random task</button>`}</section>`}
 function viewHome(){
-  const tiles=[['library','📚','tasks','Tasks',UZ.tiles.tasks],['cycle','🧭','cycle','6C cycle',UZ.tiles.cycle],['methods','🎓','methods','Method Challenge',UZ.tiles.methods],['competition','🏆','comp','Team Competition',UZ.tiles.comp],['aichat','🤖','chat','AI Chat',UZ.tiles.chat],['progress','📈','progress','My progress',UZ.tiles.progress],['teacher','👩‍🏫','teacher','Teacher dashboard',UZ.tiles.teacher]];
+  const tiles=[['library','📚','Tasks','32 classroom situations in 8 categories. Work through the 6C cycle.'],['cycle','🧭','6C cycle','See how the six stages work and continue where you stopped.'],['aichat','🤖','AI Chat','Ask Gemini anything about English, grammar or teaching.'],['methods','🎓','Method Challenge','Quick questions on teaching methods.'],['competition','🏆','Team Competition','A classroom quiz for teams on one screen.'],['progress','📈','My progress','Your results, XP, badges and records.']];
   return `<div class="page home">
    <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
-    <div class="hero-in"><p class="eyebrow">${UZ.home.eyebrow}</p><h1 class="hero-t">AI-CT TEACHER</h1>
-     <p class="hero-s">Artificial Intelligence – Critical Thinking for Future English Teachers</p><p class="hero-uz">${UZ.home.sub}</p>
+    <div class="hero-in"><p class="eyebrow">Electronic methodological prototype</p><h1 class="hero-t">AI-CT TEACHER</h1>
+     <p class="hero-s">Artificial Intelligence – Critical Thinking for Future English Teachers</p>${uzs(UZ.home.support)}
      <div class="hero-flow" aria-label="The 6C cycle">${STAGES.map((s,i)=>`<span class="hf ${s.key==='consult'?'ai':''}" style="animation-delay:${i*90}ms"><span aria-hidden="true">${STAGE_ICONS[i]}</span><b>${s.n}</b> ${s.name}</span>`).join('')}</div>
-     <div class="hero-author"><span class="ha-l">PhD RESEARCHER · ${UZ.role}</span><span class="ha-n">${AUTHOR_NAME}</span><span class="ha-i">${INSTITUTION}</span></div></div></section>
+     <div class="hero-author"><span class="ha-l">PhD RESEARCHER</span><span class="ha-n">${AUTHOR_NAME}</span><span class="ha-i">${INSTITUTION}</span></div></div></section>
    ${greetHTML()}
-   <h2 class="h-choose">${UZ.home.choose} <span class="en">What would you like to do?</span></h2>
-   <div class="tiles">${tiles.map(([k,ic,u,en,d],i)=>`<button class="tile" data-go="${k}" style="animation-delay:${i*70}ms"><span class="tile-ic" aria-hidden="true">${ic}</span><span class="tile-t">${UZ.nav[u]}</span><span class="tile-en">${en}</span><span class="tile-d">${d}</span></button>`).join('')}</div>
-   <section class="panel steps6"><h3>${UZ.home.how} <span class="en">How it works, in 6 steps</span></h3><ol class="s6">${STAGES.map((s,i)=>`<li class="${s.key==='consult'?'ai':''}"><span class="s6-ic" aria-hidden="true">${STAGE_ICONS[i]}</span><div><b>${s.n}. ${s.name} <em>${UZ.stage[i].n}</em></b><p>${esc(s.task)}</p><p class="uz">${UZ.stage[i].t}</p></div></li>`).join('')}</ol>
-    <p class="small muted">${UZ.home.aiNote}</p></section>
-   <section class="panel"><h3>${UZ.home.what}</h3><p>${UZ.home.whatP}</p><p class="muted small">AI-CT TEACHER is an electronic methodological prototype that helps future English teachers learn to analyse, verify and challenge AI output instead of accepting it. <button class="linkbtn" data-go="about">${UZ.home.more} · Read more</button></p></section></div>`}
+   <h2 class="h-choose">What would you like to do?</h2>
+   <div class="tiles">${tiles.map(([k,ic,t,d],i)=>`<button class="tile" data-go="${k}" style="animation-delay:${i*70}ms"><span class="tile-ic" aria-hidden="true">${ic}</span><span class="tile-t">${t}</span><span class="tile-d">${d}</span></button>`).join('')}</div>
+   <section class="panel steps6"><h3>How it works, in 6 steps</h3><ol class="s6">${STAGES.map((s,i)=>`<li class="${s.key==='consult'?'ai':''}"><span class="s6-ic" aria-hidden="true">${STAGE_ICONS[i]}</span><div><b>${s.n}. ${s.name}</b><p class="primary-en">${esc(s.task)}</p></div></li>`).join('')}</ol>
+    <p class="small muted">AI is used only in the Consult stage. Treat its answer as a claim to examine, not as the truth.</p></section>
+   <section class="panel"><h3>What is AI-CT TEACHER?</h3><p class="primary-en">AI-CT TEACHER is an electronic methodological prototype that helps future English teachers learn to analyse, verify and challenge AI output instead of accepting it. <button class="linkbtn" data-go="about">Read more</button></p>${uzs(UZ.home.whatSupport)}</section></div>`}
 
-/* ---------- ABOUT (Uzbek and English) ---------- */
+/* ---------- ABOUT (English by default; Uzbek tab optional) ---------- */
 const ABOUT_EN=[
  {h:'What is AI-CT TEACHER?',p:['AI-CT TEACHER is an electronic methodological prototype for developing future English teachers\' critical thinking through structured interaction with artificial intelligence.','Most tools give students an answer to accept. This one treats AI as an object of critical analysis: students think first, consult AI once, then examine, verify and challenge what it said, and record their own accountable decision.']},
  {h:'The AI-CT 6C cycle',p:[],table:true},
- {h:'How AI is used',p:['AI is used only in the Consult stage. Where a secure AI service is connected, the answer comes from Gemini through a server; the API key is kept on the server and students never enter a key. Where it is not connected, the app shows a pre-written demonstration answer that is always labelled "DEMONSTRATION" and does not react to your question.','AI answers can contain mistakes. Finding them is the skill being practised.']},
+ {h:'How AI is used',p:['In the 6C cycle, AI is used only in the Consult stage, where the student talks with Gemini about the classroom situation. The separate AI Chat page is a free conversation about anything related to English and teaching. Answers come from Gemini through a secure server; the API key is kept on the server and students never enter a key. Where the server is not connected, Consult shows a pre-written demonstration answer that is always labelled "DEMONSTRATION".','AI answers can contain mistakes. Finding them is the skill being practised.']},
  {h:'Scores and feedback',p:['Each of the six stages has three visible indicators. Level = 1 + the indicators you met (1 to 4); the total is 6 to 24. You can always see exactly why a level was given.','These are learning-activity indicators. They show whether elements of critical thinking are present in your work; they are not a validated psychological test and cannot judge the quality of an idea.']},
- {h:'Classes for teachers and students',p:['A teacher can create a class, share a link, and see the scores of students who join. Students write a name (it can be a nickname) and join by link.','Only scores are sent to the class: task, level in each stage, totals, XP and game results. Your written answers stay on your own device. You can leave a class at any time.','Classes need the secure server to be connected. Until then, this part of the app explains what it will do.']},
+ {h:'Your data',p:['Results, XP, badges and your written answers are stored only in this browser. You can export your records as JSON or CSV from My progress.']},
  {h:'Research use and limits',p:['This is a research prototype, not an official product of any institution. For research use, trained human raters should score records with the same rubric, and scientific validity comes from the study design, sample and analysis, not from the software alone.']}];
-const UZ_CYCLE_ROWS=()=>STAGES.map((s,i)=>`<tr><td><b>${s.n} ${s.name}</b> <em>${UZ.stage[i].n}</em></td><td>${esc(s.task)}</td><td>${UZ.stage[i].t}</td></tr>`).join('');
+const ABOUT_ROWS=uz=>STAGES.map((s,i)=>`<tr><td><b>${s.n} ${s.name}</b></td><td>${esc(s.task)}</td>${uz?`<td>${UZ.stage[i].t}</td>`:''}</tr>`).join('');
 function viewAbout(){
   const uz=ui.aboutLang==='uz',src=uz?UZ.about:ABOUT_EN;
   return `<div class="page prose"><div class="page-head"><h1>${uz?UZ.aboutTitle:'About the project'}</h1><p>${uz?UZ.aboutLead:'An electronic methodological prototype for developing critical thinking through structured interaction with AI.'}</p></div>
-   <div class="tabs" role="tablist" aria-label="Language"><button role="tab" aria-selected="${uz}" data-act="about-lang" data-lang="uz">Oʻzbekcha</button><button role="tab" aria-selected="${!uz}" data-act="about-lang" data-lang="en">English</button></div>
-   <div class="about-id"><div class="author"><span class="author-l">PhD RESEARCHER · ${UZ.role}</span><span class="author-n">${AUTHOR_NAME}</span></div><div class="author"><span class="author-l">${uz?UZ.institution:'INSTITUTION'}</span><span class="author-n">${INSTITUTION}</span></div></div>
+   <div class="tabs" role="tablist" aria-label="Language"><button role="tab" aria-selected="${!uz}" data-act="about-lang" data-lang="en">English</button><button role="tab" aria-selected="${uz}" data-act="about-lang" data-lang="uz">Oʻzbekcha</button></div>
+   <div class="about-id"><div class="author"><span class="author-l">PhD RESEARCHER</span><span class="author-n">${AUTHOR_NAME}</span></div><div class="author"><span class="author-l">${uz?UZ.institution:'INSTITUTION'}</span><span class="author-n">${INSTITUTION}</span></div></div>
    <p class="diss"><b>${uz?UZ.dissLabel:'Dissertation topic'}:</b> <em>${UZ.dissertation}</em></p>
-   ${src.map(s=>`<h3>${s.h}</h3>${(s.p||[]).map(p=>`<p>${p}</p>`).join('')}${s.table?`<div class="tablewrap"><table><thead><tr><th>${uz?UZ.cols[0]:'Stage'}</th><th>${uz?UZ.cols[1]:'What the student does'}</th><th>${uz?UZ.cols[2]:'Oʻzbekcha'}</th></tr></thead><tbody>${UZ_CYCLE_ROWS()}</tbody></table></div><p class="muted small">${uz?UZ.cycleNote:'Exactly six stages, always in this order. Reflection is the closing part of Conclude.'}</p>`:''}`).join('')}</div>`}
+   ${src.map(s=>`<h3>${s.h}</h3>${(s.p||[]).map(p=>`<p>${p}</p>`).join('')}${s.table?`<div class="tablewrap"><table><thead><tr><th>${uz?UZ.cols[0]:'Stage'}</th><th>${uz?UZ.cols[1]:'What the student does'}</th>${uz?`<th>${UZ.cols[2]}</th>`:''}</tr></thead><tbody>${ABOUT_ROWS(uz)}</tbody></table></div><p class="muted small">${uz?UZ.cycleNote:'Exactly six stages, always in this order. Reflection is the closing part of Conclude, not a separate stage.'}</p>`:''}`).join('')}</div>`}
 
-/* ---------- AI CHAT: a practice conversation about a classroom situation (separate from the 6C Consult stage; nothing is scored or saved) ---------- */
+/* ---------- AI CHAT: a free, general conversation with Gemini (separate from the 6C Consult stage; nothing is scored) ---------- */
+function fmtAI(t){
+  const inl=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'),isLi=l=>/^\s*([-*•]|\d+[.)])\s+/.test(l);
+  return String(t).replace(/\r/g,'').split(/\n{2,}/).map(par=>{const lines=par.split('\n').filter(l=>l.trim());if(!lines.length)return'';
+    if(lines.every(isLi))return '<ul>'+lines.map(l=>'<li>'+inl(l.replace(/^\s*([-*•]|\d+[.)])\s+/,''))+'</li>').join('')+'</ul>';
+    return '<p>'+lines.map(inl).join('<br>')+'</p>'}).join('')}
+function gcNotesHTML(x){
+  if(!x||(!x.claims.length&&!x.assumptions.length&&!x.uncertainty&&!x.followUp))return'';
+  return `<details class="gc-notes"><summary>AI notes</summary><div>${x.claims.length?`<p><b>Worth checking:</b> ${x.claims.map(esc).join('; ')}</p>`:''}${x.assumptions.length?`<p><b>Assumptions:</b> ${x.assumptions.map(esc).join('; ')}</p>`:''}${x.uncertainty?`<p><b>Least sure about:</b> ${esc(x.uncertainty)}</p>`:''}${x.followUp?`<p><b>You could ask:</b> <button type="button" class="chip-btn" data-act="gc-idea" data-q="${esc(x.followUp)}">${esc(x.followUp)}</button></p>`:''}</div></details>`}
+function gcStatusHTML(){
+  if(!API.base)return '<span class="gc-dot off"></span> The AI service is not connected on this site, so AI Chat is unavailable.';
+  if(!API.caps.checked||API.caps.checking)return '<span class="gc-dot"></span> Connecting to the AI service…';
+  if(API.caps.err)return '<span class="gc-dot off"></span> The AI service is temporarily unavailable. <button type="button" class="linkbtn" data-act="api-retry">Check again</button>';
+  if(!API.caps.ai)return '<span class="gc-dot off"></span> The AI service answers, but its Gemini key is not set yet.';
+  return '<span class="gc-dot on"></span> Gemini is connected. You never enter an API key.'}
+function gchatLogHTML(){
+  const G=ui.gchat;
+  let h=G.msgs.map(m=>m.role==='user'
+    ?`<div class="gc-msg you"><div class="gc-who">You</div><div class="gc-bubble you">${esc(m.text)}</div></div>`
+    :`<div class="gc-msg ai"><div class="gc-who">AI · Gemini</div><div class="gc-bubble ai">${fmtAI(m.text)}${gcNotesHTML(m.extra)}</div></div>`).join('');
+  if(G.busy)h+=`<div class="gc-msg ai"><div class="gc-who">AI · Gemini</div><div class="gc-bubble ai"><span class="thinking" aria-live="polite">Thinking <i></i><i></i><i></i></span></div></div>`;
+  if(G.err)h+=`<div class="notice b"><p>${esc(G.err)}</p>${G.draft?`<p><button type="button" class="btn" data-act="gc-retry">Try again</button></p>`:''}</div>`;
+  if(!G.msgs.length&&!G.busy&&!G.err)h=`<div class="gc-empty"><p class="primary-en">Ask a question to start the conversation.</p></div>`;
+  return h}
 function viewAIChat(){
-  const at=ui.freeAt||newFreeChat(ui.freeTask||TASKS[0].id),t=TASK_BY_ID[at.taskId];
-  const opts=TASKS.map(x=>`<option value="${x.id}" ${x.id===at.taskId?'selected':''}>${x.num}. ${esc(x.title)}</option>`).join('');
-  return `<div class="page"><div class="page-head"><h1>${UZ.nav.chat} <span class="en">AI Chat</span></h1><p>${UZ.chat.page}</p></div>
-   <div class="notice"><p><strong>Practice conversation.</strong> Choose a classroom situation and talk with the AI about it. Nothing here is scored or added to your 6C records, and the AI can be wrong, so treat its answers as claims to examine. For the full six-stage activity (Context, Consult, Critique, Check, Challenge, Conclude) open <button class="linkbtn" data-go="library">${UZ.nav.tasks}</button>.</p></div>
-   <div class="fld"><label class="lab" for="aichatTask">${UZ.chat.pick}</label><select id="aichatTask" data-sel="aichatTask">${opts}</select></div>
-   ${scenarioCard(t)}
-   <div class="card ai-card"><div class="ai-status" id="aiStatus">${aiStatusHTML()}</div>
-    <h3 class="chat-title">Conversation with the AI <span class="uz">${UZ.chat.title}</span></h3>
-    <div id="aiOut" class="chat" role="log" aria-live="polite" aria-label="Conversation with the AI">${chatLogHTML(at)}</div>
-    <div id="composer">${composerHTML(at)}</div></div></div>`}
+  const G=ui.gchat,can=gchatCan(),dis=can?'':'disabled';
+  const ideas=[UZ.chat.ex[0],'I have a problem with my students. They are afraid of speaking. What can I do?',UZ.chat.ex[1]];
+  return `<div class="page gc"><div class="page-head"><h1>AI Chat</h1><p>Ask anything about English, grammar, teaching or your studies. Gemini answers, and you can keep the conversation going.</p>${uzs(UZ.chat.page)}</div>
+   <div class="card gc-card"><div class="gc-status" id="gcStatus">${gcStatusHTML()}</div>
+    <div id="gcLog" class="gc-log" role="log" aria-live="polite" aria-label="Conversation">${gchatLogHTML()}</div>
+    <div class="gc-ideas" id="gcIdeas" role="group" aria-label="Question ideas" ${G.msgs.length?'hidden':''}>${ideas.map(q=>`<button type="button" class="chip-btn" data-act="gc-idea" data-q="${esc(q)}" ${dis}>${esc(q)}</button>`).join('')}</div>
+    <div class="gc-composer"><textarea id="gcIn" rows="2" maxlength="${GCHAT_MAX_Q}" placeholder="Type your message…" aria-label="Your message" ${dis}>${esc(G.draft||'')}</textarea><button type="button" class="btn" id="gcSend" data-act="gc-send" ${dis}>Send ▶</button></div>
+    <div class="row gc-foot"><span class="hint">Enter to send · Shift+Enter for a new line</span><button type="button" class="btn quiet sm" id="gcNew" data-act="gc-new" ${G.msgs.length?'':'hidden'}>New chat</button></div></div>
+   <p class="small muted">AI can make mistakes. Check important facts before you rely on them.</p></div>`}
 
-/* ---------- MY PROGRESS (student account) ---------- */
-function syncChipHTML(){const s=syncState();return `<span class="chip ${s.cls}" id="syncChip">${s.text}</span>`}
-function refreshSyncChip(){const e=$('#syncChip');if(e)e.outerHTML=syncChipHTML()}
-function classBoxHTML(){
-  const mem=S.classes.map(m=>`<div class="row" style="justify-content:space-between;gap:10px"><div><b>${esc(m.className||m.code)}</b> <span class="chip">${esc(m.code)}</span><div class="small muted">You joined as ${esc(m.name)}</div></div><button class="btn quiet sm" data-act="leave-class" data-code="${m.code}">Leave</button></div>`).join('');
-  return `<div class="panel"><h3>${UZ.cls.title} <span class="en">My class</span></h3>${mem||`<p class="muted small">${UZ.cls.none}</p>`}
-   <div class="row" style="margin-top:10px;gap:10px;flex-wrap:wrap"><input id="joinIn" type="text" maxlength="200" placeholder="${UZ.cls.ph}" aria-label="Class code or link" style="flex:1;min-width:200px"><button class="btn" data-act="join-open">${UZ.cls.join}</button></div>
-   <div class="row" style="margin-top:10px;gap:8px">${syncChipHTML()}<span class="small muted">${UZ.cls.privacy}</span></div></div>`}
+/* ---------- MY PROGRESS ---------- */
 function viewProgress(){
   const done=completedList().filter(a=>!a.sample),all=completedList(),ips=attemptsList().filter(a=>a.status==='in_progress'),name=profileName();
   const as=done.map(a=>({a,r:computeAssessment(a)})),cm=COMP.map((_,c)=>as.length?avg(as.map(x=>x.r.items[c].level)):0);
-  return `<div class="page"><div class="page-head"><h1>${UZ.nav.progress} <span class="en">My progress</span></h1><p>${UZ.progLead}</p></div>
-   <div class="grid2" style="margin-bottom:18px"><div class="panel"><h3>${UZ.prof.title} <span class="en">My account</span></h3>
-     <div class="namerow"><input id="nameIn" type="text" maxlength="40" value="${esc(name)}" placeholder="${UZ.home.namePh}" aria-label="Your name"><button class="btn" data-act="profile-save">${name?UZ.prof.update:UZ.home.save}</button></div>
-     <p class="hint">${UZ.prof.note}</p>
-     <div class="grid3" style="margin-top:10px"><div class="stat"><b>${S.xp||0}</b><span>XP</span></div><div class="stat"><b>🔥 ${currentStreak()}</b><span>${UZ.home.days}</span></div><div class="stat"><b>${done.length}</b><span>6C activities</span></div></div></div>${classBoxHTML()}</div>
-   <div class="panel" style="margin-bottom:18px"><h3>${UZ.badges} <span class="en">Badges</span></h3><div class="badge-row">${Object.entries(BADGES).map(([k,b])=>{const e=hasBadge(k);return `<span class="badge ${e?'':'locked'}" title="${esc(b.desc)}">${b.icon} ${esc(b.name)}${e?'':' 🔒'}</span>`}).join('')}</div><p class="small muted" style="margin-top:8px">Hover or tap a badge to see how to earn it.</p></div>
+  return `<div class="page"><div class="page-head"><h1>My progress</h1><p>Your account, XP, badges and results. Everything is stored on this device only.</p></div>
+   <div class="grid2" style="margin-bottom:18px"><div class="panel"><h3>My account</h3>
+     <div class="namerow"><input id="nameIn" type="text" maxlength="40" value="${esc(name)}" placeholder="Your name" aria-label="Your name"><button class="btn" data-act="profile-save">${name?'Update':'Save'}</button></div>
+     <p class="hint">Your account lives in this browser (no password). Another device has its own account.</p>
+     <div class="grid3" style="margin-top:10px"><div class="stat"><b>${S.xp||0}</b><span>XP</span></div><div class="stat"><b>🔥 ${currentStreak()}</b><span>day streak</span></div><div class="stat"><b>${done.length}</b><span>6C activities</span></div></div></div>
+    <div class="panel"><h3>Badges</h3><div class="badge-row">${Object.entries(BADGES).map(([k,b])=>{const e=hasBadge(k);return `<span class="badge ${e?'':'locked'}" title="${esc(b.desc)}">${b.icon} ${esc(b.name)}${e?'':' 🔒'}</span>`}).join('')}</div><p class="small muted" style="margin-top:8px">Hover or tap a badge to see how to earn it.</p></div></div>
    ${ips.length?`<h2>In progress</h2><div class="stack" style="margin-bottom:20px">${ips.map(a=>`<div class="panel row" style="justify-content:space-between"><div><b>Task ${TASK_BY_ID[a.taskId].num}: ${esc(TASK_BY_ID[a.taskId].title)}</b><div class="muted small">Stage ${a.stage} of 6, ${STAGES[a.stage-1].name}</div></div><button class="btn" data-act="continue" data-attempt="${a.id}">Continue</button></div>`).join('')}</div>`:''}
-   ${done.length?`<div class="grid2" style="margin-bottom:18px"><div class="panel"><h3>${UZ.profile6c} <span class="en">My 6C profile (average level)</span></h3>${radarSVG(cm,COMP.map(c=>c.short))}<p class="small muted">Level 1 (Beginning) to 4 (Advanced), averaged over your activities. Learning-activity indicators, not a validated test.</p></div>
-     <div class="panel"><h3>${UZ.recent} <span class="en">Recent activities</span></h3><div class="stack" style="gap:8px">${done.slice(-6).reverse().map(a=>{const t=TASK_BY_ID[a.taskId],r=a.result||{};return `<div class="row act-row"><div><b>${esc(t.title)}</b><div class="small muted">${fmtDate(a.completedAt)} · ${r.total||'–'}/24 · ${bandChip(r.band||'Beginning')}</div></div><div class="row" style="gap:6px"><button class="btn quiet sm" data-go="assessment" data-id="${a.id}">Result</button><button class="btn quiet sm" data-go="record" data-id="${a.id}">Record</button></div></div>`}).join('')}</div></div></div>
-     <div class="panel" style="margin-bottom:18px"><h3>${UZ.learned} <span class="en">What I learned</span></h3><ul class="learned">${done.slice(-8).reverse().map(a=>`<li><b>${esc(TASK_BY_ID[a.taskId].title)}:</b> ${esc(a.d.conclude.learned)}</li>`).join('')}</ul></div>`
-    :empty(UZ.nothing,UZ.nothingP,`<button class="btn" data-go="library">${UZ.nav.tasks}</button><button class="btn quiet" data-act="sample">Load a sample record</button>`)}
+   ${done.length?`<div class="grid2" style="margin-bottom:18px"><div class="panel"><h3>My 6C profile (average level)</h3>${radarSVG(cm,COMP.map(c=>c.short))}<p class="small muted">Level 1 (Beginning) to 4 (Advanced), averaged over your activities. Learning-activity indicators, not a validated test.</p></div>
+     <div class="panel"><h3>Recent activities</h3><div class="stack" style="gap:8px">${done.slice(-6).reverse().map(a=>{const t=TASK_BY_ID[a.taskId],r=a.result||{};return `<div class="row act-row"><div><b>${esc(t.title)}</b><div class="small muted">${fmtDate(a.completedAt)} · ${r.total||'–'}/24 · ${bandChip(r.band||'Beginning')}</div></div><div class="row" style="gap:6px"><button class="btn quiet sm" data-go="assessment" data-id="${a.id}">Result</button><button class="btn quiet sm" data-go="record" data-id="${a.id}">Record</button></div></div>`}).join('')}</div></div></div>
+     <div class="panel" style="margin-bottom:18px"><h3>What I learned</h3><ul class="learned">${done.slice(-8).reverse().map(a=>`<li><b>${esc(TASK_BY_ID[a.taskId].title)}:</b> ${esc(a.d.conclude.learned)}</li>`).join('')}</ul></div>`
+    :empty('Nothing here yet','Finish your first task and your results will appear here.',`<button class="btn" data-go="library">Task library</button><button class="btn quiet" data-act="sample">Load a sample record</button>`)}
    ${gameActivityHTML()}
-   <div class="panel"><h3>${UZ.exportT} <span class="en">Export and data</span></h3><p class="small muted">${UZ.exportP}</p>
+   <div class="panel"><h3>Export and data</h3><p class="small muted">Download your records as JSON or CSV, for example for research. The files are created on this device; nothing is uploaded.</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-act="export" data-kind="json" ${all.length?'':'disabled'}>Export JSON</button><button class="btn" data-act="export" data-kind="csv" ${all.length?'':'disabled'}>Export CSV</button><button class="btn quiet" data-act="sample">Load sample record</button><button class="btn danger" data-act="reset">Delete all my data</button></div>
     ${S.legacy?`<p class="small muted" style="margin-top:8px">${S.legacy} record(s) from an older version of the app are kept on this device but are not shown.</p>`:''}</div></div>`}
 
@@ -1588,12 +1488,12 @@ function taskCard(t){const s=statusOf(t);
 function viewLibrary(){
   if(!ui.libCategory)return viewLibraryCategories();
   const cat=CAT_BY_KEY[ui.libCategory];if(!cat){ui.libCategory=null;return viewLibraryCategories()}
-  return `<div class="page"><div class="page-head"><button class="btn quiet sm" data-act="lib-back" style="margin-bottom:14px">← All categories</button><h1>${cat.icon} ${esc(cat.name)} <span class="en">${UZ.cat[cat.key]}</span></h1><p>${esc(cat.desc)}</p></div><div class="tasks">${catTasks(cat.key).map(taskCard).join('')}</div></div>`}
+  return `<div class="page"><div class="page-head"><button class="btn quiet sm" data-act="lib-back" style="margin-bottom:14px">← All categories</button><h1>${cat.icon} ${esc(cat.name)}</h1><p>${esc(cat.desc)}</p></div><div class="tasks">${catTasks(cat.key).map(taskCard).join('')}</div></div>`}
 function viewLibraryCategories(){
-  return `<div class="page"><div class="page-head"><h1>${UZ.nav.tasks} <span class="en">Task library</span></h1><p>${TASKS.length} ${UZ.libLead}</p><button class="btn ghost" data-act="random-task">🎲 ${UZ.home.random}</button></div>
-   <div class="cat-grid">${CATEGORIES.map((c,i)=>{const p=catProgress(c.key);return `<button class="cat-card" data-act="lib-open" data-cat="${c.key}" style="animation-delay:${i*50}ms" aria-label="${esc(c.name)}: ${p.total} tasks, ${p.done} completed"><span class="cat-icon" aria-hidden="true">${c.icon}</span><span class="cat-name">${esc(c.name)}</span><span class="cat-uz">${UZ.cat[c.key]}</span><span class="cat-desc">${esc(c.desc)}</span><span class="cat-meta"><span class="cat-count">${p.total} tasks</span>${p.done?`<span class="cat-done">${p.done} done</span>`:''}</span></button>`}).join('')}</div></div>`}
+  return `<div class="page"><div class="page-head"><h1>Task library</h1><p>${TASKS.length} classroom situations in 8 categories. Choose a category, then a task. Each one is worked through the full 6C cycle.</p><button class="btn ghost" data-act="random-task">🎲 Random task</button></div>
+   <div class="cat-grid">${CATEGORIES.map((c,i)=>{const p=catProgress(c.key);return `<button class="cat-card" data-act="lib-open" data-cat="${c.key}" style="animation-delay:${i*50}ms" aria-label="${esc(c.name)}: ${p.total} tasks, ${p.done} completed"><span class="cat-icon" aria-hidden="true">${c.icon}</span><span class="cat-name">${esc(c.name)}</span><span class="cat-desc">${esc(c.desc)}</span><span class="cat-meta"><span class="cat-count">${p.total} tasks</span>${p.done?`<span class="cat-done">${p.done} done</span>`:''}</span></button>`}).join('')}</div></div>`}
 
-function footerHTML(){return `<footer class="site-foot"><div class="author sm"><span class="author-l">PhD RESEARCHER</span><span class="author-n">${AUTHOR_NAME}</span></div><div class="author sm"><span class="author-l">INSTITUTION</span><span class="author-n">${INSTITUTION}</span></div><p class="ft"><b>AI-CT TEACHER</b> · Research prototype. ${UZ.footNote}</p></footer>`}
+function footerHTML(){return `<footer class="site-foot"><div class="author sm"><span class="author-l">PhD RESEARCHER</span><span class="author-n">${AUTHOR_NAME}</span></div><div class="author sm"><span class="author-l">INSTITUTION</span><span class="author-n">${INSTITUTION}</span></div><p class="ft"><b>AI-CT TEACHER</b> · Research prototype. Your data stays in this browser.</p></footer>`}
 /* =====================================================================
    6C VIEWS — six short, interactive stages. Choices and taps first,
    small text fields second. Uzbek hints sit under every stage.
@@ -1642,7 +1542,7 @@ function chatHintText(at){
   return `${left} question${left===1?'':'s'} left. The AI answers about this situation only. Press Enter to send.`}
 function composerHTML(at){
   const can=chatCanAsk(at),dis=can?'':'disabled';
-  return `<div class="composer"><label class="lab" for="chatIn">Ask the AI a follow-up question <span class="uz">${UZ.chat.ask}</span></label>
+  return `<div class="composer"><label class="lab" for="chatIn">Ask the AI a follow-up question <span class="support-uz">${UZ.chat.ask}</span></label>
    <div class="chat-starters" role="group" aria-label="Question ideas">${CHAT_STARTERS.map(q=>`<button type="button" class="chip-btn" data-act="chat-chip" data-q="${esc(q)}" ${dis}>${esc(q)}</button>`).join('')}</div>
    <div class="chat-row"><textarea id="chatIn" rows="2" maxlength="${CHAT_Q_MAX}" placeholder="Type your question about this classroom situation…" ${dis}>${esc(ui.chatDraft||'')}</textarea><button type="button" class="btn" id="chatSend" data-act="chat-send" ${dis}>Send ▶</button></div>
    <p class="hint" id="chatHint">${esc(chatHintText(at))}</p>
@@ -1651,10 +1551,10 @@ function stage2(at){
   const t=TASK_BY_ID[at.taskId];
   return `${scenarioCard(t)}
    <div class="card ai-card"><div class="ai-status" id="aiStatus">${aiStatusHTML()}</div>
-    <h3 class="chat-title">Conversation with the AI <span class="uz">${UZ.chat.title}</span></h3>
+    <h3 class="chat-title">Conversation with the AI</h3>
     <div id="aiOut" class="chat" role="log" aria-live="polite" aria-label="Conversation with the AI">${chatLogHTML(at)}</div>
     <div id="composer">${composerHTML(at)}</div></div>
-   <div class="notice"><p><strong>Treat every AI answer as a claim to examine, not as the truth.</strong> Ask about reasons, evidence and alternatives, then judge the answers in the next stages. This page does not say whether the AI is right. <span class="uz">${UZ.consultNote}</span></p></div>`}
+   <div class="notice"><p><strong>Treat every AI answer as a claim to examine, not as the truth.</strong> Ask about reasons, evidence and alternatives, then judge the answers in the next stages. This page does not say whether the AI is right. <span class="support-uz">${UZ.consultNote}</span></p></div>`}
 const aiOutHTML=chatLogHTML;
 
 /* ---------- Stage 3: Critique ---------- */
@@ -1679,7 +1579,7 @@ function rowHTML(r,i){
    ${own?`<button class="btn quiet sm" data-act="del-row" data-rid="${r.id}">Remove this claim</button>`:''}</div>`}
 function stage4(at){
   const rows=at.d.check.rows;
-  return `<div class="card"><h3>Check the claims</h3><p class="hint">AI sounds sure even when it is wrong. For each claim, say where you would check it, what you found, and your verdict. The app does not check sources for you. <span class="uz">${UZ.checkNote}</span></p>
+  return `<div class="card"><h3>Check the claims</h3><p class="hint">AI sounds sure even when it is wrong. For each claim, say where you would check it, what you found, and your verdict. The app does not check sources for you. <span class="support-uz">${UZ.checkNote}</span></p>
    <div id="rows">${rows.length?rows.map(rowHTML).join(''):'<p class="muted">No claims yet. Add one from the AI answer.</p>'}</div><button class="btn ghost" data-act="add-row">+ Add a claim</button></div>`}
 
 /* ---------- Stage 5: Challenge ---------- */
@@ -1694,7 +1594,7 @@ function stage6(at){
   const c=at.d.conclude;
   return `<div class="card"><h3>Your decision about the AI answer</h3><div class="decide" role="group" aria-label="Decision">${[['accept','👍','Accept','Use it as it is'],['modify','✏️','Modify','Use it, with changes'],['reject','🚫','Reject','Do not use it']].map(([v,ic,l,d])=>`<button type="button" class="dec ${v}" data-act="decide" data-v="${v}" aria-pressed="${c.decision===v}"><span aria-hidden="true">${ic}</span><b>${l}</b><small>${d}</small></button>`).join('')}</div>
     ${fld2(at,'conclude.reasoning',{label:'Why? Use what you found while checking. (5+ words)',min:5,rows:3,ph:'I decided this because…'})}</div>
-   <div class="card"><h3>Look back <span class="uz">${UZ.lookBack}</span></h3>${fld2(at,'conclude.learned',{label:'What did you learn? (1 sentence)',min:3,ph:'I learned that…'})}${scaleHTML(at,'conclude.confidence','How sure are you about your final decision?','1 = not sure','5 = very sure')}</div>`}
+   <div class="card"><h3>Look back <span class="support-uz">${UZ.lookBack}</span></h3>${fld2(at,'conclude.learned',{label:'What did you learn? (1 sentence)',min:3,ph:'I learned that…'})}${scaleHTML(at,'conclude.confidence','How sure are you about your final decision?','1 = not sure','5 = very sure')}</div>`}
 function stageHTML(at){return[stage1,stage2,stage3,stage4,stage5,stage6][at.stage-1](at)}
 
 /* ---------- instant feedback (only when the demonstration answer is used: it has an answer key) ---------- */
@@ -1718,16 +1618,16 @@ function traceHTML(at){const d=at.d,t=TASK_BY_ID[at.taskId];
 function viewCycle(){const at=curAttempt();return at?stageScreen(at):cycleExplainer()}
 function cycleExplainer(){
   const ips=attemptsList().filter(a=>a.status==='in_progress');
-  return `<div class="page"><div class="page-head"><h1>${UZ.nav.cycle} <span class="en">The AI-CT 6C cycle</span></h1><p>${UZ.cycleLead}</p></div>
-   <ol class="cyc6">${STAGES.map((s,i)=>`<li class="${s.key==='consult'?'ai':''}" style="animation-delay:${i*80}ms"><span class="c6-n">${s.n}</span><span class="c6-ic" aria-hidden="true">${STAGE_ICONS[i]}</span><div><h3>${s.name} <em>${UZ.stage[i].n}</em>${s.key==='consult'?' <span class="chip ai">the only stage with AI</span>':''}</h3><p>${esc(s.task)}</p><p class="uz">${UZ.stage[i].t}</p></div></li>`).join('')}</ol>
+  return `<div class="page"><div class="page-head"><h1>The AI-CT 6C cycle</h1><p>Every task follows exactly these six stages, always in this order. Each stage screen adds a short Uzbek note.</p></div>
+   <ol class="cyc6">${STAGES.map((s,i)=>`<li class="${s.key==='consult'?'ai':''}" style="animation-delay:${i*80}ms"><span class="c6-n">${s.n}</span><span class="c6-ic" aria-hidden="true">${STAGE_ICONS[i]}</span><div><h3>${s.name}${s.key==='consult'?' <span class="chip ai">the only stage with AI</span>':''}</h3><p class="primary-en">${esc(s.task)}</p></div></li>`).join('')}</ol>
    ${ips.length?`<h2>In progress</h2><div class="stack" style="margin-bottom:20px">${ips.map(a=>`<div class="panel row" style="justify-content:space-between"><div><b>${esc(TASK_BY_ID[a.taskId].title)}</b><div class="muted small">Stage ${a.stage} of 6, ${STAGES[a.stage-1].name}</div></div><button class="btn" data-act="continue" data-attempt="${a.id}">Continue</button></div>`).join('')}</div>`:''}
-   <div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn" data-go="library">📚 ${UZ.nav.tasks}</button><button class="btn ghost" data-act="random-task">🎲 ${UZ.home.random}</button></div></div>`}
+   <div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn" data-go="library">📚 Task library</button><button class="btn ghost" data-act="random-task">🎲 Random task</button></div></div>`}
 function stageScreen(at){
   const t=TASK_BY_ID[at.taskId],st=STAGES[at.stage-1];
   return `<div class="page"><div class="cyc-head"><h2>${esc(t.title)}</h2><div class="row" style="gap:8px"><span class="chip p">${esc(t.skill)}</span>${at.sample?'<span class="chip demo">SAMPLE RECORD</span>':''}${at.status==='completed'?'<span class="chip g">Completed</span>':''}</div></div>
    <ol class="stepper" aria-label="AI-CT 6C progress">${STAGES.map(s=>{const done=s.n<at.stage||(at.status==='completed'&&s.n<=at.stage),cur=s.n===at.stage,can=canEnter(at,s.n)||cur;
      return `<li class="step ${s.key==='consult'?'ai':''} ${cur?'current':''} ${done&&!cur?'done':''} ${!can?'locked':''}"><button data-act="stage" data-stage="${s.n}" ${cur?'aria-current="step"':''} ${!can?'aria-disabled="true"':''} aria-label="Stage ${s.n}: ${s.name}${cur?', current':done?', completed':can?'':', locked'}"><span class="dot">${done&&!cur?'✓':STAGE_ICONS[s.n-1]}</span><span class="lb">${s.name}</span></button></li>`}).join('')}</ol>
-   <section class="brief2"><div><b>Stage ${st.n} of 6 · ${st.name}</b>${st.key==='consult'?' <span class="chip ai">AI</span>':''}<p>${esc(st.task)}</p></div><div class="b-uz"><b>${UZ.stage[st.n-1].n}</b><p>${UZ.stage[st.n-1].t}</p></div></section>
+   <section class="brief2"><div><b class="brief-t">Stage ${st.n} of 6 · ${st.name}</b>${st.key==='consult'?' <span class="chip ai">AI</span>':''}<p class="primary-en">${esc(st.task)}</p>${uzs(UZ.stage[st.n-1].t)}</div></section>
    <div class="stage-main" id="stageMain">${stageHTML(at)}</div>
    <div class="trace2" id="traceList">${traceHTML(at)}</div>
    <div class="actionbar"><details class="reqs"><summary id="reqSum"></summary><ul id="reqList"></ul></details><div class="acts-r"><span class="saved" id="savedAt">${lastSaved?'Saved '+fmtTime(lastSaved):''}</span>
@@ -1738,22 +1638,21 @@ function stageScreen(at){
 function dotsHTML(level){return `<span class="lvl-dots" aria-label="Level ${level} of 4">${[1,2,3,4].map(n=>`<i class="${n<=level?'on':''}"></i>`).join('')}</span>`}
 function viewAssessment(){
   const done=completedList(),at=(S.attempts[ui.assessId]&&S.attempts[ui.assessId].status==='completed')?S.attempts[ui.assessId]:done[done.length-1];
-  if(!at)return `<div class="page"><div class="page-head"><h1>Result</h1></div>${empty('No completed activity yet','Finish a task to see stage-by-stage feedback.',`<button class="btn" data-go="library">${UZ.nav.tasks}</button>`)}</div>`;
+  if(!at)return `<div class="page"><div class="page-head"><h1>Result</h1></div>${empty('No completed activity yet','Finish a task to see stage-by-stage feedback.',`<button class="btn" data-go="library">Task library</button>`)}</div>`;
   const t=TASK_BY_ID[at.taskId],a=computeAssessment(at),pt=profileText(a),jc=ui.justCompleted===at.id,xp=at.result?at.result.xp:xpFor(a);
-  return `<div class="page"><div class="page-head"><h1>${jc?'🎉 ':''}Your result <span class="en">${UZ.result}</span></h1><p>${esc(t.title)} · ${fmtDate(at.completedAt)}${at.sample?' · <span class="chip demo">SAMPLE RECORD</span>':''}</p></div>
+  return `<div class="page"><div class="page-head"><h1>${jc?'🎉 ':''}Your result</h1><p>${esc(t.title)} · ${fmtDate(at.completedAt)}${at.sample?' · <span class="chip demo">SAMPLE RECORD</span>':''}</p></div>
    <div class="panel score-top"><div class="big-score"><b id="scoreNum" data-to="${a.total}">${jc?0:a.total}</b><span>/ ${a.max}</span></div><div><div class="row" style="gap:8px">${bandChip(a.band)}${at.sample?'':`<span class="xp-pill big" id="xpGain" data-to="${xp}">⭐ +${jc?0:xp} XP</span>`}</div><p class="muted small" style="margin-top:6px">${a.pct}% of the maximum. Level = 1 + indicators met, in each of the six stages.</p>${jc&&(ui.justBadges||[]).length?`<div class="badge-row" style="margin-top:8px">${ui.justBadges.map(k=>badgeHTML(k,true)).join('')}</div>`:''}</div></div>
    ${a.demo?'':`<div class="notice w"><p><strong>Live AI answer: no answer key.</strong> Because the AI answer was not pre-written, the indicators in Critique, Check and Challenge use your own reasoning instead of an answer key. Discuss your verdicts with your teacher.</p></div>`}
    ${a.calib?`<div class="notice b"><p>${esc(a.calib)}</p></div>`:''}
-   <h2>${UZ.stageBy} <span class="en">Stage-by-stage feedback</span></h2>
-   <div class="stage-cards">${a.items.map(it=>`<article class="sc2 ${it.key==='consult'?'ai':''}"><header><span class="sc2-ic" aria-hidden="true">${STAGE_ICONS[it.stage-1]}</span><div><b>${it.stage}. ${it.short}</b> <em>${UZ.stage[it.stage-1].n}</em><small>${esc(it.name)}</small></div><div class="sc2-l">${dotsHTML(it.level)}<span>${it.level}/4 · ${LEVELS[it.level]}</span></div></header>
+   <h2>Stage-by-stage feedback</h2>
+   <div class="stage-cards">${a.items.map(it=>`<article class="sc2 ${it.key==='consult'?'ai':''}"><header><span class="sc2-ic" aria-hidden="true">${STAGE_ICONS[it.stage-1]}</span><div><b>${it.stage}. ${it.short}</b><small>${esc(it.name)}</small></div><div class="sc2-l">${dotsHTML(it.level)}<span>${it.level}/4 · ${LEVELS[it.level]}</span></div></header>
     <ul>${it.indicators.map(x=>`<li class="${x.na?'':x.ok?'g':'w'}"><span aria-hidden="true">${x.na?'–':x.ok?'✓':'○'}</span><span>${esc(x.l)}${x.na?'<small> Not available in demonstration mode (counted as met).</small>':x.ok?'':`<small> Tip: ${esc(x.tip)}</small>`}</span></li>`).join('')}</ul></article>`).join('')}</div>
    <div class="panel" style="margin:18px 0"><p>${esc(pt.strong)}</p><p>${esc(pt.dev)}</p><p class="small muted">These are learning-activity indicators, not a validated measure of critical thinking, and they cannot judge the quality of an idea.</p></div>
-   ${at.sample?'':`<div class="row" style="gap:8px;margin-bottom:12px"><span class="small muted">${UZ.classStatus}:</span>${syncChipHTML()}</div>`}
-   <div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn" data-act="random-task">🎲 ${UZ.home.random}</button><button class="btn ghost" data-go="record" data-id="${at.id}">${UZ.record}</button><button class="btn ghost" data-go="progress">${UZ.nav.progress}</button><button class="btn quiet" data-go="library">${UZ.nav.tasks}</button></div></div>`}
+   <div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn" data-act="random-task">🎲 Random task</button><button class="btn ghost" data-go="record" data-id="${at.id}">View record</button><button class="btn ghost" data-go="progress">My progress</button><button class="btn quiet" data-go="library">Task library</button></div></div>`}
 
 /* ---------- record ---------- */
 function viewRecord(){
-  const at=S.attempts[ui.params.id];if(!at||at.status!=='completed')return `<div class="page"><div class="page-head"><h1>Record</h1></div>${empty('No record','This record does not exist.',`<button class="btn" data-go="progress">${UZ.nav.progress}</button>`)}</div>`;
+  const at=S.attempts[ui.params.id];if(!at||at.status!=='completed')return `<div class="page"><div class="page-head"><h1>Record</h1></div>${empty('No record','This record does not exist.',`<button class="btn" data-go="progress">My progress</button>`)}</div>`;
   const r=recordObject(at),QA=(q,a)=>a||a===0?`<div class="qa"><div class="q">${esc(q)}</div><div class="a">${esc(a)}</div></div>`:'',a=computeAssessment(at);
   return `<div class="page"><div class="page-head"><h1>Record: ${esc(r.task.title)}</h1><p>${fmtDate(at.completedAt)} ${at.sample?'· <span class="chip demo">SAMPLE RECORD</span>':''}</p></div>
    <div class="row" style="gap:8px;margin-bottom:16px;flex-wrap:wrap"><button class="btn quiet" data-go="progress">← My progress</button><button class="btn" data-go="assessment" data-id="${at.id}">Result</button><button class="btn ghost" data-act="export" data-kind="json" data-id="${at.id}">JSON</button><button class="btn ghost" data-act="export" data-kind="csv" data-id="${at.id}">CSV</button><button class="btn danger" data-act="delete-record" data-id="${at.id}">Delete</button></div>
@@ -1764,102 +1663,6 @@ function viewRecord(){
    <div class="rec-sec"><h3>5 Challenge</h3>${QA('Chosen improvement',r.challenge.improvement)}${QA('Your own version',r.challenge.own)}${QA('Risk',r.challenge.risk)}</div>
    <div class="rec-sec"><h3>6 Conclude</h3>${QA('Decision',({accept:'Accepted',modify:'Modified',reject:'Rejected'})[r.conclude.decision])}${QA('Reasoning',r.conclude.reasoning)}${QA('What I learned',r.conclude.learned)}${QA('Final confidence',r.conclude.confidence+' / 5')}</div>
    <div class="rec-sec"><h3>Result</h3>${QA('Total',a.total+' / '+a.max+' ('+a.band+')')}${QA('Levels',a.items.map(i=>i.short+' '+i.level).join(' · '))}</div></div>`}
-/* =====================================================================
-   TEACHER — classes are real only when the secure server is connected.
-   Without it this page says so and shows clearly labelled DEMO DATA.
-   Only scores are stored on the server; students' written answers never
-   leave their devices.
-   ===================================================================== */
-const errText=e=>({network:'Cannot reach the server. Check your internet and try again.',not_configured:'The server address is not set.',rate_limited:'Too many requests. Wait a minute and try again.',class_full:'This class is full.',not_found:'Class not found. Check the code.',forbidden:'The teacher key is not correct.',unauthorized:'The teacher key is not correct.',invalid_input:'Please check what you typed.',classes_not_configured:'The class database is not set up on the server yet.'})[e]||'Something went wrong. Please try again.';
-const copyBtn=(txt,label)=>`<button class="btn quiet sm" data-act="copy" data-text="${esc(txt)}">${label||'Copy'}</button>`;
-function setupBanner(){
-  return `<div class="notice w"><p><strong>${UZ.t.notConnected}</strong> ${UZ.t.notConnectedP}</p><p class="small">Classes need the secure server (a free Cloudflare Worker with a small database). Set it up once with <code>backend/README.md</code>, put its address in <code>API_BASE</code>, and this page switches on by itself.</p></div>`}
-/* The "Create class" card is ALWAYS visible. When the server is not ready it is greyed out, says why, and shows what the teacher will get. */
-function lockedPanels(noticeHTML){
-  return `${noticeHTML}<div class="grid2 teacher-top"><div class="panel locked-panel"><h3>${UZ.t.create} <span class="en">Create a class</span> <span class="chip">${UZ.t.soon}</span></h3>
-   <div class="fld"><label class="lab" for="tcName">${UZ.t.className}</label><input id="tcName" type="text" disabled placeholder="${UZ.t.classPh}"></div>
-   <div class="fld"><label class="lab" for="tcTeacher">${UZ.t.yourName} (${UZ.t.optional})</label><input id="tcTeacher" type="text" disabled></div>
-   <button class="btn" disabled>${UZ.t.createBtn}</button>
-   <p class="hint">${UZ.t.afterCreate}</p><p class="hint">After you create a class you get a class code, a join link and a teacher key.</p>
-   <p class="small"><b>${UZ.t.link} (${UZ.t.example}):</b> <code class="wrapcode">${esc(joinLink('ABC234'))}</code></p></div>
-   <div class="panel"><h3>${UZ.t.myClasses} <span class="en">My classes</span></h3><p class="muted small">${UZ.t.noClasses}</p></div></div>`}
-const tHead=()=>`<div class="page-head"><h1>${UZ.nav.teacher} <span class="en">Teacher dashboard</span></h1><p>${UZ.t.lead}</p></div>`;
-function viewTeacher(){
-  const T=ui.teacher;
-  if(!API.base)return viewTeacherDemo().replace('<div class="page">','<div class="page">'+lockedPanels(setupBanner()));
-  if(!API.caps.checked||API.caps.checking)return `<div class="page">${tHead()}${lockedPanels('<div class="panel"><span class="thinking">Connecting to the server <i></i><i></i><i></i></span></div>')}</div>`;
-  if(API.caps.err)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice b"><p><strong>${UZ.t.lockedTitle}</strong> ${errText(API.caps.err)}</p><p><button class="btn" data-act="api-retry">Try again</button></p></div>`)}</div>`;
-  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet. In the backend folder run <code>npm install -g wrangler@latest</code> and then <code>wrangler deploy</code> (the included <code>wrangler.toml</code> creates and connects the database by itself), then press Ctrl+F5 here. Details: <code>backend/README.md</code>, step 4.</p><p class="small"><b>What this page sees:</b> it asked <code>${esc(API.base)}/api/health</code> and the server answered: AI <b>${API.caps.ai?'ready':'not ready'}</b>, class database <b>${API.caps.classes?'ready':'NOT connected'}</b>. The database must be attached to <i>this</i> Worker: the <code>name</code> in <code>wrangler.toml</code> has to be the first part of this address.</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
-  return T.view==='class'&&T.code?classView():teacherHome()}
-
-function teacherHome(){
-  const T=ui.teacher,cls=S.teacherClasses;
-  return `<div class="page"><div class="page-head"><h1>${UZ.nav.teacher} <span class="en">Teacher dashboard</span></h1><p>${UZ.t.lead}</p></div>
-   ${T.err?`<div class="notice b"><p>${esc(T.err)}</p></div>`:''}
-   ${T.newKey?`<div class="panel keybox"><h3>✅ ${UZ.t.created}</h3><p><b>${UZ.t.code}:</b> <span class="bigcode">${esc(T.newKey.code)}</span></p><p><b>${UZ.t.link}:</b> <code>${esc(joinLink(T.newKey.code))}</code> ${copyBtn(joinLink(T.newKey.code),'Copy link')}</p>
-     <p><b>${UZ.t.key}:</b> <code class="keytxt">${esc(T.newKey.key)}</code> ${copyBtn(T.newKey.key,'Copy key')}</p><div class="notice w"><p>${UZ.t.keyWarn}</p></div><button class="btn" data-act="class-open" data-code="${esc(T.newKey.code)}">${UZ.t.openClass}</button></div>`:''}
-   <div class="grid2"><div class="panel"><h3>${UZ.t.create}</h3><div class="fld"><label class="lab" for="tcName">${UZ.t.className}</label><input id="tcName" type="text" maxlength="60" placeholder="${UZ.t.classPh}"></div>
-     <div class="fld"><label class="lab" for="tcTeacher">${UZ.t.yourName} (${UZ.t.optional})</label><input id="tcTeacher" type="text" maxlength="40"></div><button class="btn" data-act="class-create" ${T.loading?'disabled':''}>${T.loading?'…':UZ.t.createBtn}</button></div>
-    <div class="panel"><h3>${UZ.t.myClasses}</h3>${cls.length?`<div class="stack" style="gap:8px">${cls.map(c=>`<div class="row" style="justify-content:space-between;gap:8px"><div><b>${esc(c.name)}</b> <span class="chip">${esc(c.code)}</span></div><button class="btn sm" data-act="class-open" data-code="${esc(c.code)}">${UZ.t.open}</button></div>`).join('')}</div>`:`<p class="muted small">${UZ.t.noClasses}</p>`}
-     <details style="margin-top:12px"><summary>${UZ.t.otherDevice}</summary><div class="fld"><label class="lab" for="okCode">${UZ.t.code}</label><input id="okCode" type="text" maxlength="12"></div><div class="fld"><label class="lab" for="okKey">${UZ.t.key}</label><input id="okKey" type="text" maxlength="40" autocomplete="off"></div><button class="btn ghost" data-act="class-attach">${UZ.t.open}</button></details></div></div></div>`}
-
-/* ---------- aggregation (all on the teacher's screen; the server only stores scores) ---------- */
-function aggregateClass(d){
-  const st={};(d.students||[]).forEach(s=>{st[s.id]={id:s.id,name:s.name,joinedAt:s.joinedAt,lastAt:s.lastAt||s.joinedAt,sixc:[],methods:[],comps:[],xp:0}});
-  const task={},ai={demo:0,live:0,backend:0},stageSum=[0,0,0,0,0,0];let n6=0;
-  (d.results||[]).forEach(r=>{const s=st[r.studentId];if(!s)return;const x=r.data||{};
-    if(r.at>s.lastAt)s.lastAt=r.at;
-    if(r.kind==='6c'){s.sixc.push(r);s.xp+=x.xp||0;const t=(task[r.ref]=task[r.ref]||{ref:r.ref,n:0,sum:0});t.n++;t.sum+=x.pct||0;if(ai[x.aiMode]!=null)ai[x.aiMode]++;(x.levels||[]).forEach((l,i)=>{stageSum[i]+=l});n6++}
-    else if(r.kind==='method'){s.methods.push(r);s.xp+=x.xp||0}
-    else if(r.kind==='competition')s.comps.push(r)});
-  const students=Object.values(st).map(s=>{
-    const lv=[0,0,0,0,0,0];s.sixc.forEach(r=>(r.data.levels||[]).forEach((l,i)=>{lv[i]+=l}));
-    const m=s.sixc.length?lv.map(v=>v/s.sixc.length):null;
-    return Object.assign(s,{avg:s.sixc.length?avg(s.sixc.map(r=>r.data.pct||0)):null,stageAvg:m,weak:m?COMP[m.indexOf(Math.min(...m))].short:'–',bestMethod:s.methods.length?Math.max(...s.methods.map(r=>pct(r.data.correct,r.data.total))):null})});
-  return{students,task:Object.values(task),ai,stageAvg:n6?stageSum.map(v=>v/n6):null,n6,methods:students.reduce((a,s)=>a+s.methods.length,0),comps:students.reduce((a,s)=>a+s.comps.length,0)}}
-function classCSV(d){
-  const nm={};(d.students||[]).forEach(s=>{nm[s.id]=s.name});
-  const cols=['student','kind','ref','time','total','percent','band',...COMP.map(c=>'level_'+c.key),'decision','confidence','ai_mode','xp','details'];
-  const rows=(d.results||[]).map(r=>{const x=r.data||{},lv=x.levels||[];
-    return[nm[r.studentId]||'',r.kind,r.ref,new Date(r.at).toISOString(),x.total,x.pct,x.band,...COMP.map((_,i)=>lv[i]),x.decision,x.conf,x.aiMode,x.xp,r.kind==='method'?`${x.correct}/${x.total} ${x.diff}`:r.kind==='competition'?`mode ${x.mode} ${x.diff} scores ${(x.scores||[]).join('/')}`:''].map(csvCell).join(',')});
-  return[cols.join(','),...rows].join('\n')}
-
-function classView(){
-  const T=ui.teacher,c=teacherClass(T.code),d=T.data;
-  if(!c)return `<div class="page"><button class="btn quiet" data-act="class-back">← ${UZ.t.myClasses}</button></div>`;
-  const head=`<div class="page"><button class="btn quiet sm" data-act="class-back" style="margin-bottom:12px">← ${UZ.t.myClasses}</button>
-   <div class="page-head"><h1>${esc(c.name)} <span class="chip">${esc(c.code)}</span></h1><p>${UZ.t.classLead}</p></div>
-   <div class="panel"><div class="row" style="gap:10px;flex-wrap:wrap;justify-content:space-between"><div><b>${UZ.t.link}:</b> <code>${esc(joinLink(c.code))}</code></div><div class="row" style="gap:8px">${copyBtn(joinLink(c.code),'Copy link')}${copyBtn(c.code,'Copy code')}<button class="btn quiet sm" data-act="projector-code">📽️ ${UZ.t.showCode}</button></div></div>
-    <p class="small muted" style="margin-top:6px">${UZ.t.joinHow}</p></div>
-   ${T.showCode?`<div class="codebig" role="dialog" aria-label="Class code"><button class="btn quiet" data-act="projector-code" style="position:absolute;top:14px;right:14px">✕</button><p>${UZ.t.joinAt}</p><div class="bigcode xl">${esc(c.code)}</div><p class="small">${esc(joinLink(c.code))}</p></div>`:''}`;
-  if(T.err)return head+`<div class="notice b"><p>${esc(T.err)}</p></div><button class="btn" data-act="class-refresh">Try again</button></div>`;
-  if(!d)return head+`<div class="panel"><span class="thinking">Loading <i></i><i></i><i></i></span></div></div>`;
-  const g=aggregateClass(d),sorted=[...g.students].sort((a,b)=>{const k=ui.tSort.k,dir=ui.tSort.dir,va=k==='name'?a.name.toLowerCase():k==='n'?a.sixc.length:k==='avg'?(a.avg==null?-1:a.avg):k==='xp'?a.xp:a.lastAt,vb=k==='name'?b.name.toLowerCase():k==='n'?b.sixc.length:k==='avg'?(b.avg==null?-1:b.avg):k==='xp'?b.xp:b.lastAt;return(va>vb?1:va<vb?-1:0)*dir});
-  const th=(k,l)=>`<th ${ui.tSort.k===k?`aria-sort="${ui.tSort.dir>0?'ascending':'descending'}"`:''}><button data-act="teacher-sort" data-k="${k}">${l}${ui.tSort.k===k?(ui.tSort.dir>0?' ▲':' ▼'):''}</button></th>`;
-  const when=t=>t?fmtDate(t):'–';
-  return head+`<div class="row" style="gap:8px;margin:14px 0;flex-wrap:wrap"><button class="btn" data-act="class-refresh">↻ ${UZ.t.refresh}</button><button class="btn ghost" data-act="class-csv">${UZ.t.exportCsv}</button><button class="btn quiet" data-act="key-toggle">${T.showKey?UZ.t.hideKey:UZ.t.showKeyBtn}</button><button class="btn danger" data-act="class-delete" data-code="${esc(c.code)}">${UZ.t.deleteClass}</button><span class="small muted" id="lastRefresh">${T.updated?UZ.t.updated+' '+fmtTime(T.updated):''}</span></div>
-   ${T.showKey?`<div class="notice w"><p><b>${UZ.t.key}:</b> <code class="keytxt">${esc(c.key)}</code> ${copyBtn(c.key,'Copy')}<br>${UZ.t.keyWarn}</p></div>`:''}
-   <div class="panel" style="margin-bottom:18px"><div class="grid4"><div class="stat"><b>${g.students.length}</b><span>${UZ.t.students}</span></div><div class="stat"><b>${g.n6}</b><span>6C ${UZ.t.activities}</span></div><div class="stat"><b>${g.n6?Math.round(avg(g.students.filter(s=>s.avg!=null).map(s=>s.avg))):'–'}${g.n6?'%':''}</b><span>${UZ.t.avgScore}</span></div><div class="stat"><b>${g.methods}+${g.comps}</b><span>${UZ.t.games}</span></div></div></div>
-   ${g.n6?`<div class="grid2" style="margin-bottom:18px"><div class="panel"><h3>${UZ.t.stageProfile} <span class="en">Stage performance (class average, level 1–4)</span></h3>${radarSVG(g.stageAvg,COMP.map(x=>x.short))}<div class="stack" style="gap:6px;margin-top:6px">${COMP.map((x,i)=>`<div class="row" style="gap:8px"><span style="width:84px">${x.short}</span><div class="bar"><i style="width:${Math.round(g.stageAvg[i]/4*100)}%"></i></div><b>${g.stageAvg[i].toFixed(1)}</b></div>`).join('')}</div></div>
-     <div class="panel"><h3>${UZ.t.byTask} <span class="en">By task</span></h3><div class="tablewrap"><table><thead><tr><th>Task</th><th>Done</th><th>Average</th></tr></thead><tbody>${g.task.sort((a,b)=>b.n-a.n).map(t=>{const tk=TASK_BY_ID[t.ref];return `<tr><td>${tk?esc(tk.title):esc(t.ref)}</td><td>${t.n}</td><td>${Math.round(t.sum/t.n)}%</td></tr>`}).join('')}</tbody></table></div>
-      <p class="small muted" style="margin-top:8px">AI answers used: demonstration ${g.ai.demo}, live ${g.ai.live+g.ai.backend}.</p></div></div>`:`<div class="notice"><p>${UZ.t.noResults}</p></div>`}
-   <h2>${UZ.t.studentTable} <span class="en">Students</span></h2>
-   <div class="tablewrap"><table><thead><tr>${th('name','Name')}${th('n','6C')}${th('avg','Average')}<th>Weakest stage</th><th>Best Method %</th>${th('xp','XP')}${th('last','Last active')}<th></th></tr></thead>
-    <tbody>${sorted.length?sorted.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.sixc.length}</td><td>${s.avg==null?'–':Math.round(s.avg)+'%'}</td><td>${esc(s.weak)}</td><td>${s.bestMethod==null?'–':s.bestMethod+'%'}</td><td>${s.xp}</td><td>${when(s.lastAt)}</td><td><button class="btn quiet sm" data-act="student-remove" data-sid="${esc(s.id)}" data-name="${esc(s.name)}">Remove</button></td></tr>`).join(''):`<tr><td colspan="8" class="muted">${UZ.t.noStudents}</td></tr>`}</tbody></table></div>
-   <p class="small muted" style="margin-top:10px">${UZ.t.privacy}</p></div>`}
-
-/* ---------- join a class (opened from a link like  .../#join=ABC123) ---------- */
-function viewJoin(){
-  const J=ui.join,m=J.code&&memberOf(J.code);
-  const body=!API.base?`<div class="notice w"><p>Classes are not connected on this site yet, so you cannot join one. ${setupBanner()}</p></div>`
-   :!API.caps.checked||API.caps.checking?`<div class="panel"><span class="thinking">Connecting <i></i><i></i><i></i></span></div>`
-   :API.caps.err||!API.caps.classes?`<div class="notice b"><p>${errText(API.caps.err||'classes_not_configured')}</p></div><button class="btn" data-act="api-retry">Try again</button>`
-   :m?`<div class="notice g"><p>You are already in <b>${esc(m.className||m.code)}</b> as ${esc(m.name)}.</p></div><button class="btn" data-go="home">Continue</button>`
-   :!J.info?(J.err?`<div class="notice b"><p>${esc(J.err)}</p></div>`:`<div class="panel"><span class="thinking">Looking for the class <i></i><i></i><i></i></span></div>`)
-   :`<div class="panel"><h3>${esc(J.info.name)} <span class="chip">${esc(J.code)}</span></h3>${J.err?`<div class="notice b"><p>${esc(J.err)}</p></div>`:''}
-     <div class="fld"><label class="lab" for="jName">${UZ.j.nameLabel}</label><input id="jName" type="text" maxlength="40" autocomplete="nickname" value="${esc(profileName())}"></div>
-     <button class="btn" data-act="join-confirm" ${J.busy?'disabled':''}>${J.busy?'…':UZ.j.btn}</button><p class="hint">${UZ.j.privacy}</p></div>`;
-  return `<div class="page"><div class="page-head"><h1>${UZ.j.title} <span class="en">Join a class</span></h1><p>${UZ.j.lead}</p></div>${body}</div>`}
 /* =====================================================================
    METHOD CHALLENGE — a short quiz that helps future English teachers
    recognise teaching methods from simple classroom situations.
@@ -2003,7 +1806,6 @@ function tcNextRound(){
   if(g.idx+1<g.order.length){g.idx++;g.picked=null;g.lastOk=false;g.timedOut=false;g.revealed=false;tcStartTimer();sndPlay('tc-turn')}
   else{tcClearTimer();g.phase='done';
     S.competitions.push({ts:Date.now(),mode:g.mode,questionCount:g.order.length,perTeam:g.count,difficulty:g.diff,topic:g.topic||'mixed',results:g.teams.map(t=>({name:t.name,score:t.score}))});
-    queueResult('competition',g.diff,{mode:g.mode,diff:g.diff,topic:g.topic||'mixed',questions:g.order.length,scores:g.teams.map(t=>t.score)});
     g.newBadge=(g.mode>=2&&awardBadge('team-player'))?'team-player':null;
     persistNow();sndPlay(g.newBadge?'achievement':'complete')}}
 
@@ -2076,13 +1878,10 @@ function tcDoneHTML(){
 /* =====================================================================
    APP CONTROLLER
    ===================================================================== */
-const VIEWS={home:viewHome,about:viewAbout,cycle:viewCycle,library:viewLibrary,methods:viewMethods,competition:viewCompetition,progress:viewProgress,assessment:viewAssessment,record:viewRecord,teacher:viewTeacher,aichat:viewAIChat,join:viewJoin};
+const VIEWS={home:viewHome,about:viewAbout,cycle:viewCycle,library:viewLibrary,methods:viewMethods,competition:viewCompetition,progress:viewProgress,assessment:viewAssessment,record:viewRecord,aichat:viewAIChat};
 const PAGE_ALIAS={dashboard:'progress',history:'progress'};
-const HASH_PAGES=['home','about','cycle','library','methods','competition','progress','assessment','teacher','aichat'];
-const PAGE_TITLES={home:'AI-CT TEACHER',about:'About the project / Loyiha haqida',cycle:'AI-CT 6C cycle',library:'Tasks / Topshiriqlar',methods:'Method Challenge',competition:'Team Competition',progress:'My progress / Natijalarim',assessment:'Result',record:'Record',teacher:'Teacher dashboard',aichat:'AI Chat / AI bilan suhbat',join:'Join a class'};
-let teacherTimer=null;
-function stopTeacherTimer(){if(teacherTimer){clearInterval(teacherTimer);teacherTimer=null}}
-function startTeacherTimer(){stopTeacherTimer();teacherTimer=setInterval(()=>{if(ui.page==='teacher'&&ui.teacher.view==='class'&&!document.hidden)teacherLoad(true);else if(ui.page!=='teacher')stopTeacherTimer()},30000)}
+const HASH_PAGES=['home','about','cycle','library','methods','competition','progress','assessment','aichat'];
+const PAGE_TITLES={home:'AI-CT TEACHER',about:'About the project',cycle:'AI-CT 6C cycle',library:'Task library',methods:'Method Challenge',competition:'Team Competition',progress:'My progress',assessment:'Result',record:'Record',aichat:'AI Chat'};
 
 function render(keep){
   const y=window.scrollY;renderShell();
@@ -2090,7 +1889,7 @@ function render(keep){
   afterRender();window.scrollTo(0,keep?y:0)}
 function afterRender(){
   updateLive();updateSaved();
-  if(ui.page==='aichat')ensureFreeChat();
+  if(ui.page==='aichat')gchatAfterRender();
   if(ui.page==='assessment'&&ui.justCompleted){
     const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
     [['#scoreNum',n=>String(n)],['#xpGain',n=>'⭐ +'+n+' XP']].forEach(([sel,fmt])=>{const el=$(sel);if(!el)return;const to=+el.dataset.to;
@@ -2103,24 +1902,20 @@ function celebrate(){
   for(let i=0;i<28;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];p.style.animationDelay=Math.random()*.4+'s';p.style.setProperty('--dx',(Math.random()*160-80)+'px');box.appendChild(p)}
   document.body.appendChild(box);setTimeout(()=>box.remove(),2300)}
 
-/* ---------- routing (hash links work on GitHub Pages: #library, #join=ABC123 ...) ---------- */
-function parseHash(){const h=(location.hash||'').replace(/^#/,''),m=h.match(/^join=([A-Za-z0-9]{6})$/);
-  if(m)return{page:'join',code:m[1].toUpperCase()};const p=PAGE_ALIAS[h]||h;return HASH_PAGES.includes(p)?{page:p}:null}
+/* ---------- routing (hash links work on GitHub Pages: #library, #aichat ...) ---------- */
+function parseHash(){const h=(location.hash||'').replace(/^#/,''),p=PAGE_ALIAS[h]||h;return HASH_PAGES.includes(p)?{page:p}:null}
 function syncUrl(page){try{document.title=(PAGE_TITLES[page]||'AI-CT TEACHER')+' | AI-CT TEACHER';
-  const want=page==='join'?'#join='+ui.join.code:HASH_PAGES.includes(page)?'#'+page:null;if(want&&location.hash!==want)history.pushState(null,'',want)}catch(e){}}
+  const want=HASH_PAGES.includes(page)?'#'+page:null;if(want&&location.hash!==want)history.pushState(null,'',want)}catch(e){}}
 function go(page,params){
-  if(page==='aichat')ui.aiErr='';
+  if(page==='aichat'){ui.gchat.err=''}
   page=PAGE_ALIAS[page]||page;params=params||{};
   if(ui.page==='competition'&&page!=='competition')tcClearTimer();
-  if(ui.page==='teacher'&&page!=='teacher')stopTeacherTimer();
   ui.page=page;ui.params=params;ui.menu=false;syncUrl(page);
   if(page==='library')ui.libCategory=null;
   if(page==='assessment'&&params.id)ui.assessId=params.id;
   if(page!=='assessment'){ui.justCompleted=ui.justCompleted&&page==='record'?ui.justCompleted:null;ui.justBadges=null}
-  if(page==='progress')flushOutbox();
   render();const m=$('#main');m&&m.focus({preventScroll:true});
-  if(page==='teacher'&&API.base)apiCheck(!API.caps.checked||!!API.caps.err).then(()=>{if(ui.page==='teacher'){render(true);if(API.caps.classes&&ui.teacher.view==='class'&&!ui.teacher.data)teacherLoad(false)}});
-  if(page==='join')joinLoad()}
+  if(page==='aichat'&&API.base&&!API.caps.checked)apiCheck().then(()=>{if(ui.page==='aichat')render(true)})}
 function openAttempt(at){ui.aiErr='';ui.streaming=false;enterStage(at);go('cycle',{attemptId:at.id})}
 function enterStage(at){
   if(at.stage===2&&!at.d.consult.chat.length&&!ui.streaming&&at.status==='in_progress')startConsult(at);   /* the AI answers the scenario as soon as Consult opens */
@@ -2128,7 +1923,6 @@ function enterStage(at){
 function rerenderStage(){const at=curAttempt(),m=$('#stageMain');if(!at||!m)return;const y=window.scrollY;m.innerHTML=stageHTML(at);updateLive();window.scrollTo(0,y)}
 
 function updateLive(){
-  if(ui.page==='aichat'){if(ui.freeAt)refreshComposer(ui.freeAt);return}
   if(ui.page!=='cycle')return;const at=curAttempt();if(!at)return;
   $$('[data-cnt]').forEach(el=>{const n=W(getPath(at.d,el.dataset.cnt)),min=+el.dataset.min;el.classList.toggle('ok',n>=min);el.textContent=min?`${n} / ${min}+ words`:`${n} words`});
   const rq=reqs(at,at.stage),okc=rq.filter(r=>r.ok).length,all=okc===rq.length;
@@ -2138,12 +1932,8 @@ function updateLive(){
   const tl=$('#traceList');if(tl)tl.innerHTML=traceHTML(at);
   if(at.stage===2)refreshComposer(at)}
 /* The conversation works in two places: inside the 6C Consult stage, and on the separate practice page "AI Chat". */
-const chatAt=()=>ui.page==='aichat'?ui.freeAt:curAttempt();
-const inChatView=at=>ui.page==='aichat'||(ui.page==='cycle'&&!!at&&at.stage===2);
-const newFreeChat=taskId=>({id:'free',taskId,status:'free',stage:2,maxStage:2,createdAt:Date.now(),updatedAt:Date.now(),d:blankData()});
-function ensureFreeChat(){
-  if(!ui.freeAt||!TASK_BY_ID[ui.freeAt.taskId])ui.freeAt=newFreeChat(ui.freeTask||TASKS[0].id);
-  const at=ui.freeAt;if(!at.d.consult.chat.length&&!ui.streaming&&!ui.aiErr)startConsult(at)}
+const chatAt=()=>curAttempt();
+const inChatView=at=>ui.page==='cycle'&&!!at&&at.stage===2;
 function refreshComposer(at){
   const can=chatCanAsk(at);
   [$('#chatIn'),$('#chatSend')].forEach(e=>{if(e)e.disabled=!can});
@@ -2200,34 +1990,36 @@ async function sendFollowUp(){
   catch(e){ui.streaming=false;dropLastStudent(at);ui.chatDraft=text;ui.aiErr=consultErrText(e)}
   refreshAi();const i2=$('#chatIn');if(i2&&ui.chatDraft)i2.value=ui.chatDraft}
 
-/* ---------- classes: student ---------- */
-async function joinLoad(){
-  const J=ui.join;J.info=null;J.err='';J.busy=false;
-  if(!API.base||!J.code){render(true);return}
-  await apiCheck();
-  if(ui.page!=='join')return;
-  if(!API.caps.classes||memberOf(J.code)){render(true);return}
-  try{J.info=await classInfo(J.code)}catch(e){J.err=e.status===404?'Class not found. Check the link or the code.':errText(e.code)}
-  if(ui.page==='join')render(true)}
-function refreshAfterCaps(){
-  if(ui.page==='cycle')refreshAi();
-  else if(ui.page==='teacher'){render(true);if(API.caps.classes&&ui.teacher.view==='class'&&!ui.teacher.data)teacherLoad(false)}
-  else if(ui.page==='join')joinLoad();
-  if(API.caps.classes)flushOutbox()}
+function refreshAfterCaps(){if(ui.page==='cycle')refreshAi();else if(ui.page==='aichat')render(true)}
 
-/* ---------- classes: teacher ---------- */
-async function teacherLoad(silent){
-  const T=ui.teacher;if(!T.code)return;
-  if(!silent){T.data=null;T.err=''}
-  try{T.data=await fetchDashboard(T.code);T.err='';T.updated=Date.now()}
-  catch(e){
-    if(e.status===401||e.status===403)T.err='This device\'s teacher key is not accepted for this class. Open the class again with the correct key.';
-    else if(e.status===404)T.err='This class no longer exists on the server.';
-    else if(!silent)T.err=errText(e.code)}
-  if(ui.page==='teacher'&&ui.teacher.view==='class')render(true)}
-function saveText(filename,data,mime){
-  try{const blob=new Blob([data],{type:mime}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('File downloaded')}
-  catch(e){modal({title:'Copy this text',html:`<p class="small muted">Save it as <b>${esc(filename)}</b>.</p><pre class="export" tabindex="0">${esc(data.slice(0,60000))}</pre>`,actions:[{label:'Close',val:true}]})}}
+/* ---------- AI Chat: a free, general conversation with Gemini. Separate from the 6C Consult stage; nothing is scored. ---------- */
+const GCHAT_MAX_Q=600;
+function gchatTranscript(newQ){
+  const out=[];let budget=2900;
+  for(let i=ui.gchat.msgs.length-1;i>=0;i--){
+    const m=ui.gchat.msgs[i],t=(m.role==='ai'?'Assistant: ':'Student: ')+String(m.text).replace(/\s+/g,' ').slice(0,m.role==='ai'?700:400);
+    if(budget-t.length<0)break;budget-=t.length;out.unshift(t)}
+  return (out.length?'Conversation so far:\n'+out.join('\n')+'\n\n':'')+'Student\'s new message: '+newQ}
+function gchatAfterRender(){const l=$('#gcLog');if(l&&l.lastElementChild&&l.lastElementChild.scrollIntoView)l.lastElementChild.scrollIntoView({block:'nearest'})}
+function gchatCan(){return !!API.base&&API.caps.ai&&!API.caps.err&&!ui.gchat.busy}
+function renderGChat(){
+  const o=$('#gcLog');if(!o||ui.page!=='aichat')return;
+  o.innerHTML=gchatLogHTML();const can=gchatCan();
+  [$('#gcIn'),$('#gcSend')].forEach(e=>{if(e)e.disabled=!can});
+  $$('.gc-ideas .chip-btn').forEach(b=>{b.disabled=!can});
+  const ideas=$('#gcIdeas'),nb=$('#gcNew'),has=ui.gchat.msgs.length>0;if(ideas)ideas.hidden=has;if(nb)nb.hidden=!has;
+  gchatAfterRender()}
+async function gchatSend(textArg){
+  const G=ui.gchat;if(G.busy||!gchatCan())return;
+  const inp=$('#gcIn'),text=String(textArg!=null?textArg:(inp?inp.value:'')).replace(/\r/g,'').trim();
+  if(!text)return;
+  if(text.length>GCHAT_MAX_Q){toast('Please keep a message under '+GCHAT_MAX_Q+' characters');return}
+  const transcript=gchatTranscript(text);
+  G.err='';G.draft='';G.msgs.push({role:'user',text,ts:Date.now()});G.busy=true;if(inp)inp.value='';sndPlay('stage');renderGChat();
+  try{const d=await askBackendChat(transcript);G.msgs.push({role:'ai',text:d.response,ts:Date.now(),extra:extraOf(d)});sndPlay('ai')}
+  catch(e){G.msgs.pop();G.draft=text;G.err=consultErrText(e)}
+  G.busy=false;renderGChat();const i2=$('#gcIn');if(i2&&G.draft)i2.value=G.draft}
+
 async function copyText(txt){
   try{await navigator.clipboard.writeText(txt);toast('Copied');return}catch(e){}
   try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Copied')}catch(e){toast('Select the text and copy it')}}
@@ -2244,7 +2036,7 @@ document.addEventListener('click',async e=>{
   if(el.getAttribute('aria-disabled')==='true'&&!['stage','next','finish','pick1','pick5'].includes(el.dataset.act))return;
   if(el.dataset.go){go(el.dataset.go,el.dataset.id?{id:el.dataset.id}:{});return}
   if(el.dataset.scale){const at=curAttempt();if(!at)return;setPath(at.d,el.dataset.scale,+el.dataset.val);touch(at);$$(`[data-scale="${el.dataset.scale}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b===el)));updateLive();return}
-  const a=el.dataset.act,at=ui.page==='aichat'?ui.freeAt:curAttempt(),T=ui.teacher;
+  const a=el.dataset.act,at=curAttempt();
   switch(a){
    case 'menu':ui.menu=!ui.menu;renderShell();break;
    case 'theme':{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');S.prefs.theme=cur==='dark'?'light':'dark';persist();applyPrefs();break}
@@ -2297,7 +2089,6 @@ document.addEventListener('click',async e=>{
    case 'mc-next':{const g=ui.mc;if(!g)break;
      if(g.idx+1<g.order.length){g.idx++;g.picked=null;render()}
      else{g.phase='done';S.methodRounds.push({ts:Date.now(),diff:g.diff,correct:g.correct,total:g.order.length,xp:g.justEarned});bumpStreak();
-       queueResult('method',g.diff,{diff:g.diff,correct:g.correct,total:g.order.length,xp:g.justEarned});
        if(g.correct>=8&&awardBadge('method-master')){g.newBadge='method-master';sndPlay('achievement');celebrate()}else sndPlay('complete');
        persistNow();render()}break}
    case 'mc-restart':ui.mc={phase:'setup'};render();break;
@@ -2313,44 +2104,14 @@ document.addEventListener('click',async e=>{
    case 'sample':{const x=createSample();ui.assessId=x.id;toast('Sample record loaded. It is labelled SAMPLE.');render(true);break}
    case 'export':doExport(el.dataset.kind,el.dataset.id||null);break;
    case 'delete-record':{const ok=await confirmBox('Delete this record?','It will be removed from this device. XP already earned stays.','Delete');if(ok){delete S.attempts[el.dataset.id];S.order=S.order.filter(i=>i!==el.dataset.id);persistNow();go('progress')}break}
-   case 'reset':{const ok=await confirmBox('Delete all my data on this device?','This removes your account, records, XP and badges here. If you are in a class, leave the class first so your results are also removed from your teacher\'s list. This cannot be undone.','Delete everything');
+   case 'reset':{const ok=await confirmBox('Delete all my data on this device?','This removes your account, records, XP and badges from this device. This cannot be undone.','Delete everything');
      if(ok){try{localStorage.removeItem(KEY)}catch(x){}const p=S.prefs;S=sanitizeState(null);S.prefs=p;persistNow();ui.assessId=null;go('home');toast('All data deleted')}break}
-   /* --- student: class --- */
-   case 'join-open':{const code=parseClassCode(($('#joinIn')||{}).value);if(!code){toast('Enter the 6-character class code or the link');break}ui.join={code,info:null,err:'',busy:false};go('join');break}
-   case 'join-confirm':{
-     const J=ui.join,name=cleanName(($('#jName')||{}).value);if(!name){toast('Please write your name');break}
-     J.busy=true;J.err='';render(true);
-     try{await joinClass(J.code,name);sndPlay('achievement');toast('You joined the class');go('home')}
-     catch(x){J.busy=false;J.err=x.code==='class_full'?errText('class_full'):x.status===404?'Class not found.':errText(x.code);render(true)}break}
-   case 'leave-class':{
-     const code=el.dataset.code,ok=await confirmBox('Leave this class?','Your results will be removed from the teacher\'s list. Your own records stay on this device.','Leave');if(!ok)break;
-     try{await leaveClass(code,false);toast('You left the class');render(true)}
-     catch(x){const f=await confirmBox('Could not reach the server','Remove the class from this device only? Your teacher may still see earlier results until you leave again when you are online.','Remove here');if(f){await leaveClass(code,true);render(true)}}break}
    case 'api-retry':apiCheck(true).then(refreshAfterCaps);render(true);break;
-   /* --- teacher --- */
-   case 'class-create':{
-     const name=cleanName(($('#tcName')||{}).value),tn=cleanName(($('#tcTeacher')||{}).value);if(!name){toast('Please write a class name');break}
-     T.loading=true;T.err='';render(true);
-     try{const c=await createClass(name,tn);T.newKey={code:c.code,key:c.key};sndPlay('achievement')}catch(x){T.err=errText(x.code)}
-     T.loading=false;render(true);break}
-   case 'class-open':{T.code=el.dataset.code;T.view='class';T.data=null;T.err='';T.showCode=false;T.showKey=false;T.newKey=null;render();teacherLoad(false);startTeacherTimer();break}
-   case 'class-attach':{
-     const code=parseClassCode(($('#okCode')||{}).value),key=(($('#okKey')||{}).value||'').trim();if(!code||!key){toast('Enter the class code and the teacher key');break}
-     openClassWithKey(code,key,code);T.code=code;T.view='class';T.data=null;T.err='';render();
-     try{T.data=await fetchDashboard(code);const nm=T.data.class&&T.data.class.name;const c=teacherClass(code);if(c&&nm)c.name=nm;persistNow();T.updated=Date.now();startTeacherTimer()}
-     catch(x){S.teacherClasses=S.teacherClasses.filter(c=>c.code!==code);persistNow();T.view='home';T.code=null;T.err=x.status===403||x.status===401?errText('forbidden'):x.status===404?errText('not_found'):errText(x.code)}
-     render(true);break}
-   case 'class-back':stopTeacherTimer();T.view='home';T.code=null;T.data=null;T.err='';T.showCode=false;render();break;
-   case 'class-refresh':T.err='';render(true);teacherLoad(true);break;
-   case 'class-csv':if(T.data)saveText(`ai-ct-class-${T.code}-${new Date().toISOString().slice(0,10)}.csv`,'\ufeff'+classCSV(T.data),'text/csv;charset=utf-8');break;
-   case 'key-toggle':T.showKey=!T.showKey;render(true);break;
-   case 'projector-code':T.showCode=!T.showCode;render(true);break;
-   case 'class-delete':{const ok=await confirmBox('Delete this class?','All students and results of this class are deleted from the server. This cannot be undone.','Delete class');if(!ok)break;
-     try{await deleteClass(el.dataset.code);stopTeacherTimer();T.view='home';T.code=null;T.data=null;toast('Class deleted')}catch(x){T.err=errText(x.code)}render();break}
-   case 'student-remove':{const ok=await confirmBox('Remove '+el.dataset.name+'?','Their results are deleted from this class.','Remove');if(!ok)break;
-     try{await removeStudent(T.code,el.dataset.sid);toast('Student removed');teacherLoad(true)}catch(x){toast(errText(x.code))}break}
-   case 'teacher-sort':{const k=el.dataset.k;ui.tSort=ui.tSort.k===k?{k,dir:-ui.tSort.dir}:{k,dir:(k==='id'||k==='low'||k==='name')?1:-1};render(true);break}
-   case 'teacher-student':ui.tStudent=el.dataset.id||null;render(true);break;
+   case 'gc-send':gchatSend();break;
+   case 'gc-retry':gchatSend(ui.gchat.draft);break;
+   case 'gc-idea':{const i=$('#gcIn');if(i&&!i.disabled){i.value=el.dataset.q;ui.gchat.draft=i.value;i.focus()}break}
+   case 'gc-new':ui.gchat={msgs:[],busy:false,err:'',draft:''};render(true);break;
+   case 'gc-ask':{const q=el.dataset.q;if(q)gchatSend(q);break}
   }});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('tr[data-act]')){e.preventDefault();e.target.click()}});
 
@@ -2358,14 +2119,15 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 function onField(e){
   const t=e.target;if(!t||!t.dataset)return;
   if(t.id==='chatIn'){ui.chatDraft=t.value;return}
+  if(t.id==='gcIn'){ui.gchat.draft=t.value;return}
   if(t.dataset.b){const at=curAttempt();if(!at||ui.page!=='cycle')return;setPath(at.d,t.dataset.b,t.value);touch(at);updateLive();return}
   if(t.dataset.rowF){const at=curAttempt();if(!at)return;const r=at.d.check.rows.find(x=>x.id===t.dataset.rid);if(!r)return;r[t.dataset.rowF]=t.value;touch(at);updateLive();return}
   if(t.dataset.team!==undefined){const g=ui.tc,i=+t.dataset.team;if(g&&g.teams[i])g.teams[i].name=t.value.slice(0,24)||`Team ${String.fromCharCode(65+i)}`;return}
-  if(e.type==='change'){const s=t.dataset.sel;if(s==='ttask'){ui.tTask=t.value;ui.tStudent=null;render(true)}
-    if(s==='aichatTask'&&TASK_BY_ID[t.value]&&!ui.streaming){ui.freeTask=t.value;ui.freeAt=newFreeChat(t.value);ui.aiErr='';ui.chatDraft='';render(true)}}}
+}
 document.addEventListener('input',onField);document.addEventListener('change',onField);
 window.addEventListener('beforeunload',()=>{try{persistNow()}catch(e){}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.target&&e.target.id==='chatIn'){e.preventDefault();sendFollowUp()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.target&&e.target.id==='gcIn'){e.preventDefault();gchatSend()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='nameIn'){e.preventDefault();const b=$('[data-act="profile-save"]');b&&b.click()}});
 
 /* ---------- init ---------- */
@@ -2374,11 +2136,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.i
   /* Browsers only allow sound after the first tap, click or key press, so the welcome chime plays then. */
   let welcomed=false;const welcome=()=>{if(welcomed)return;welcomed=true;if(sndEnabled())sndPlay('welcome')};
   ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,welcome,{passive:true}));
-  const h=parseHash();if(h){ui.page=h.page;if(h.page==='join')ui.join={code:h.code,info:null,err:'',busy:false}}
-  window.addEventListener('popstate',()=>{const p=parseHash();ui.page=p?p.page:'home';ui.params={};ui.menu=false;if(p&&p.page==='join')ui.join={code:p.code,info:null,err:'',busy:false};render();if(ui.page==='join')joinLoad()});
+  const h=parseHash();if(h)ui.page=h.page;
+  window.addEventListener('popstate',()=>{const p=parseHash();ui.page=p?p.page:'home';ui.params={};ui.menu=false;render()});
   try{document.title=(PAGE_TITLES[ui.page]||'AI-CT TEACHER')+' | AI-CT TEACHER'}catch(e){}
   render();initCaps();
-  if(ui.page==='join')joinLoad();
   apiCheck().then(refreshAfterCaps);
   window.addEventListener('online',()=>apiCheck(true).then(refreshAfterCaps));
-  setInterval(()=>{if(S.outbox.length&&API.base)flushOutbox()},60000)})();
+  })();
