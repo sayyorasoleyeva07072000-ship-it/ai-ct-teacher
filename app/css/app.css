@@ -619,3 +619,14 @@ html[data-projector] h1{font-size:clamp(2rem,3.2vw,3rem)}
 
 /* touch targets */
 .tg,.vd,.dec,.choice,.scale button{min-height:44px}
+
+/* teacher: create-class card when the server is not ready */
+.locked-panel{border-style:dashed}
+.locked-panel input:disabled,.locked-panel .btn:disabled{opacity:.55;cursor:not-allowed}
+.wrapcode{display:block;overflow-wrap:anywhere;word-break:break-all}
+.teacher-top{margin:18px 0 34px;align-items:start}
+.teacher-top .panel{padding:20px}
+.locked-panel .fld{margin-bottom:14px}
+.locked-panel .btn{margin:4px 0 16px}
+.locked-panel .hint{font-size:.9rem;margin:6px 0}
+.locked-panel h3 .en,.locked-panel h3 .chip{vertical-align:middle;margin-left:6px}

@@ -926,6 +926,8 @@ const UZ={
   myClasses:"Mening sinflarim",open:"Ochish",noClasses:"Hozircha sinf yoʻq.",otherDevice:"Boshqa qurilmada yaratilgan sinfni ochish",classLead:"Talabalar havola orqali qoʻshiladi. Faqat ballar koʻrinadi.",showCode:"Kodni ekranga chiqarish",
   joinHow:"Talabalar havolani oching yoki ilovada \"Natijalarim\" boʻlimida kodni kiritadi.",joinAt:"Qoʻshilish kodi",refresh:"Yangilash",exportCsv:"CSV yuklab olish",hideKey:"Kalitni yashirish",showKeyBtn:"Kalitni koʻrsatish",updated:"Yangilandi",deleteClass:"Sinfni oʻchirish",
   students:"talaba",activities:"faoliyat",avgScore:"oʻrtacha ball",games:"oʻyinlar",stageProfile:"Bosqichlar boʻyicha natija",byTask:"Topshiriqlar boʻyicha",noResults:"Hozircha 6C natijalari yoʻq. Talabalar topshiriqni tugatganda shu yerda koʻrinadi.",studentTable:"Talabalar",noStudents:"Hali hech kim qoʻshilmagan.",
+  lockedTitle:"Sinf yaratish hozircha mavjud emas.",soon:"server ulanmagan",example:"namuna",
+  afterCreate:"Sinf yaratilgach siz sinf kodi, qoʻshilish havolasi va oʻqituvchi kalitini olasiz. Havolani talabalarga yuborasiz, ular ism yozib qoʻshiladi.",
   privacy:"Serverda faqat ismlar va ballar saqlanadi. Talabalarning yozgan javoblari yuborilmaydi."}
 };
 /* =====================================================================
@@ -1688,12 +1690,22 @@ const errText=e=>({network:'Cannot reach the server. Check your internet and try
 const copyBtn=(txt,label)=>`<button class="btn quiet sm" data-act="copy" data-text="${esc(txt)}">${label||'Copy'}</button>`;
 function setupBanner(){
   return `<div class="notice w"><p><strong>${UZ.t.notConnected}</strong> ${UZ.t.notConnectedP}</p><p class="small">Classes need the secure server (a free Cloudflare Worker with a small database). Set it up once with <code>backend/README.md</code>, put its address in <code>API_BASE</code>, and this page switches on by itself.</p></div>`}
+/* The "Create class" card is ALWAYS visible. When the server is not ready it is greyed out, says why, and shows what the teacher will get. */
+function lockedPanels(noticeHTML){
+  return `${noticeHTML}<div class="grid2 teacher-top"><div class="panel locked-panel"><h3>${UZ.t.create} <span class="en">Create a class</span> <span class="chip">${UZ.t.soon}</span></h3>
+   <div class="fld"><label class="lab" for="tcName">${UZ.t.className}</label><input id="tcName" type="text" disabled placeholder="${UZ.t.classPh}"></div>
+   <div class="fld"><label class="lab" for="tcTeacher">${UZ.t.yourName} (${UZ.t.optional})</label><input id="tcTeacher" type="text" disabled></div>
+   <button class="btn" disabled>${UZ.t.createBtn}</button>
+   <p class="hint">${UZ.t.afterCreate}</p><p class="hint">After you create a class you get a class code, a join link and a teacher key.</p>
+   <p class="small"><b>${UZ.t.link} (${UZ.t.example}):</b> <code class="wrapcode">${esc(joinLink('ABC234'))}</code></p></div>
+   <div class="panel"><h3>${UZ.t.myClasses} <span class="en">My classes</span></h3><p class="muted small">${UZ.t.noClasses}</p></div></div>`}
+const tHead=()=>`<div class="page-head"><h1>${UZ.nav.teacher} <span class="en">Teacher dashboard</span></h1><p>${UZ.t.lead}</p></div>`;
 function viewTeacher(){
   const T=ui.teacher;
-  if(!API.base)return viewTeacherDemo().replace('<div class="page">','<div class="page">'+setupBanner());
-  if(!API.caps.checked||API.caps.checking)return `<div class="page"><div class="page-head"><h1>${UZ.nav.teacher}</h1></div><div class="panel"><span class="thinking">Connecting to the server <i></i><i></i><i></i></span></div></div>`;
-  if(API.caps.err)return `<div class="page"><div class="page-head"><h1>${UZ.nav.teacher}</h1></div><div class="notice b"><p>${errText(API.caps.err)}</p></div><button class="btn" data-act="api-retry">Try again</button></div>`;
-  if(!API.caps.classes)return `<div class="page"><div class="page-head"><h1>${UZ.nav.teacher}</h1></div><div class="notice w"><p>${errText('classes_not_configured')} See <code>backend/README.md</code>, step "Class database".</p></div><button class="btn" data-act="api-retry">Check again</button></div>`;
+  if(!API.base)return viewTeacherDemo().replace('<div class="page">','<div class="page">'+lockedPanels(setupBanner()));
+  if(!API.caps.checked||API.caps.checking)return `<div class="page">${tHead()}${lockedPanels('<div class="panel"><span class="thinking">Connecting to the server <i></i><i></i><i></i></span></div>')}</div>`;
+  if(API.caps.err)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice b"><p><strong>${UZ.t.lockedTitle}</strong> ${errText(API.caps.err)}</p><p><button class="btn" data-act="api-retry">Try again</button></p></div>`)}</div>`;
+  if(!API.caps.classes)return `<div class="page">${tHead()}${lockedPanels(`<div class="notice w"><p><strong>${UZ.t.lockedTitle}</strong> ${errText('classes_not_configured')} The server answers, but its class database is not connected yet: see <code>backend/README.md</code>, step 4 "Classes".</p><p><button class="btn" data-act="api-retry">Check again</button></p></div>`)}</div>`;
   return T.view==='class'&&T.code?classView():teacherHome()}
 
 function teacherHome(){
