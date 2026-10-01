@@ -2,12 +2,12 @@
 # Deploy FROM THIS FOLDER with:  npx wrangler deploy
 #
 # IMPORTANT: `name` below must be the name of the Worker the website uses:
-#   https://ai-ct-teacher-api.<your-subdomain>.workers.dev   ->   name = "ai-ct-teacher-api"
+#   https://name = ai-ct-teacher-ai.<your-subdomain>.workers.dev   ->   name = "name = "ai-ct-teacher-ai"
 # A different name creates a DIFFERENT Worker (with no Gemini secret and no database).
 #
 # The Gemini key is a secret (never in this file) and stays on the Worker:  wrangler secret put GEMINI_API_KEY
 
-name = "ai-ct-teacher-api"
+name = "ai-ct-teacher-ai"
 main = "worker.js"
 compatibility_date = "2024-09-01"
 
