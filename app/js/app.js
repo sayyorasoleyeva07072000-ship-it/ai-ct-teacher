@@ -1089,7 +1089,7 @@ function recordConsult(at,mode,prompt,text,segs,extra){
    it has ready (Gemini key, class database) and the app switches those
    features on by itself.
    ===================================================================== */
-const API_BASE='';
+const API_BASE='https://ai-ct-teacher-api.ai-ct-teacher-api.workers.dev';
 const API={base:String(API_BASE||'').replace(/\/+$/,''),caps:{ai:false,classes:false,checked:false,checking:false,err:''}};
 
 function apiErr(code,status){const e=new Error(code);e.code=code;e.status=status||0;return e}
