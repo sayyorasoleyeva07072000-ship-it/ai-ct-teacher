@@ -959,6 +959,11 @@ function sndPlay(name){
     case 'complete':beep(784,.14);beep(988,.14,.12,.08);beep(1318,.3,.24,.09);break;
     case 'welcome':beep(392,.18,0,.05);beep(523,.18,.14,.05);beep(659,.2,.28,.055);beep(784,.42,.44,.06);beep(1046,.5,.62,.04);break;
     case 'stage':beep(740,.09,0,.05);beep(988,.16,.08,.055);break;
+    /* Team Competition: little jingles. Correct = bright rising fanfare; wrong = soft falling "aww"; time up = three falling beeps. */
+    case 'tc-correct':[523,659,784,1046].forEach((f,i)=>beep(f,.16,i*.085,.075,'triangle'));[1046,1318,1568].forEach(f=>beep(f,.7,.36,.05,'sine'));beep(2093,.5,.42,.025,'sine');break;
+    case 'tc-wrong':[392,349,311,262].forEach((f,i)=>beep(f,.24,i*.17,.07,'triangle'));beep(131,.7,.6,.07,'sawtooth');break;
+    case 'tc-timeup':beep(660,.13,0,.07,'square');beep(520,.13,.17,.07,'square');beep(390,.34,.34,.07,'square');break;
+    case 'tc-turn':beep(587,.09,0,.05,'triangle');beep(784,.15,.09,.055,'triangle');break;
     case 'ai':beep(330,.07,0,.04,'triangle');beep(494,.07,.07,.04,'triangle');beep(659,.12,.14,.045,'triangle');break;
   }}
 function sndToggleBtn(){return `<button class="sound-toggle" data-act="snd-toggle" aria-pressed="${sndEnabled()}">${sndEnabled()?'🔊':'🔈'} Sound ${sndEnabled()?'on':'off'}</button>`}
@@ -1006,7 +1011,7 @@ function persist(){clearTimeout(persistT);persistT=setTimeout(persistNow,350)}
 function updateSaved(){const el=$('#savedAt');if(el)el.textContent=lastSaved?`Saved ${fmtTime(lastSaved)}`:'Not saved yet'}
 
 const ui={page:'home',params:{},menu:false,streaming:false,stream:'',aiErr:'',libCategory:null,
-  mc:null,tc:{phase:'setup',mode:1,teams:[{name:'You',score:0}],count:10,diff:'easy',topic:'mixed'},
+  mc:null,tc:{phase:'setup',mode:1,teams:[{name:'You',score:0}],count:5,diff:'easy',topic:'mixed'},
   teacher:{view:'home',code:null,data:null,loading:false,err:'',newKey:null,showKey:false,projector:false},
   join:{code:'',info:null,err:'',busy:false},sync:{busy:false,last:0,err:''},
   tSort:{k:'avg',dir:-1},tTask:'All',tStudent:null,assessId:null,justCompleted:null,justBadges:null,justXp:0,feedback:null,aboutLang:'uz'};
@@ -1851,10 +1856,11 @@ function mcDoneHTML(){
   </div></div>`}
 
 /* =====================================================================
-   TEAM COMPETITION — a simple classroom quiz game for one shared screen.
-   The teacher runs it: pick teams, question count and difficulty, then
-   for each round the teacher clicks the answer each team calls out and
-   reveals the result. Reuses the Method Challenge question bank so the
+   TEAM COMPETITION — a classroom quiz for one shared screen, played in TURNS.
+   Every question is asked to ONE team (A, B, C, A, B, C ...). The team's answer is
+   marked on the screen; the moment it is marked the result is revealed with an
+   animation and a short jingle, and only that team scores. A countdown runs for
+   every question; when it ends the question counts as unanswered. Reuses the Method Challenge question bank so the
    two features share one source of truth instead of duplicating content.
    ===================================================================== */
 const TC_COLORS=['var(--primary)','var(--ai)','var(--warn)','var(--good)'];
@@ -1876,33 +1882,43 @@ function tcBuildOrder(diff,count,topic){
   if(out.length<count){const ids=new Set(out.map(q=>q.id));shuffle(qPool(tp).filter(q=>!ids.has(q.id))).slice(0,count-out.length).forEach(q=>out.push(q))}
   return shuffle(out).slice(0,count).map(q=>q.id)}
 
+const TC_PER_TEAM=[3,5,8,10];
+const tcTurn=g=>g.idx%g.teams.length;
+const tcTotal=g=>g.count*g.teams.length;
+
 function tcClearTimer(){if(ui.tc.timerId){clearInterval(ui.tc.timerId);ui.tc.timerId=null}}
 function tcStartTimer(){
   tcClearTimer();ui.tc.timeLeft=TC_SECONDS;
   ui.tc.timerId=setInterval(()=>{
     ui.tc.timeLeft--;
-    const el=$('#tcTimer');
-    if(el){el.textContent='⏱ '+ui.tc.timeLeft+'s';el.classList.toggle('low',ui.tc.timeLeft<=5)}
-    if(ui.tc.timeLeft<=0){tcClearTimer();if(!ui.tc.revealed){tcReveal();render()}}
+    const el=$('#tcTimer'),bar=$('#tcBar');
+    if(el){el.textContent='⏱ '+Math.max(0,ui.tc.timeLeft)+'s';el.classList.toggle('low',ui.tc.timeLeft<=5)}
+    if(bar)bar.style.width=Math.max(0,ui.tc.timeLeft)/TC_SECONDS*100+'%';
+    if(ui.tc.timeLeft<=0){tcClearTimer();if(!ui.tc.revealed){tcAnswer(null);render()}}
   },1000)}
 
 function tcStart(){
   const g=ui.tc;
-  g.teams.forEach(t=>t.score=0);
-  g.order=tcBuildOrder(g.diff,g.count,g.topic||'mixed');g.qs=g.order.map(id=>mcShuffleQ(MC_QUESTIONS.find(x=>x.id===id)));g.idx=0;g.picks={};g.revealed=false;g.justScored=[];g.phase='play';
+  if(!TC_PER_TEAM.includes(g.count))g.count=5;
+  g.teams.forEach(t=>{t.score=0;t.correct=0;t.answered=0});
+  g.order=tcBuildOrder(g.diff,tcTotal(g),g.topic||'mixed');
+  g.qs=g.order.map(id=>mcShuffleQ(MC_QUESTIONS.find(x=>x.id===id)));
+  g.idx=0;g.picked=null;g.lastOk=false;g.timedOut=false;g.revealed=false;g.justScored=[];g.phase='play';
   tcStartTimer()}
 
-function tcReveal(){
+/* The active team's answer (oi = option index, or null when time ran out). Only that team can score. */
+function tcAnswer(oi){
   const g=ui.tc;if(g.revealed)return;tcClearTimer();g.revealed=true;
-  const q=g.qs[g.idx];g.justScored=[];
-  g.teams.forEach((t,i)=>{if(g.picks[i]===q.correct){t.score+=10;g.justScored.push(i)}});
-  sndPlay(g.justScored.length?'correct':'wrong')}
+  const q=g.qs[g.idx],ti=tcTurn(g),t=g.teams[ti];
+  g.picked=oi;g.timedOut=oi===null;g.lastOk=oi===q.correct;g.justScored=[];t.answered=(t.answered||0)+1;
+  if(g.lastOk){t.score+=10;t.correct=(t.correct||0)+1;g.justScored=[ti]}
+  sndPlay(g.timedOut?'tc-timeup':g.lastOk?'tc-correct':'tc-wrong')}
 
 function tcNextRound(){
   const g=ui.tc;g.justScored=[];
-  if(g.idx+1<g.order.length){g.idx++;g.picks={};g.revealed=false;tcStartTimer()}
+  if(g.idx+1<g.order.length){g.idx++;g.picked=null;g.lastOk=false;g.timedOut=false;g.revealed=false;tcStartTimer();sndPlay('tc-turn')}
   else{tcClearTimer();g.phase='done';
-    S.competitions.push({ts:Date.now(),mode:g.mode,questionCount:g.order.length,difficulty:g.diff,topic:g.topic||'mixed',results:g.teams.map(t=>({name:t.name,score:t.score}))});
+    S.competitions.push({ts:Date.now(),mode:g.mode,questionCount:g.order.length,perTeam:g.count,difficulty:g.diff,topic:g.topic||'mixed',results:g.teams.map(t=>({name:t.name,score:t.score}))});
     queueResult('competition',g.diff,{mode:g.mode,diff:g.diff,topic:g.topic||'mixed',questions:g.order.length,scores:g.teams.map(t=>t.score)});
     g.newBadge=(g.mode>=2&&awardBadge('team-player'))?'team-player':null;
     persistNow();sndPlay(g.newBadge?'achievement':'complete')}}
@@ -1914,11 +1930,11 @@ function viewCompetition(){
   return tcSetupHTML()}
 
 function tcAvailNote(g){
-  const tp=tcTopics(g.topic||'mixed'),all=qPool(tp).length,diff=qPool(tp,g.diff).length;
-  return `Question bank for this choice: ${all} questions (${diff} at this difficulty). Questions do not repeat until the bank has been used. ${g.count>diff?'Some extra questions from other difficulties will be added to reach '+g.count+'.':''}`}
+  const tp=tcTopics(g.topic||'mixed'),all=qPool(tp).length,diff=qPool(tp,g.diff).length,total=tcTotal(g);
+  return `${g.teams.length>1?`${g.teams.length} teams × ${g.count} questions = ${total} questions in total. `:''}Question bank for this choice: ${all} questions (${diff} at this difficulty). Questions do not repeat until the bank has been used. ${total>diff?'Some extra questions from other difficulties will be added.':''}`}
 function tcSetupHTML(){
   const g=ui.tc;
-  return `<div class="page"><div class="game-head"><div><h1>🏆 Team Competition</h1><p class="muted" style="margin:0">A simple classroom quiz. One screen, the teacher clicks the answers each team calls out.</p></div>${sndToggleBtn()}</div>
+  return `<div class="page"><div class="game-head"><div><h1>🏆 Team Competition</h1><p class="muted" style="margin:0">A classroom quiz on one screen. Teams play in turns: each question goes to one team, which answers and scores on its own.</p></div>${sndToggleBtn()}</div>
   <div class="tc-setup">
    <div><h3 style="margin-bottom:8px">Who is playing?</h3>
     <div class="tc-choice" role="group" aria-label="Number of teams">
@@ -1930,8 +1946,8 @@ function tcSetupHTML(){
    ${g.mode>1?`<div><h3 style="margin-bottom:8px">Team names</h3><div class="tc-teams">${g.teams.map((t,i)=>`<label><span class="tc-swatch" style="background:${TC_COLORS[i]}"></span><input type="text" value="${esc(t.name)}" data-team="${i}" maxlength="24" aria-label="Name for team ${i+1}"></label>`).join('')}</div></div>`:''}
    <div><h3 style="margin-bottom:8px">Topic</h3>
     <div class="tc-choice" role="group" aria-label="Topic">${TC_TOPICS.map(([k,ic,l])=>`<button data-act="tc-topic" data-topic="${k}" aria-pressed="${(g.topic||'mixed')===k}">${ic} ${l}</button>`).join('')}</div></div>
-   <div><h3 style="margin-bottom:8px">Number of questions</h3>
-    <div class="tc-choice" role="group" aria-label="Number of questions">${[5,10,15,20].map(n=>`<button data-act="tc-count" data-n="${n}" aria-pressed="${g.count===n}">${n}</button>`).join('')}</div>
+   <div><h3 style="margin-bottom:8px">Questions per team</h3>
+    <div class="tc-choice" role="group" aria-label="Questions per team">${TC_PER_TEAM.map(n=>`<button data-act="tc-count" data-n="${n}" aria-pressed="${g.count===n}">${n}</button>`).join('')}</div>
     <p class="tiny dim" style="margin-top:6px">${tcAvailNote(g)}</p></div>
    <div><h3 style="margin-bottom:8px">Difficulty</h3>
     <div class="tc-choice" role="group" aria-label="Difficulty">
@@ -1939,23 +1955,28 @@ function tcSetupHTML(){
      <button data-act="tc-diff" data-diff="medium" aria-pressed="${g.diff==='medium'}">🟡 Medium</button>
      <button data-act="tc-diff" data-diff="advanced" aria-pressed="${g.diff==='advanced'}">🔴 Advanced</button>
     </div></div>
-   <div><button class="btn" data-act="tc-start" style="min-height:52px;padding:0 28px;font-size:1.05rem">Start Competition</button></div>
+   <div><p class="tiny dim" style="margin:0 0 8px">Each question has a ${TC_SECONDS}-second countdown. A correct answer scores 10 points for the team whose turn it is.</p><button class="btn" data-act="tc-start" style="min-height:52px;padding:0 28px;font-size:1.05rem">Start Competition</button></div>
   </div></div>`}
 
 function tcPlayHTML(){
-  const g=ui.tc,q=g.qs[g.idx],letters=['A','B','C','D'];
+  const g=ui.tc,q=g.qs[g.idx],letters=['A','B','C','D'],n=g.teams.length,ti=tcTurn(g),team=g.teams[ti],nextTeam=g.teams[(g.idx+1)%n],last=g.idx+1>=g.order.length;
+  const round=Math.floor(g.idx/n)+1,pctLeft=Math.max(0,g.timeLeft)/TC_SECONDS*100;
+  const optCls=oi=>{if(!g.revealed)return'';if(oi===q.correct)return 'correct'+(g.picked===oi?' pop':'');if(g.picked===oi)return 'wrong shake';return 'dim'};
+  const verdict=!g.revealed?'':g.timedOut
+    ?`<div class="tc-verdict late" role="status"><span class="vi" aria-hidden="true">⏰</span><div><b>Time's up!</b> No points this turn. The correct answer is <b>${letters[q.correct]}</b>.<span>${esc(q.explain)}</span></div></div>`
+    :g.lastOk
+    ?`<div class="tc-verdict ok" role="status"><span class="vi" aria-hidden="true">✅</span><div><b>Correct! +10 for ${esc(team.name)}</b><span>${esc(q.explain)}</span></div></div>`
+    :`<div class="tc-verdict bad" role="status"><span class="vi" aria-hidden="true">❌</span><div><b>Not correct.</b> The right answer is <b>${letters[q.correct]}</b>.<span>${esc(q.explain)}</span></div></div>`;
   return `<div class="page"><div class="game-head"><h1>🏆 Team Competition</h1>${sndToggleBtn()}</div>
-  <div class="tc-round"><b>ROUND ${g.idx+1} / ${g.order.length}</b><span class="tc-timer ${g.timeLeft<=5?'low':''}" id="tcTimer">⏱ ${g.timeLeft}s</span></div>
-  <div class="tc-board">${g.teams.map((t,i)=>`<div class="tc-team" style="--tc:${TC_COLORS[i%4]}"><div class="nm">${esc(t.name)}</div><div class="sc ${g.justScored&&g.justScored.includes(i)?'bump':''}">⭐ ${t.score}</div></div>`).join('')}</div>
-  <div class="mc-card">
+  <div class="tc-round"><b>ROUND ${round} / ${g.count}${n>1?` · QUESTION ${g.idx+1} / ${g.order.length}`:''}</b><span class="tc-timer ${g.timeLeft<=5&&!g.revealed?'low':''}" id="tcTimer">⏱ ${Math.max(0,g.timeLeft)}s</span></div>
+  <div class="tc-timebar" aria-hidden="true"><i id="tcBar" style="width:${g.revealed?pctLeft:pctLeft}%"></i></div>
+  <div class="tc-board">${g.teams.map((t,i)=>`<div class="tc-team ${i===ti?'turn':''}" style="--tc:${TC_COLORS[i%4]}"><div class="nm">${esc(t.name)}${i===ti&&n>1?' <span class="now">PLAYING</span>':''}</div><div class="sc ${g.justScored&&g.justScored.includes(i)?'bump':''}">⭐ ${t.score}${g.justScored&&g.justScored.includes(i)?'<span class="tc-float" aria-hidden="true">+10</span>':''}</div><div class="sub">${t.correct||0} / ${t.answered||0} correct</div></div>`).join('')}</div>
+  <div class="tc-turnbanner" style="--tc:${TC_COLORS[ti%4]}"><span aria-hidden="true">🎯</span> <b>${esc(team.name)}</b>${n>1?'<span>, your question</span>':''}</div>
+  <div class="mc-card tc-q">
    <p class="mc-scenario">${esc(q.q)}</p>
-   <div class="tc-options" role="list" aria-label="Answer options">${q.options.map((o,oi)=>`<div class="tc-option ${g.revealed&&oi===q.correct?'correct':''}"><b>${letters[oi]}</b><span>${esc(o)}</span></div>`).join('')}</div>
-   <p class="tc-picks-label">Which answer did each team choose?</p>
-   <div class="tc-picks">${g.teams.map((t,i)=>`<div class="tc-pick-row"><span class="tn" style="color:${TC_COLORS[i%4]}">${esc(t.name)}</span><span class="opts">${q.options.map((o,oi)=>{let cls='';if(g.revealed){if(oi===q.correct)cls='correct';else if(g.picks[i]===oi)cls='wrong'}
-      return `<button class="${cls}" data-act="tc-pick" data-t="${i}" data-o="${oi}" aria-pressed="${g.picks[i]===oi}" ${g.revealed?'disabled':''} aria-label="${esc(t.name)}: option ${letters[oi]}, ${esc(o)}">${letters[oi]}</button>`}).join('')}</span></div>`).join('')}</div>
-   ${!g.revealed?`<div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="tc-reveal">Reveal answer</button></div>`
-    :`<div class="mc-explain g"><b>Correct answer: ${letters[q.correct]}</b>${esc(q.explain)}</div>
-      <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="tc-next">${g.idx+1<g.order.length?'Next round':'See final results'}</button></div>`}
+   <div class="tc-options tc-answers" role="group" aria-label="Answer options for ${esc(team.name)}">${q.options.map((o,oi)=>`<button type="button" class="tc-option ${optCls(oi)}" data-act="tc-answer" data-o="${oi}" ${g.revealed?'disabled':''} aria-label="Option ${letters[oi]}: ${esc(o)}"><b>${letters[oi]}</b><span>${esc(o)}</span></button>`).join('')}</div>
+   ${!g.revealed?`<p class="tc-hint tiny dim">Tap the answer ${esc(team.name)} chooses. It is marked immediately.</p>`
+    :`${verdict}<div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn" data-act="tc-next">${last?'See final results':n>1?`Next: ${esc(nextTeam.name)} ▶`:'Next question ▶'}</button></div>`}
   </div></div>`}
 
 function tcDoneHTML(){
@@ -1963,7 +1984,7 @@ function tcDoneHTML(){
   return `<div class="page"><div class="mc-card tc-final" style="max-width:520px;margin:0 auto">
    <div style="font-size:2.6rem" aria-hidden="true">🏆</div>
    <h2>Competition Complete!</h2>
-   <div class="tc-podium">${ranked.map((t,i)=>`<div class="${i===0&&ranked.length>1?'first':''}">${i===0&&ranked.length>1?'🏆 ':''}${esc(t.name)}<span>⭐ ${t.score}</span></div>`).join('')}</div>
+   <div class="tc-podium">${ranked.map((t,i)=>`<div class="${i===0&&ranked.length>1&&t.score>ranked[ranked.length-1].score?'first':''}">${i===0&&ranked.length>1&&t.score>ranked[ranked.length-1].score?'🏆 ':''}${esc(t.name)}<span>⭐ ${t.score}</span><small class="tc-sub">${t.correct||0} / ${t.answered||0} correct</small></div>`).join('')}</div>
    ${g.newBadge?`<div class="badge-row" style="justify-content:center">${badgeHTML(g.newBadge,true)}</div>`:''}
    <p class="muted">Great effort! Every challenge helps you learn — keep thinking and keep practising.</p>
    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" data-act="tc-restart">Play again</button><button class="btn quiet" data-go="home">Back to home</button></div>
@@ -2155,10 +2176,9 @@ document.addEventListener('click',async e=>{
    case 'tc-diff':ui.tc.diff=el.dataset.diff;render(true);break;
    case 'tc-topic':ui.tc.topic=el.dataset.topic;render(true);break;
    case 'tc-start':tcStart();sndPlay('start');render();break;
-   case 'tc-pick':{const ti=+el.dataset.t,oi=+el.dataset.o,g=ui.tc;if(g.revealed)break;g.picks[ti]=oi;render(true);break}
-   case 'tc-reveal':tcReveal();render();break;
+   case 'tc-answer':{const g=ui.tc;if(g.revealed)break;tcAnswer(+el.dataset.o);render();if(g.lastOk)celebrate();break}
    case 'tc-next':tcNextRound();render();break;
-   case 'tc-restart':ui.tc={phase:'setup',mode:1,teams:[{name:'You',score:0}],count:10,diff:'easy',topic:'mixed'};render();break;
+   case 'tc-restart':ui.tc={phase:'setup',mode:1,teams:[{name:'You',score:0}],count:5,diff:'easy',topic:'mixed'};render();break;
    /* --- records, data --- */
    case 'sample':{const x=createSample();ui.assessId=x.id;toast('Sample record loaded. It is labelled SAMPLE.');render(true);break}
    case 'export':doExport(el.dataset.kind,el.dataset.id||null);break;
