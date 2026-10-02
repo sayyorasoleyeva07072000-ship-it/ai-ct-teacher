@@ -1,139 +1,88 @@
-# AI-CT TEACHER — secure server (Cloudflare Worker)
+# AI-CT TEACHER — secure server (one Cloudflare Worker, Gemini only)
 
-> **This folder is the BACKEND. It is deployed to Cloudflare, never uploaded to GitHub Pages.** The website (frontend) is the other package.
+> This folder is the BACKEND. It is deployed to Cloudflare, never uploaded to GitHub Pages.
 
-One small server gives the site two optional abilities, switched on by one setting:
+The Worker has two routes and nothing else:
 
-- **Live AI (Gemini)** in the Consult stage.
-- **Classes**: a teacher creates a class and a join link, students join, and the teacher sees their scores.
-
-**Honest status.** All of the server's logic is tested here: the Worker code runs against a mocked Google API and a real SQLite database (`node tests/worker.test.mjs`, `node tests/classes.test.mjs`), and the whole app was tested end to end against it (a teacher and several students in separate browsers). It has **not** been deployed to Cloudflare and has **not** been called against the real Gemini API, because the place it was built had no internet access and no key. Do the checks in step 6 after you deploy.
+- `GET /api/health` tells the website whether the Gemini key is set.
+- `POST /api/ai` answers the 6C **Consult** stage and the free **AI Chat** page through Gemini.
 
 ```
-Student/teacher browser (GitHub Pages)  --HTTPS-->  Cloudflare Worker  -->  Gemini API   (key = Worker secret)
-                                                                       -->  D1 database  (classes, scores)
+Browser (GitHub Pages)  --HTTPS-->  Cloudflare Worker  --HTTPS, key in a header-->  Gemini API
 ```
 
-## What is stored, and what is not
+The Gemini key is a Worker **secret**. It is never in a file, in GitHub, in the web page or in `localStorage`; students never enter a key. Only the origins in `common.js` (`ALLOWED_ORIGINS`) may call the Worker; opening its address directly in a browser shows `{"error":"origin_not_allowed"}`, which is expected.
 
-- Stored on the server: class name, a **display name** (can be a nickname) for each student, and **scores only**: task id, level in each of the six stages, totals, XP, decision (accept/modify/reject), game results.
-- **Never sent or stored:** the text students write (answers, reasons, reflections), their prompts, or the AI answers. Those stay on the student's own device.
-- The Gemini key and the teacher/student secrets are never in the web page. Teacher keys and student tokens are stored on the server only as SHA-256 hashes. A teacher key is shown once, when the class is created.
-- A student can leave a class at any time (their results are deleted). A teacher can remove a student or delete the whole class.
+**Honest status:** the logic is tested locally against a mocked Google API (`node tests/worker.test.mjs`). It has **not** been called against the real Gemini API by the author of this package. Run step 4 on your computer.
 
-## 1. What you need
-
-A free Cloudflare account, Node.js on your computer, and (for live AI) a Gemini API key from Google AI Studio. Check Google's and Cloudflare's current terms, quotas and data-use rules before using real student names.
-
-## 2. Install Wrangler and deploy
+## 1. Deploy (Command Prompt "cmd", not PowerShell)
 
 ```
-npm install -g wrangler
-wrangler login
-cd backend/cloudflare-worker
-wrangler deploy
+cd backend\cloudflare-worker
+npx wrangler login
+npx wrangler deploy
 ```
 
-Wrangler prints an address like `https://ai-ct-teacher-api.YOUR-SUBDOMAIN.workers.dev`. This is your **API address**.
+The Worker name in `wrangler.toml` is `ai-ct-teacher-ai`, so the address is `https://ai-ct-teacher-ai.ai-ct-teacher-api.workers.dev`. This is the one address the website uses (`API_BASE` in `app/js/app.js`).
 
-## 3. Live AI with your Gemini key (optional)
+If your Worker still has a database attached from an earlier version, this deploy removes that attachment: the website no longer needs one. Accept if Wrangler asks. Nothing new is created.
 
-You already have a key in Google AI Studio. It goes to the server in exactly one way, typed into Wrangler on your own computer:
+## 2. The Gemini key (secret, belongs to this Worker)
 
 ```
-cd backend/cloudflare-worker
-wrangler secret put GEMINI_API_KEY
+npx wrangler secret put GEMINI_API_KEY
 ```
 
-Paste the key when Wrangler asks. Cloudflare stores it as a secret named `GEMINI_API_KEY`; the Worker reads it as `env.GEMINI_API_KEY`. It is **never** in a file, in this package, in GitHub, in the web page or in `localStorage`, and students never enter a key. Never send the key to anyone, including in a chat.
+Paste the key when asked (nothing is shown while you paste). Secrets belong to each Worker separately, so if the AI says "demonstration" after you switch Workers, run this command for `ai-ct-teacher-ai`. Never send the key to anyone, including in a chat.
 
-**How the Worker calls Gemini:** `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` with the key in the `x-goog-api-key` header, a fixed system prompt, and the official structured-output settings (`responseMimeType: application/json` with a `responseSchema`), so Gemini returns exactly `response`, `claims_to_check`, `possible_assumptions`, `uncertainty`, `follow_up_question`. The frontend only ever calls the Worker's `/api/ai`.
+Models: the Worker tries `gemini-3.8-flash`, then `gemini-3.6-flash`, then `gemini-2.5-flash`, moving on only when Google answers 404 (model not found). To put your own model first, add a plain variable `GEMINI_MODEL` in the Cloudflare dashboard. The names come from Google's documentation and have not been run against a live key by the author of this package.
 
-**Models.** Google's model page (read on 2026-10-01) recommends Gemini 3.8 Flash for new projects and announces Gemini 2.5 Flash for shutdown. The Worker tries `gemini-3.8-flash`, then `gemini-3.6-flash`, then `gemini-2.5-flash`, moving to the next only when Google answers 404 (model not found). To put your own model first, add a plain variable `GEMINI_MODEL` (Cloudflare dashboard > Worker > Settings > Variables). These names come from Google's documentation; they have not been run against a live key by the author of this package.
+## 3. Check it
 
-### 3b. Test your real key on your computer (needs Node.js 22+)
+```
+curl -s https://ai-ct-teacher-ai.ai-ct-teacher-api.workers.dev/api/health -H "Origin: https://sssprojectai.github.io"
+```
 
-This runs the same Worker code against the **real** Gemini API and checks the structured answer. The key is read only from an environment variable you set in your own terminal, and is not written to any file:
+You should see `{"ok":true,"ai":true}`. `"ai":false` means the secret is not set (step 2). Then open the website, start a task, go to Consult, or open AI Chat.
+
+## 4. Test your real key on your computer (Node.js 22+)
 
 ```
 # macOS / Linux
 GEMINI_API_KEY="paste-your-key" node tests/live-gemini-check.mjs
-
-# Windows PowerShell
-$env:GEMINI_API_KEY="paste-your-key"; node tests/live-gemini-check.mjs
+# Windows (cmd)
+set GEMINI_API_KEY=paste-your-key
+node tests/live-gemini-check.mjs
 ```
 
-Without a key it prints `NOT TESTED — REQUIRES LIVE GEMINI KEY`. With a key it prints PASS/FAIL lines, the first part of the answer, and a hint if Google rejects the call (403 key or API access, 404 model, 429 quota). It exits with code 0 only if live Gemini answered with all five fields.
+It runs the same Worker code against the real Gemini API and checks the structured answer. Without a key it prints `NOT TESTED — REQUIRES LIVE GEMINI KEY`.
 
-For `wrangler dev` (running the Worker locally) put `GEMINI_API_KEY=...` in a file named `.dev.vars` inside `backend/cloudflare-worker/`. That file is listed in `.gitignore` and must never be committed or zipped.
+## 5. If something fails
 
-## 4. Classes (optional): ONE command
-
-The class database (Cloudflare D1) is created and connected by `wrangler deploy` itself, and the Worker creates its own tables the first time it is used. So the only step is to deploy again with this folder's `wrangler.toml` (it contains the `[[d1_databases]]` block):
-
-```
-npm install -g wrangler@latest
-cd backend/cloudflare-worker
-wrangler deploy
-```
-
-Answer **y** if Wrangler asks whether it may create the D1 database `ai-ct-teacher-db` and bind it as `DB`. Your Gemini secret and dashboard variables stay as they are. When it finishes, open the website's Teacher page and press Ctrl+F5: the "Sinf yaratish" card becomes active. (Wrangler older than 4.45 cannot auto-create it: update with the first command, or create the database by hand with `wrangler d1 create ai-ct-teacher-db`, paste its `database_id` into the `[[d1_databases]]` block, and run `wrangler d1 execute ai-ct-teacher-db --remote --file=schema.sql`.)
-
-## 5. Connect the website (one line)
-
-Open `app/js/app.js`, find
-
-```js
-const API_BASE='';
-```
-
-and put your API address between the quotes, for example `const API_BASE='https://ai-ct-teacher-api.YOUR-SUBDOMAIN.workers.dev';`. Commit and push with GitHub Desktop. This is an address, not a secret.
-
-The site asks the server `GET /api/health`, which answers what is ready, for example `{"ok":true,"ai":true,"classes":true}`. If the Gemini key is set, the Consult stage switches to live Gemini by itself. If the database is connected, the Teacher dashboard and class joining switch on by themselves. You can connect AI now and classes later (or the other way round) without changing the website again. While `API_BASE` is empty, the site works fully on its own: demonstration AI answers (clearly labelled) and a Teacher page that explains classes.
-
-If your website address is not `https://sssprojectai.github.io`, add your exact origin to `ALLOWED_ORIGINS` in `common.js` and run `wrangler deploy` again.
-
-## 6. Check it works
-
-```
-curl -s https://YOUR-API-ADDRESS/api/health -H "Origin: https://sssprojectai.github.io"
-```
-
-You should see `"ai":true` and/or `"classes":true`. Then, on the real site:
-
-1. Open the Teacher page, create a class, copy the join link and the **teacher key** (save the key somewhere safe).
-2. Open the join link on a phone, write a name, join, and finish one task.
-3. On the Teacher page open the class: the student and the score should appear.
-4. In a task, press "Ask AI" in the Consult stage: the label should say "LIVE (Gemini, via server)".
-
-## 7. Try everything on your own computer, without internet
-
-```
-node tests/dev-server.mjs                   # real server code, in-memory SQLite database, MOCKED Gemini
-python3 -m http.server 8000                 # serve the site (in another terminal)
-```
-
-Set `const API_BASE='http://localhost:8790';` in `app/js/app.js` and open `http://localhost:8000/`. This is useful for a demonstration without internet; the AI answers are canned in this mode and nothing leaves your computer.
-
-## 8. If something fails
-
-| Message or sign | Meaning and fix |
+| Sign | Meaning and fix |
 |---|---|
-| Teacher page says the server cannot be reached | Wrong `API_BASE`, no internet, or the origin is not in `ALLOWED_ORIGINS` |
-| "Classes are not enabled on the server" | The D1 database is not connected: run `wrangler deploy` with this folder's `wrangler.toml` (step 4) |
-| Consult still says "Demonstration mode" | `GEMINI_API_KEY` secret is not set (step 3) |
-| `upstream_error` with 404 / 403 / 429 | Gemini: no model of the chain found for your key (set `GEMINI_MODEL`) / key or project problem / quota reached |
-| "The teacher key is not correct" | Use the exact key shown when the class was created. It cannot be recovered; create a new class if it is lost |
-| Student's results show "Waiting to send" | No connection; they are sent automatically later, without duplicates |
+| Consult says "Demonstration mode" | `/api/health` answers `"ai":false`: set the secret for THIS Worker (step 2) |
+| "AI service is temporarily unavailable" | The website cannot reach `API_BASE`: check the address, the deploy, and that the origin is in `ALLOWED_ORIGINS` |
+| `upstream_error` with status 404 | No model of the chain exists for your key: set `GEMINI_MODEL` |
+| `upstream_error` with 403 | Gemini rejected the key, or the Generative Language API is not enabled for that Google project |
+| `upstream_error` with 503 or 429 | Gemini was overloaded or over quota for every model, even after the Worker's automatic retries. Wait a minute and try again; if it persists, check quota in Google AI Studio |
+| "AI is busy" | More than 8 AI requests per minute from one network address (a soft limit; raise `RATE_LIMIT_PER_MINUTE` in `ai.js` for a large class on one network) |
 
-## 9. Limits of this prototype
+## 6. Diagnosing Gemini errors
 
-The rate limits (a few classes per hour, 8 AI questions per minute per IP) use Cloudflare's cache and are soft limits. A class holds at most 80 students. There are no teacher accounts or passwords: whoever has the class code **and** the teacher key can see the class. If a Gemini key ever leaks, delete it in Google AI Studio, create a new one and run `wrangler secret put GEMINI_API_KEY` again.
+Run `npx wrangler tail` in this folder while you send a message. For every failed Gemini attempt the Worker logs one line such as
+`[ai] model=gemini-3.8-flash status=503 message=The model is overloaded...`. It logs the model, the status and Google's short message only: never the key, headers or the student's text. The browser receives `{"error":"upstream_error","status":503,"tried":[...]}` with the models it tried.
 
-## 10. Local tests
+What the Worker does automatically: 503, 429, 500, 502 and 504 are retried twice on the same model (after 0.6 s and 1.8 s); 400, 403 and 404 skip straight to the next model; the whole chain stops after 20 seconds so the page never hangs.
+
+## 7. Limits
+
+The rate limit uses Cloudflare's cache and is a soft limit. Set a spending or quota limit on your Gemini key.
+
+## 8. Local tests
 
 ```
-node tests/worker.test.mjs      # AI route (mocked Google)
-node tests/live-gemini-check.mjs   # REAL Gemini, needs your key in an environment variable (see 3b)
-node tests/classes.test.mjs     # class routes against a real SQLite database
+node tests/worker.test.mjs      # health, CORS, AI route, chat mode (mocked Google)
+node tests/live-gemini-check.mjs
+node tests/dev-server.mjs       # local API with a MOCKED Gemini (port 8790)
 ```

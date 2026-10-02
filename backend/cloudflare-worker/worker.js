@@ -1,26 +1,20 @@
 /**
- * AI-CT TEACHER — secure serverless backend (Cloudflare Worker).
+ * AI-CT TEACHER — secure serverless backend (Cloudflare Worker). Gemini only.
  *
- *   GitHub Pages frontend  -->  this Worker  -->  Gemini API (AI)   and   D1 database (classes)
+ *   GitHub Pages frontend  -->  this Worker  -->  Gemini API
  *
- * One address serves both. GET /api/health tells the frontend what is ready
- * (the Gemini key is set? the class database is connected?), so connecting
- * either one later switches that feature on without any frontend change.
+ * Routes:  GET /api/health   tells the frontend whether the Gemini key is set
+ *          POST /api/ai      the 6C Consult stage and the free AI Chat page
  *
- * Secrets: GEMINI_API_KEY lives only as a Worker secret. It is never sent to
- * the browser, never stored in localStorage or GitHub, and students never enter it.
- *
- * Verification status (honest): the logic is tested locally against a mocked Google API
- * and a real SQLite database (tests/*.test.mjs). It has NOT been deployed to Cloudflare or
- * called against the real Gemini API from the environment that produced it (no internet).
+ * The Gemini key (GEMINI_API_KEY) lives only as a Worker secret. It is never sent to the browser,
+ * never stored in localStorage or GitHub, and students never enter it.
+ * Only the browser origins in common.js (ALLOWED_ORIGINS) may call this Worker.
  */
-import { ALLOWED_ORIGINS, corsHeaders, json, withDB } from './common.js';
+import { ALLOWED_ORIGINS, corsHeaders, json } from './common.js';
 import { handleAI } from './ai.js';
-import { handleClasses } from './classes.js';
 
 export default {
-  async fetch(request, env0) {
-    const env = withDB(env0);     // finds the D1 binding whatever it is called
+  async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
@@ -30,10 +24,9 @@ export default {
     try {
       if (path === '/api/health') {
         if (request.method !== 'GET') return json({ error: 'method_not_allowed' }, 405, cors);
-        return json({ ok: true, ai: !!(env && env.GEMINI_API_KEY), classes: !!(env && env.DB) }, 200, cors);
+        return json({ ok: true, ai: !!(env && env.GEMINI_API_KEY) }, 200, cors);
       }
       if (path === '/api/ai') return await handleAI(request, env, cors);
-      if (path === '/api/classes' || path.startsWith('/api/classes/')) return await handleClasses(request, env, cors, path);
       return json({ error: 'not_found' }, 404, cors);
     } catch (e) {
       // Never leak internals (or the key) in an error response.

@@ -1,12 +1,11 @@
-// Local API for testing and offline demos: the REAL Worker code + a REAL SQLite database (in memory).
+// Local API for testing and offline demos: the REAL Worker code (health + AI routes).
 // Gemini is MOCKED here (no internet, no key), so AI answers are canned. Nothing is sent anywhere.
-//   node tests/dev-server.mjs                 -> http://localhost:8790  (AI + classes)
-//   NO_AI=1 / NO_DB=1 / PORT=8791 / DEV_ORIGINS=http://localhost:8001   (options)
+//   node tests/dev-server.mjs                 -> http://localhost:8790  (Gemini routes)
+//   NO_AI=1 / PORT=8791 / DEV_ORIGINS=http://localhost:8001   (options)
 // Serve the site on port 8000 (python3 -m http.server 8000) and set API_BASE='http://localhost:8790' in app/js/app.js.
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { D1Shim } from './d1-shim.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dir = path.join(here, '..', 'backend', 'cloudflare-worker');
@@ -16,7 +15,6 @@ const common = await import(pathToFileURL(path.join(dir, 'common.js')).href);
 
 const PORT = +(process.env.PORT || 8790);
 const env = {};
-if (process.env.NO_DB !== '1') env[process.env.DB_BINDING || 'DB'] = new D1Shim({ schema: false });   // EMPTY database: the Worker creates its own tables, like a freshly created D1
 if (process.env.NO_AI !== '1') env.GEMINI_API_KEY = 'dev-only-not-a-real-key';
 
 const store = new Map();
@@ -25,6 +23,12 @@ const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, opts) => {
   if (String(url).includes('generativelanguage.googleapis.com')) {
     let userText = ''; try { userText = JSON.parse(opts.body).contents[0].parts[0].text; } catch { /* ignore */ }
+    const cq = userText.match(/Student's new message:\s*([\s\S]+)$/);
+    if (userText.startsWith('General chat with a student.') && cq) {
+      const earlier = (userText.match(/^(Student|Assistant): /gm) || []).length;
+      const outc = { response: `(mock chat) You wrote: "${cq[1].trim().slice(0, 200)}". I can see ${earlier} earlier message(s) in this conversation.\n\n- First point of a short list\n- **Second** point`, claims_to_check: [], possible_assumptions: [], uncertainty: '', follow_up_question: '' };
+      return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(outc) }] } }] }), { status: 200 });
+    }
     const fq = userText.match(/NEW QUESTION FROM THE STUDENT:\s*(.+)/);
     if (fq) {
       const earlier = (userText.match(/^AI: /gm) || []).length, said = (userText.match(/^Student: /gm) || []).length;
@@ -46,4 +50,4 @@ http.createServer(async (req, res) => {
     const r = await worker.fetch(new Request('http://localhost:' + PORT + req.url, { method: req.method, headers: req.headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : body }), env);
     res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer()));
   } catch (e) { res.writeHead(500); res.end('dev server error'); }
-}).listen(PORT, () => console.log(`AI-CT dev API on http://localhost:${PORT}  (AI: ${env.GEMINI_API_KEY ? 'mock Gemini' : 'off'}, classes: ${env.DB ? 'SQLite in memory' : 'off'})`));
+}).listen(PORT, () => console.log(`AI-CT dev API on http://localhost:${PORT}  (AI: ${env.GEMINI_API_KEY ? 'mock Gemini' : 'off'})`));
