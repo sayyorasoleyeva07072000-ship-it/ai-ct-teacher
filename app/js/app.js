@@ -1353,7 +1353,7 @@ const sPct=s=>pct(s.reduce((a,b)=>a+b,0),24);
    ===================================================================== */
 const curAttempt=()=>S.attempts[ui.params.attemptId];
 const MARK=`<span class="mark" aria-hidden="true"><span>AI<b>–</b>CT</span></span>`;
-const BUILD_ID='2026-10-02-e1';   /* shown in the menu footer and the browser console, so you can see which version is live */
+const BUILD_ID='2026-10-02-e2';   /* shown in the menu footer and the browser console, so you can see which version is live */
 try{console.info('AI-CT TEACHER build '+BUILD_ID)}catch(e){}
 const AUTHOR_NAME='SARVINOZ SOLEXONOVNA', INSTITUTION='Samarkand State Institute of Foreign Languages (SamDChTI)';
 const uzs=t=>t?`<p class="support-uz">${t}</p>`:'';
@@ -1746,7 +1746,7 @@ function mcDoneHTML(){
    two features share one source of truth instead of duplicating content.
    ===================================================================== */
 const TC_COLORS=['var(--primary)','var(--ai)','var(--warn)','var(--good)'];
-const TC_SECONDS=20;
+const TC_SECONDS=40;   /* seconds per question in Team Competition */
 
 function tcSetMode(n){
   const g=ui.tc,old=g.teams;
