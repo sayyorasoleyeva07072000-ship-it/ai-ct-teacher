@@ -35,7 +35,7 @@ An electronic methodological prototype that develops future English teachers' cr
 
 ### What is in the app
 
-- **Task library:** 32 tasks in 8 categories, each worked through the 6C cycle, with instant feedback and stage-by-stage indicators (level 1–4 per stage, total 6–24; learning-activity indicators, not a validated test).
+- **Task library:** 80 tasks in 8 categories (10 in each), each worked through the 6C cycle, with instant feedback and stage-by-stage indicators (level 1–4 per stage, total 6–24; learning-activity indicators, not a validated test).
 - **AI Chat:** a free, general conversation with Gemini about English, grammar, teaching or studies. It is separate from the 6C Consult stage and is not scored.
 - **Method Challenge** (75 questions) and **Team Competition** (156 questions; 5, 10 or 20 questions per team; 1–4 teams; 40-second timer).
 - **My progress:** profile (a name stored on the device), XP, streak, badges, history of records, JSON/CSV export.
@@ -47,7 +47,7 @@ An electronic methodological prototype that develops future English teachers' cr
 2. Copy them into your local clone of `sssprojectai/ai-ct-teacher`, replacing old files. Do not touch `.git` or the Search Console verification file.
 3. GitHub Desktop: **Commit to main**, then **Push origin**.
 4. github.com > repository > **Settings > Pages**: Source **Deploy from a branch**, branch **main**, folder **/ (root)**.
-5. Open https://sssprojectai.github.io/ai-ct-teacher/ and press Ctrl+F5. The menu footer shows the build id (for example `build 2026-10-02-e2`).
+5. Open https://sssprojectai.github.io/ai-ct-teacher/ and press Ctrl+F5. The menu footer shows the build id (for example `build 2026-10-02-e3`).
 
 ## Backend deployment (Cloudflare)
 
